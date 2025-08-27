@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from documents.src.api.documents import router as documents_router
+from documents.src.entrypoints.documents import router as documents_router
 
 
 router = APIRouter()

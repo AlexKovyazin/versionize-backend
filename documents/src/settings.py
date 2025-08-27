@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent.resolve()
     DEBUG: int = os.getenv("DEBUG", 0)
     LOCAL: int = os.getenv("LOCAL", 0)
+    IS_TEST: int = os.getenv("IS_TEST", 0)
     DB_URL: SecretStr = os.getenv("DB_URL", "sqlite:///documents/database.db")
 
 

@@ -10,7 +10,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-from documents.src.adapters.db.orm import Base
+from documents.src.adapters.orm import Base
 from documents.src.settings import settings
 
 config.set_main_option('sqlalchemy.url', settings.DB_URL.get_secret_value())

@@ -2,6 +2,7 @@ import enum
 
 
 class DocumentStatuses(enum.Enum):
+    NEW = "Новый"
     IN_WORK = "В работе"
     READY_FOR_UPLOAD = "Готово к загрузке"
     PRIMARY_REMARKS = "Первичные замечания"

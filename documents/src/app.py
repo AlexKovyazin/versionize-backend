@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from documents.src.api.router import router
+from documents.src.entrypoints.router import router
 
 app = FastAPI(
     title="Documents",
