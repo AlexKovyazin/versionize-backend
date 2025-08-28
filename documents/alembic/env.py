@@ -1,9 +1,8 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from alembic import context
 
 config = context.config
 
@@ -11,15 +10,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 from documents.src.adapters.orm import Base
-from documents.src.settings import settings
+from documents.src.config import get_db_url
 
-config.set_main_option('sqlalchemy.url', settings.DB_URL.get_secret_value())
+config.set_main_option('sqlalchemy.url', get_db_url(sync=True))
 target_metadata = Base.metadata
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
 
 
 def run_migrations_offline() -> None:

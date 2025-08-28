@@ -1,10 +1,9 @@
 import hashlib
 from uuid import UUID
-from sqlalchemy.orm import Session
-from documents.src.adapters.repository import DocumentsRepository, get_documents_repository
-from documents.src.domain.schemas import document
+
+from documents.src.adapters.repository import get_documents_repository
 from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentCreate
-from documents.src.service.uow import UnitOfWork, get_uow
+from documents.src.service.uow import UnitOfWork
 
 
 class DocumentService:
@@ -36,7 +35,7 @@ class DocumentService:
         )
         created_document = await self.document_repo.create(document_for_creation)
 
-        return DocumentOut(**created_document.model_dump())
+        return DocumentOut.model_validate(created_document)
 
     async def upload(self, md5_hash: str, file_content: bytes = None):
         """ Upload file to S3. """

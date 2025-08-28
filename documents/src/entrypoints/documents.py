@@ -8,11 +8,10 @@ router = APIRouter(tags=["Documents"])
 
 
 @router.post("", status_code=201, response_model=DocumentOut)
-async def create_document(data: DocumentIn, uow=Depends(get_uow)):
+async def create_document(data: DocumentIn, uow_factory=Depends(get_uow)):
     """ Create a new document in db and upload file to S3. """
 
-    async with uow() as uow:
-        # TODO НАХУЙ SQLITE, СТАВЬ PG СРАЗУ
+    async with uow_factory() as uow:
         document_service = DocumentService(uow)
         created_document = await document_service.create(data)
 
