@@ -1,12 +1,12 @@
-from documents.src.settings import settings
+from documents.src.adapters.repository import AbstractDocumentsRepository, DocumentsRepository
+from documents.src.service.uow import AbstractUnitOfWork, UnitOfWork
 
 
-def get_db_url(sync=False):
-    return (
-        f"postgresql{'' if sync else '+asyncpg'}://"
-        f"{settings.db_username.get_secret_value()}:"
-        f"{settings.db_password.get_secret_value()}@"
-        f"{settings.db_host.get_secret_value()}:"
-        f"{settings.db_port.get_secret_value()}/"
-        f"{settings.db_database.get_secret_value()}"
-    )
+def get_uow() -> type[AbstractUnitOfWork]:
+    """ Function for mock overriding within testing. """
+    return UnitOfWork
+
+
+def get_documents_repository(uow: AbstractUnitOfWork) -> AbstractDocumentsRepository:
+    """ Function for mock overriding within testing. """
+    return DocumentsRepository(uow)

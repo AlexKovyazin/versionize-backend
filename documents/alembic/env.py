@@ -10,9 +10,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 from documents.src.adapters.orm import Base
-from documents.src.config import get_db_url
+from documents.src.settings import settings
 
-config.set_main_option('sqlalchemy.url', get_db_url(sync=True))
+config.set_main_option('sqlalchemy.url', settings.sync_db_url)
 target_metadata = Base.metadata
 
 

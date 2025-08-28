@@ -1,10 +1,12 @@
+import abc
+
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
-from documents.src.config import get_db_url
 from documents.src.settings import settings
 
+
 async_engine = create_async_engine(
-    get_db_url(sync=False),
+    settings.async_db_url,
     future=True,
 )
 
@@ -15,7 +17,35 @@ ASYNC_SESSION_FACTORY = async_sessionmaker(
 )
 
 
-class UnitOfWork:
+class AbstractUnitOfWork(abc.ABC):
+    @abc.abstractmethod
+    async def __aenter__(self):
+        raise NotImplementedError
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        # TODO: need to add logging to exception catching
+        try:
+            if exc_type is None:
+                await self.commit()
+        finally:
+            await self.rollback()
+            await self.close()
+            self.session = None
+
+    @abc.abstractmethod
+    async def commit(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def rollback(self):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    async def close(self):
+        raise NotImplementedError
+
+
+class UnitOfWork(AbstractUnitOfWork):
     def __init__(self, session_factory=ASYNC_SESSION_FACTORY):
         # session_factory could be a mocked object that don't touch db
         self.session_factory = session_factory
@@ -26,26 +56,11 @@ class UnitOfWork:
             self.session = self.session_factory()
         return self
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        # Session wasn't initialized, possibly due to an error in __aenter__
-        if self.session is None:
-            return
+    async def commit(self):
+        await self.session.commit()
 
-        # TODO: need to add logging to exception catching
-        try:
-            if exc_type is None:
-                await self.session.commit()
-            else:
-                await self.session.rollback()
-        except Exception as e:
-            await self.session.rollback()
-        finally:
-            await self.session.close()
-            self.session = None
+    async def rollback(self):
+        await self.session.rollback()
 
-
-def get_uow() -> type[UnitOfWork]:
-    if settings.is_test:
-        # TODO: return mocked uow
-        pass
-    return UnitOfWork
+    async def close(self):
+        await self.session.close()

@@ -20,5 +20,23 @@ class Settings(BaseSettings):
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
 
+    @property
+    def async_db_url(self):
+        return self._get_db_url(sync=False)
+
+    @property
+    def sync_db_url(self):
+        return self._get_db_url(sync=True)
+
+    def _get_db_url(self, sync=False):
+        return (
+            f"postgresql{'' if sync else '+asyncpg'}://"
+            f"{self.db_username.get_secret_value()}:"
+            f"{self.db_password.get_secret_value()}@"
+            f"{self.db_host.get_secret_value()}:"
+            f"{self.db_port.get_secret_value()}/"
+            f"{self.db_database.get_secret_value()}"
+        )
+
 
 settings = Settings()

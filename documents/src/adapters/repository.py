@@ -1,16 +1,27 @@
+import abc
 from uuid import UUID
 
 from sqlalchemy import select
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.domain.schemas.document import DocumentCreate
-from documents.src.service.uow import UnitOfWork
-from documents.src.settings import settings
+from documents.src.service.uow import AbstractUnitOfWork
 
 
-class DocumentsRepository:
-    def __init__(self, uow: UnitOfWork):
+class AbstractDocumentsRepository(abc.ABC):
+    def __init__(self, uow: AbstractUnitOfWork):
         self.uow = uow
+
+    @abc.abstractmethod
+    async def get_latest(self, section_id: UUID) -> OrmDocument | None:
+        ...
+
+    @abc.abstractmethod
+    async def create(self, document: DocumentCreate) -> OrmDocument:
+        ...
+
+
+class DocumentsRepository(AbstractDocumentsRepository):
 
     async def get_latest(self, section_id: UUID) -> OrmDocument | None:
         """ Get latest document of specified section if it exists. """
@@ -34,12 +45,3 @@ class DocumentsRepository:
         await self.uow.session.flush()
 
         return db_document
-
-
-def get_documents_repository(uow) -> DocumentsRepository:
-    """ Get documents repository or mocked repository for tests. """
-
-    if settings.is_test:
-        # TODO: return mocked repo
-        pass
-    return DocumentsRepository(uow)
