@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  documents_db:
+    container_name: documents_db
+    image: postgres:17.6
+    volumes:
+      - documents_db_data:/var/lib/postgresql/data
+    ports:
+      - "5601:5432"
+    env_file:
+      - documents/.env
+
+volumes:
+  documents_db_data:
