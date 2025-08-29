@@ -1,7 +1,9 @@
-from uuid import UUID
+from uuid import UUID, uuid4
+from datetime import datetime
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.adapters.repository import AbstractDocumentsRepository
+from documents.src.domain.schemas.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 
 
@@ -16,7 +18,11 @@ class FakeDocumentsRepository(AbstractDocumentsRepository):
         docs = [d for d in self.documents if d.section_id == section_id]
         return max(docs, key=lambda x: x.created_at, default=None)
 
-    async def create(self, document_data: dict) -> OrmDocument:
-        document = OrmDocument(**document_data)
+    async def create(self, document: DocumentCreate) -> OrmDocument:
+        document = OrmDocument(
+            **document.model_dump(),
+            id=uuid4(),
+            created_at=datetime.now()
+        )
         self.documents.append(document)
         return document

@@ -13,7 +13,7 @@ class DocumentIn(BaseModel):
 
     name: str
     note: str | None
-    status: DocumentStatuses | None
+    status: DocumentStatuses | None = None
     company_id: UUID
     project_id: UUID
     section_id: UUID
