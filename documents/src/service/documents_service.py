@@ -32,7 +32,8 @@ class DocumentService(AbstractDocumentService):
     async def create(
             self,
             document_in: DocumentIn,
-            file_content: bytes = None
+            file_content: bytes = None,
+            raise_variation=False
     ) -> DocumentOut:
         """
         Creates a new document with business logic:
@@ -41,14 +42,19 @@ class DocumentService(AbstractDocumentService):
         - Version management
         - Variation management
         - DB inserting
+
+        raise_variation flag used when document is examining by expert.
+        If set to True - variation number of new versions will be increased.
         """
 
         md5_hash = hashlib.md5().hexdigest()  # TODO: Generate real MD5 hash
         await self.upload(md5_hash, file_content)
 
         latest_document = await self.repository.get_latest(document_in.section_id)
-        version = latest_document.version + 1 if latest_document else 0
-        variation = latest_document.variation + 1 if latest_document else 1
+        version = latest_document.version + 1 if latest_document else 1
+        variation = 0
+        if raise_variation:
+            variation = latest_document.variation + 1 if latest_document else 0
 
         document_for_creation = DocumentCreate(
             **document_in.model_dump(),
