@@ -11,12 +11,12 @@ async def test_document_creation(fake_documents_service):
     Checking that all manually set attributes are correct.
     """
 
-    name = "Test Document",
-    note = "Test note",
-    company_id = str(uuid.uuid4()),
-    project_id = str(uuid.uuid4()),
-    section_id = str(uuid.uuid4()),
-    responsible_id = str(uuid.uuid4()),
+    name = "Test Document"
+    note = "Test note"
+    company_id = uuid.uuid4()
+    project_id = uuid.uuid4()
+    section_id = uuid.uuid4()
+    responsible_id = uuid.uuid4()
 
     data = create_document_in_data(
         name=name,
@@ -28,7 +28,8 @@ async def test_document_creation(fake_documents_service):
     )
 
     document = await fake_documents_service.create(
-        DocumentIn(**data)
+        DocumentIn(**data),
+        file_content=b"test",
     )
 
     # check attrs that was set manually
@@ -67,10 +68,12 @@ async def test_document_versions(fake_documents_service):
     first_document = await fake_documents_service.create(
         DocumentIn(**first_variation_data),
         raise_variation=False,
+        file_content=b"test1",
     )
     second_document = await fake_documents_service.create(
         DocumentIn(**second_variation_data),
         raise_variation=False,
+        file_content=b"test2",
     )
 
     assert first_document.version == 1
@@ -101,10 +104,12 @@ async def test_document_variations(fake_documents_service):
     first_document = await fake_documents_service.create(
         DocumentIn(**first_variation_data),
         raise_variation=True,
+        file_content=b"test1",
     )
     second_document = await fake_documents_service.create(
         DocumentIn(**second_variation_data),
         raise_variation=True,
+        file_content=b"test2",
     )
 
     assert first_document.version == 1

@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     db_password: SecretStr = os.getenv("POSTGRES_PASSWORD")
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
+    s3_endpoint: SecretStr = os.getenv("S3_ENDPOINT")
+    s3_access_key: SecretStr = os.getenv("S3_ACCESS_KEY")
+    s3_secret_key: SecretStr = os.getenv("S3_SECRET_KEY")
+    s3_bucket: SecretStr = os.getenv("S3_BUCKET")
+    s3_region: SecretStr = os.getenv("S3_REGION")
 
     @property
     def async_db_url(self):
