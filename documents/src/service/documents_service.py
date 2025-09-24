@@ -24,14 +24,6 @@ class AbstractDocumentService(abc.ABC):
     ) -> DocumentOut:
         ...
 
-    @abc.abstractmethod
-    async def upload(
-            self,
-            file_path: str,
-            file_content: bytes
-    ):
-        ...
-
 
 class DocumentService(AbstractDocumentService):
 
