@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     debug: int = os.getenv("DEBUG", 0)
     local: int = os.getenv("LOCAL", 0)
     is_test: int = os.getenv("IS_TEST", 0)
+    service_host: str = os.getenv("SERVICE_HOST")
+    service_port: int = os.getenv("SERVICE_PORT")
     db_database: SecretStr = os.getenv("POSTGRES_DB")
     db_username: SecretStr = os.getenv("POSTGRES_USER")
     db_password: SecretStr = os.getenv("POSTGRES_PASSWORD")

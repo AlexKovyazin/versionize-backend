@@ -1,6 +1,18 @@
-version: '3.8'
-
 services:
+  documents:
+    container_name: documents
+    build: ./documents
+    command: [ "python", "-m", "documents" ]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./documents:/usr/src/documents
+      - app_logs:/var/log
+    env_file:
+      - ./documents/.env
+    depends_on:
+      - documents_db
+
   documents_db:
     container_name: documents_db
     image: postgres:17.6
@@ -11,5 +23,47 @@ services:
     env_file:
       - documents/.env
 
+  loki:
+    image: grafana/loki:3.5
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    environment:
+      TZ: ${SYSTEM_TIMEZONE:-Europe/Moscow}
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - app_logs:/var/log
+      - ./grafana/promtail-config.yaml:/etc/promtail/config.yaml
+    command: -config.file=/etc/promtail/config.yaml
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:12.2
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - TZ=${SYSTEM_TIMEZONE:-Europe/Moscow}
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - monitoring
+    depends_on:
+      - loki
+
+networks:
+  monitoring:
+    driver: bridge
+
 volumes:
   documents_db_data:
+  grafana-storage:
+  app_logs:

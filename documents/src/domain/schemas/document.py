@@ -35,3 +35,7 @@ class DocumentOut(DocumentCreate):
     id: UUID
     created_at: datetime.datetime
     updated_at: datetime.datetime | None
+
+    @property
+    def encoded_name(self):
+        return f"{self.section_id}_{self.md5}"

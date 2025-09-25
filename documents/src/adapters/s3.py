@@ -3,7 +3,7 @@ import abc
 import aioboto3
 from botocore.exceptions import ClientError
 
-from documents.src.settings import settings
+from documents.src.config.settings import settings
 
 
 class FileExistError(Exception):
