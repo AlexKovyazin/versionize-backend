@@ -26,3 +26,20 @@ class OrmDocument(Base):
     project_id = sa.Column(sa.UUID, nullable=False, index=True)
     section_id = sa.Column(sa.UUID, nullable=False, index=True)
     responsible_id = sa.Column(sa.UUID, nullable=False, index=True)
+
+    def to_dict(self, exclude: list = None):
+        """Convert model instance to dictionary."""
+
+        data = {}
+        if exclude is None:
+            exclude = []
+
+        for column in self.__table__.columns:
+            if column.name not in exclude:
+                value = getattr(self, column.name)
+                # Convert datetime to ISO format string
+                if hasattr(value, 'isoformat'):
+                    value = value.isoformat()
+                data[column.name] = value
+
+        return data

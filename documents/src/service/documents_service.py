@@ -4,6 +4,7 @@ from uuid import UUID
 
 from documents.src.adapters.repository import AbstractDocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
+from documents.src.config.logging import logger
 from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentCreate
 
 
@@ -45,6 +46,10 @@ class DocumentService(AbstractDocumentService):
         If set to True - variation number of new versions will be increased.
         """
 
+        logger.info(
+            f"Creating new document for section {document_in.section_id}",
+            extra=document_in.model_dump()
+        )
         md5_hash = hashlib.md5(file_content).hexdigest()
         doc_path = f"{document_in.section_id}_{md5_hash}"
         await self.s3.put(doc_path, file_content)
@@ -53,6 +58,10 @@ class DocumentService(AbstractDocumentService):
         version = latest_document.version + 1 if latest_document else 1
         variation = 0
         if raise_variation:
+            logger.info(
+                f"Raising variation of new document for section {document_in.section_id}",
+                extra=document_in.model_dump()
+            )
             variation = latest_document.variation + 1 if latest_document else 0
 
         document_for_creation = DocumentCreate(
@@ -63,8 +72,13 @@ class DocumentService(AbstractDocumentService):
             doc_path=doc_path
         )
         created_document = await self.repository.create(document_for_creation)
+        created_document = DocumentOut.model_validate(created_document)
+        logger.info(
+            f"New document for section {created_document.section_id} created",
+            extra=created_document.model_dump()
+        )
 
-        return DocumentOut.model_validate(created_document)
+        return created_document
 
     async def download(self, md5_hash: str):
         """ Download file to S3. """

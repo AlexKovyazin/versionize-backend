@@ -3,6 +3,7 @@ import abc
 import aioboto3
 from botocore.exceptions import ClientError
 
+from documents.src.config.logging import logger
 from documents.src.config.settings import settings
 
 
@@ -55,10 +56,14 @@ class S3(AbstractS3):
                 raise e
 
     async def put(self, file_path, file_data):
+        logger.info(f"Putting document {file_path} to S3...")
+
         async with self.client as s3:
             if await self.exists(file_path, client=s3):
                 raise FileExistError
             await s3.put_object(Bucket=S3.bucket, Key=file_path, Body=file_data)
+
+        logger.info(f"Document {file_path} successfully added to S3")
 
     async def delete(self, file_path):
         async with self.client as s3:

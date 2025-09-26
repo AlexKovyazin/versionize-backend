@@ -49,11 +49,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - TZ=${SYSTEM_TIMEZONE:-Europe/Moscow}
     volumes:
       - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    env_file:
+      - grafana/.env
     networks:
       - monitoring
     depends_on:

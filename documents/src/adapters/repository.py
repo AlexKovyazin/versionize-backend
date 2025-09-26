@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from documents.src.adapters.orm import OrmDocument
+from documents.src.config.logging import logger
 from documents.src.domain.schemas.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 
@@ -40,8 +41,16 @@ class DocumentsRepository(AbstractDocumentsRepository):
     async def create(self, document: DocumentCreate) -> OrmDocument:
         """ Creates new document in database. """
 
+        logger.info(
+            f"Adding new document for section {document.section_id} to DB...",
+            extra=document.model_dump()
+        )
         db_document = OrmDocument(**document.model_dump())
         self.uow.session.add(db_document)
         await self.uow.session.flush()
 
+        logger.info(
+            f"New document for section {document.section_id} added to DB",
+            extra=db_document.to_dict()
+        )
         return db_document
