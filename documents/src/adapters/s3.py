@@ -1,4 +1,5 @@
 import abc
+from typing import AsyncGenerator
 
 import aioboto3
 from botocore.exceptions import ClientError
@@ -8,6 +9,10 @@ from documents.src.config.settings import settings
 
 
 class FileExistError(Exception):
+    ...
+
+
+class FileNotExistError(Exception):
     ...
 
 
@@ -24,7 +29,7 @@ class AbstractS3(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def get(self, file_path: str) -> bytes:
+    async def get(self, file_path: str, chunk_size: int = 1024) -> AsyncGenerator:
         ...
 
     @abc.abstractmethod
@@ -45,7 +50,7 @@ class S3(AbstractS3):
             endpoint_url=S3.endpoint
         )
 
-    async def exists(self, file_path, client=None):
+    async def exists(self, file_path, client=None) -> bool:
         async with client or self.client as s3:
             try:  # if head_object successful - file already exists
                 await s3.head_object(Bucket=self.bucket, Key=file_path)
@@ -55,7 +60,11 @@ class S3(AbstractS3):
                     return False
                 raise e
 
-    async def put(self, file_path, file_data):
+    async def put(
+            self,
+            file_path: str,
+            file_data: bytes
+    ) -> None:
         logger.info(f"Putting document {file_path} to S3...")
 
         async with self.client as s3:
@@ -65,7 +74,7 @@ class S3(AbstractS3):
 
         logger.info(f"Document {file_path} successfully added to S3")
 
-    async def delete(self, file_path):
+    async def delete(self, file_path: str) -> None:
         logger.info(f"Deleting document {file_path} from S3...")
 
         async with self.client as s3:
@@ -73,7 +82,19 @@ class S3(AbstractS3):
 
         logger.info(f"Document {file_path} successfully deleted from S3")
 
-    async def get(self, file_path):
+    async def get(
+            self,
+            file_path: str,
+            chunk_size: int = 1024,
+    ) -> AsyncGenerator:
         async with self.client as s3:
-            document = await s3.get_object(Bucket=S3.bucket, Key=file_path)["Body"].read()
-            return document
+            if not await self.exists(file_path, client=s3):
+                raise FileNotExistError
+
+            document = await s3.get_object(
+                Bucket=S3.bucket,
+                Key=file_path
+            )
+            stream = document["Body"]
+            while file_data := await stream.read(chunk_size):
+                yield file_data

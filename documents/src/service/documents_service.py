@@ -1,5 +1,6 @@
 import abc
 import hashlib
+from typing import AsyncGenerator
 from uuid import UUID
 
 from documents.src.adapters.orm import OrmDocument
@@ -24,6 +25,14 @@ class AbstractDocumentService(abc.ABC):
             document_in: DocumentIn,
             file_content: bytes
     ) -> DocumentOut:
+        ...
+
+    @abc.abstractmethod
+    async def download(self, document_id: UUID):
+        ...
+
+    @abc.abstractmethod
+    async def delete(self, document_id: UUID):
         ...
 
 
@@ -81,8 +90,16 @@ class DocumentService(AbstractDocumentService):
 
         return created_document
 
-    async def download(self, md5_hash: str):
-        """ Download file to S3. """
+    async def download(self, document_id: UUID) -> tuple[str, AsyncGenerator]:
+        """ Download file from S3. """
+
+        document = await self.repository.get(
+            id=document_id,
+            include_fields=(OrmDocument.name, OrmDocument.doc_path,)
+        )
+        file_stream = self.s3.get(document.doc_path)
+
+        return document.name, file_stream
 
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """

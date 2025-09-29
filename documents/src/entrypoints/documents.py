@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, UploadFile, File, Form
+from fastapi.responses import StreamingResponse
 
 from documents.src.dependencies import get_document_service
 from documents.src.domain.schemas.document import DocumentIn, DocumentOut
@@ -51,3 +52,29 @@ async def delete_document(
     """Delete a document from S3 and DB."""
 
     await document_service.delete(document_id)
+
+
+@router.get("/{document_id}", response_model=DocumentOut)
+async def get_document_description(
+        document_id: UUID,
+        document_service: DocumentService = Depends(get_document_service),
+):
+    """Get document description without document file."""
+
+
+@router.get("/{document_id}/download", response_model=UploadFile)
+async def download_document(
+        document_id: UUID,
+        document_service: DocumentService = Depends(get_document_service),
+):
+    """ Download document file. """
+
+    filename, stream = await document_service.download(document_id)
+
+    return StreamingResponse(
+        stream,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+        }
+    )
