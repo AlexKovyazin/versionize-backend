@@ -37,6 +37,33 @@ class AbstractS3(abc.ABC):
         ...
 
 
+class S3Stream:
+    """ Class for getting AsyncGenerator streams of S3 files. """
+
+    def __init__(self, client, file_path: str, chunk_size: int = 1024 * 128):
+        self.client = client
+        self.file_path = file_path
+        self.chunk_size = chunk_size
+
+    async def __aiter__(self):
+        async with self.client as s3:
+            try:
+                document = await s3.get_object(
+                    Bucket=S3.bucket,
+                    Key=self.file_path
+                )
+                stream = document["Body"]
+                while file_data := await stream.read(self.chunk_size):
+                    yield file_data
+            except ClientError as e:
+                error_code = e.response['Error']['Code']
+                if error_code == 'NoSuchKey':
+                    raise FileNotExistError(
+                        f"File {self.file_path} not found in S3"
+                    )
+                raise e
+
+
 class S3(AbstractS3):
     endpoint: str = settings.s3_endpoint.get_secret_value()
     bucket: str = settings.s3_bucket.get_secret_value()
@@ -85,16 +112,9 @@ class S3(AbstractS3):
     async def get(
             self,
             file_path: str,
-            chunk_size: int = 1024,
-    ) -> AsyncGenerator:
-        async with self.client as s3:
-            if not await self.exists(file_path, client=s3):
-                raise FileNotExistError
+            chunk_size: int = 1024 * 128,
+    ) -> S3Stream:
+        """  Getting stream of file from S3. """
 
-            document = await s3.get_object(
-                Bucket=S3.bucket,
-                Key=file_path
-            )
-            stream = document["Body"]
-            while file_data := await stream.read(chunk_size):
-                yield file_data
+        async with self.client as s3:
+            return S3Stream(s3, file_path, chunk_size=chunk_size)

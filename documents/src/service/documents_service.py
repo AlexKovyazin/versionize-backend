@@ -97,7 +97,7 @@ class DocumentService(AbstractDocumentService):
             id=document_id,
             include_fields=(OrmDocument.name, OrmDocument.doc_path,)
         )
-        file_stream = self.s3.get(document.doc_path)
+        file_stream = await self.s3.get(document.doc_path)
 
         return document.name, file_stream
 
