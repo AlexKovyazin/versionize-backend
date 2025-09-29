@@ -61,6 +61,8 @@ async def get_document_description(
 ):
     """Get document description without document file."""
 
+    return await document_service.get(document_id)
+
 
 @router.get("/{document_id}/download", response_model=UploadFile)
 async def download_document(

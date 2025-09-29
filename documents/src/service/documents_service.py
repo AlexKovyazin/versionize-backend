@@ -35,6 +35,10 @@ class AbstractDocumentService(abc.ABC):
     async def delete(self, document_id: UUID):
         ...
 
+    @abc.abstractmethod
+    async def get(self, document_id: UUID):
+        ...
+
 
 class DocumentService(AbstractDocumentService):
 
@@ -114,3 +118,8 @@ class DocumentService(AbstractDocumentService):
         await self.repository.delete(document_id)
 
         logger.info(f"Document {document_id} deleted")
+
+
+    async def get(self, document_id: UUID):
+        retrieved_document = await self.repository.get(id=document_id)
+        return DocumentOut.model_validate(retrieved_document)
