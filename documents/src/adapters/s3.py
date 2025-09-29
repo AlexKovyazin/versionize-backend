@@ -66,8 +66,12 @@ class S3(AbstractS3):
         logger.info(f"Document {file_path} successfully added to S3")
 
     async def delete(self, file_path):
+        logger.info(f"Deleting document {file_path} from S3...")
+
         async with self.client as s3:
             await s3.delete_object(Bucket=S3.bucket, Key=file_path)
+
+        logger.info(f"Document {file_path} successfully deleted from S3")
 
     async def get(self, file_path):
         async with self.client as s3:

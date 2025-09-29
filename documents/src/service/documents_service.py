@@ -2,6 +2,7 @@ import abc
 import hashlib
 from uuid import UUID
 
+from documents.src.adapters.orm import OrmDocument
 from documents.src.adapters.repository import AbstractDocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
@@ -84,4 +85,15 @@ class DocumentService(AbstractDocumentService):
         """ Download file to S3. """
 
     async def delete(self, document_id: UUID):
-        """ Delete document from db. """
+        """ Delete document from S3 and DB. """
+
+        logger.info(f"Deleting document with id {document_id}...")
+
+        document = await self.repository.get(
+            id=document_id,
+            include_fields=(OrmDocument.doc_path,)
+        )
+        await self.s3.delete(document.doc_path)
+        await self.repository.delete(document_id)
+
+        logger.info(f"Document {document_id} deleted")

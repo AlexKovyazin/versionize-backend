@@ -41,3 +41,13 @@ async def create_document(
         raise_variation=raise_variation
     )
     return created_document
+
+
+@router.delete("/{document_id}", status_code=204)
+async def delete_document(
+        document_id: UUID,
+        document_service: DocumentService = Depends(get_document_service),
+):
+    """Delete a document from S3 and DB."""
+
+    await document_service.delete(document_id)
