@@ -7,6 +7,7 @@ from documents.src.dependencies import get_document_service, get_search_params
 from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentsSearch
 from documents.src.enums import DocumentStatuses
 from documents.src.service.documents_service import DocumentService
+from documents.src.config.logging import logger
 
 router = APIRouter(tags=["Documents"])
 
@@ -26,6 +27,7 @@ async def create_document(
 ):
     """Create a new document in db and upload file to S3."""
 
+    logger.info("Starting of create request")
     document_data = DocumentIn(
         name=name,
         note=note,
@@ -51,6 +53,7 @@ async def get_many(
 ):
     """Get all documents descriptions by provided fields."""
 
+    logger.info("Starting of get_many request")
     return await document_service.get_many(**data.model_dump(exclude_none=True))
 
 
@@ -61,6 +64,7 @@ async def get(
 ):
     """Get document description without document file."""
 
+    logger.info("Starting of get request")
     return await document_service.get(id=document_id)
 
 
@@ -71,6 +75,7 @@ async def download(
 ):
     """ Download document file. """
 
+    logger.info("Starting of download request")
     filename, stream = await document_service.download(document_id)
 
     return StreamingResponse(
@@ -89,4 +94,5 @@ async def delete(
 ):
     """Delete a document from S3 and DB."""
 
+    logger.info("Starting of delete request")
     await document_service.delete(document_id)
