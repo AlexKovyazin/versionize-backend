@@ -17,12 +17,7 @@ class AbstractDocumentsRepository(abc.ABC):
         self.uow = uow
 
     @abc.abstractmethod
-    async def _prepare_select(
-            self,
-            include_fields: Sequence[InstrumentedAttribute] = (),
-            exclude_fields: Sequence[InstrumentedAttribute] = (),
-            **kwargs
-    ) -> Select:
+    async def create(self, document: DocumentCreate) -> OrmDocument:
         ...
 
     @abc.abstractmethod
@@ -48,29 +43,20 @@ class AbstractDocumentsRepository(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def create(self, document: DocumentCreate) -> OrmDocument:
+    async def delete(self, document_id: UUID) -> OrmDocument:
         ...
 
     @abc.abstractmethod
-    async def delete(self, document_id: UUID) -> OrmDocument:
+    async def _prepare_select(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> Select:
         ...
 
 
 class DocumentsRepository(AbstractDocumentsRepository):
-
-    async def get_latest(self, section_id: UUID) -> OrmDocument | None:
-        """ Get latest document of specified section if it exists. """
-
-        query = (
-            select(OrmDocument)
-            .where(OrmDocument.section_id == section_id)
-            .order_by(OrmDocument.created_at.desc())
-            .limit(1)
-        )
-        query_result = await self.uow.session.execute(query)
-        latest_document = query_result.scalar()
-
-        return latest_document
 
     async def create(self, document: DocumentCreate) -> OrmDocument:
         """ Creates new document in DB. """
@@ -165,6 +151,20 @@ class DocumentsRepository(AbstractDocumentsRepository):
         documents = query_result.scalars().all()
 
         return documents
+
+    async def get_latest(self, section_id: UUID) -> OrmDocument | None:
+        """ Get latest document of specified section if it exists. """
+
+        query = (
+            select(OrmDocument)
+            .where(OrmDocument.section_id == section_id)
+            .order_by(OrmDocument.created_at.desc())
+            .limit(1)
+        )
+        query_result = await self.uow.session.execute(query)
+        latest_document = query_result.scalar()
+
+        return latest_document
 
     async def delete(self, document_id: uuid.UUID) -> None:
         """ Delete document from DB. """

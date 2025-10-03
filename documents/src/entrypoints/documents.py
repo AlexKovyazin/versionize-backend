@@ -45,7 +45,7 @@ async def create_document(
 
 
 @router.get("", response_model=list[DocumentOut])
-async def get_documents_descriptions(
+async def get_many(
         data: DocumentsSearch = Depends(get_search_params),
         document_service: DocumentService = Depends(get_document_service),
 ):
@@ -55,7 +55,7 @@ async def get_documents_descriptions(
 
 
 @router.get("/{document_id}", response_model=DocumentOut)
-async def get_document_description(
+async def get(
         document_id: UUID,
         document_service: DocumentService = Depends(get_document_service),
 ):
@@ -65,7 +65,7 @@ async def get_document_description(
 
 
 @router.get("/{document_id}/download", response_model=UploadFile)
-async def download_document(
+async def download(
         document_id: UUID,
         document_service: DocumentService = Depends(get_document_service),
 ):
@@ -83,7 +83,7 @@ async def download_document(
 
 
 @router.delete("/{document_id}", status_code=204)
-async def delete_document(
+async def delete(
         document_id: UUID,
         document_service: DocumentService = Depends(get_document_service),
 ):

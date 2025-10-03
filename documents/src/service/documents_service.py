@@ -28,19 +28,19 @@ class AbstractDocumentService(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def download(self, document_id: UUID):
-        ...
-
-    @abc.abstractmethod
-    async def delete(self, document_id: UUID):
-        ...
-
-    @abc.abstractmethod
     async def get(self, **kwargs):
         ...
 
     @abc.abstractmethod
     async def get_many(self, **kwargs):
+        ...
+
+    @abc.abstractmethod
+    async def download(self, document_id: UUID):
+        ...
+
+    @abc.abstractmethod
+    async def delete(self, document_id: UUID):
         ...
 
 
@@ -116,7 +116,6 @@ class DocumentService(AbstractDocumentService):
         file_stream = await self.s3.get(document.doc_path)
 
         return document.name, file_stream
-
 
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """
