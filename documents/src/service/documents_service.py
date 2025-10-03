@@ -117,6 +117,18 @@ class DocumentService(AbstractDocumentService):
 
         return document.name, file_stream
 
+    async def update(self, document_id: UUID, **kwargs) -> DocumentOut:
+        """ Update document attributes in DB. """
+
+        logger.info(f"Updating document {document_id}...")
+
+        updated_document = await self.repository.update(document_id, **kwargs)
+        updated_document = DocumentOut.model_validate(updated_document)
+
+        logger.info(f"Document {document_id} updated", extra=updated_document.model_dump())
+
+        return updated_document
+
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """
 

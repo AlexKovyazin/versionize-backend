@@ -37,12 +37,7 @@ class DocumentOut(DocumentCreate):
     updated_at: datetime.datetime | None
 
 
-class DocumentsSearch(BaseModel):
-    id: UUID | None = None
-    company_id: UUID | None = None
-    project_id: UUID | None = None
-    section_id: UUID | None = None
-    responsible_id: UUID | None = None
+class BaseValidationMixin:
 
     @model_validator(mode="after")
     def validate_at_least_one_field(cls, values):
@@ -52,6 +47,23 @@ class DocumentsSearch(BaseModel):
         ]
 
         if not provided_fields:
-            raise ValueError("At least one search field must be provided")
+            raise ValueError("At least one field must be provided")
 
         return values
+
+
+class DocumentsSearch(BaseValidationMixin, BaseModel):
+    id: UUID | None = None
+    company_id: UUID | None = None
+    project_id: UUID | None = None
+    section_id: UUID | None = None
+    responsible_id: UUID | None = None
+
+
+class DocumentUpdate(BaseValidationMixin, BaseModel):
+    name: str | None = None
+    note: str | None = None
+    status: DocumentStatuses | None = None
+    project_id: UUID | None = None
+    section_id: UUID | None = None
+    responsible_id: UUID | None = None

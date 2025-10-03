@@ -3,7 +3,7 @@ import uuid
 from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import select, delete, Select
+from sqlalchemy import select, delete, update, Select
 from sqlalchemy.orm import load_only, defer, InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
@@ -40,6 +40,10 @@ class AbstractDocumentsRepository(abc.ABC):
 
     @abc.abstractmethod
     async def get_latest(self, section_id: UUID) -> OrmDocument | None:
+        ...
+
+    @abc.abstractmethod
+    async def update(self, document_id: UUID, **kwargs) -> OrmDocument:
         ...
 
     @abc.abstractmethod
@@ -165,6 +169,28 @@ class DocumentsRepository(AbstractDocumentsRepository):
         latest_document = query_result.scalar()
 
         return latest_document
+
+    async def update(self, document_id: UUID, **kwargs) -> OrmDocument:
+        """ Update document in DB. """
+
+        logger.info(
+            f"Updating document {document_id} in DB...",
+            extra=kwargs
+        )
+        query = (
+            update(OrmDocument)
+            .where(OrmDocument.id == document_id)
+            .values(**kwargs)
+            .returning(OrmDocument)
+        )
+        result = await self.uow.session.execute(query)
+        document: OrmDocument = result.scalar_one()
+
+        logger.info(
+            f"Document {document_id} successfully updated in DB",
+            extra=document.to_dict()
+        )
+        return document
 
     async def delete(self, document_id: uuid.UUID) -> None:
         """ Delete document from DB. """

@@ -3,11 +3,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 
+from documents.src.config.logging import logger
 from documents.src.dependencies import get_document_service, get_search_params
-from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentsSearch
+from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
 from documents.src.enums import DocumentStatuses
 from documents.src.service.documents_service import DocumentService
-from documents.src.config.logging import logger
 
 router = APIRouter(tags=["Documents"])
 
@@ -85,6 +85,20 @@ async def download(
             "Content-Disposition": f'attachment; filename="{filename}"',
         }
     )
+
+
+@router.patch("/{document_id}", response_model=DocumentOut)
+async def update(
+        document_id: UUID,
+        data: DocumentUpdate,
+        document_service: DocumentService = Depends(get_document_service)
+):
+    logger.info("Starting of update request")
+    document = await document_service.update(
+        document_id,
+        **data.model_dump(exclude_none=True)
+    )
+    return document
 
 
 @router.delete("/{document_id}", status_code=204)
