@@ -13,7 +13,7 @@ router = APIRouter(tags=["Documents"])
 
 
 @router.post("", status_code=201, response_model=DocumentOut)
-async def create_document(
+async def create(
         name: str = Form(...),
         note: str | None = Form(...),
         status: DocumentStatuses | None = Form(...),
