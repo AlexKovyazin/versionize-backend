@@ -3,8 +3,8 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 
-from documents.src.dependencies import get_document_service
-from documents.src.domain.schemas.document import DocumentIn, DocumentOut
+from documents.src.dependencies import get_document_service, get_search_params
+from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentsSearch
 from documents.src.enums import DocumentStatuses
 from documents.src.service.documents_service import DocumentService
 
@@ -44,14 +44,14 @@ async def create_document(
     return created_document
 
 
-@router.delete("/{document_id}", status_code=204)
-async def delete_document(
-        document_id: UUID,
+@router.get("", response_model=list[DocumentOut])
+async def get_documents_descriptions(
+        data: DocumentsSearch = Depends(get_search_params),
         document_service: DocumentService = Depends(get_document_service),
 ):
-    """Delete a document from S3 and DB."""
+    """Get all documents descriptions by provided fields."""
 
-    await document_service.delete(document_id)
+    return await document_service.get_many(**data.model_dump(exclude_none=True))
 
 
 @router.get("/{document_id}", response_model=DocumentOut)
@@ -61,7 +61,7 @@ async def get_document_description(
 ):
     """Get document description without document file."""
 
-    return await document_service.get(document_id)
+    return await document_service.get(id=document_id)
 
 
 @router.get("/{document_id}/download", response_model=UploadFile)
@@ -80,3 +80,13 @@ async def download_document(
             "Content-Disposition": f'attachment; filename="{filename}"',
         }
     )
+
+
+@router.delete("/{document_id}", status_code=204)
+async def delete_document(
+        document_id: UUID,
+        document_service: DocumentService = Depends(get_document_service),
+):
+    """Delete a document from S3 and DB."""
+
+    await document_service.delete(document_id)

@@ -1,7 +1,7 @@
 import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from documents.src.enums import DocumentStatuses
 
@@ -35,3 +35,23 @@ class DocumentOut(DocumentCreate):
     id: UUID
     created_at: datetime.datetime
     updated_at: datetime.datetime | None
+
+
+class DocumentsSearch(BaseModel):
+    id: UUID | None = None
+    company_id: UUID | None = None
+    project_id: UUID | None = None
+    section_id: UUID | None = None
+    responsible_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def validate_at_least_one_field(cls, values):
+        provided_fields = [
+            field_name for field_name, field_value in values
+            if field_value is not None
+        ]
+
+        if not provided_fields:
+            raise ValueError("At least one search field must be provided")
+
+        return values

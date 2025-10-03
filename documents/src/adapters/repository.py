@@ -3,7 +3,7 @@ import uuid
 from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, Select
 from sqlalchemy.orm import load_only, defer, InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
@@ -17,12 +17,30 @@ class AbstractDocumentsRepository(abc.ABC):
         self.uow = uow
 
     @abc.abstractmethod
+    async def _prepare_select(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> Select:
+        ...
+
+    @abc.abstractmethod
     async def get(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
     ) -> OrmDocument:
+        ...
+
+    @abc.abstractmethod
+    async def get_many(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> list[OrmDocument]:
         ...
 
     @abc.abstractmethod
@@ -76,7 +94,7 @@ class DocumentsRepository(AbstractDocumentsRepository):
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> OrmDocument:
+    ) -> OrmDocument | None:
         """
         Get specified document from DB.
 
@@ -95,21 +113,58 @@ class DocumentsRepository(AbstractDocumentsRepository):
         SELECT section_id, md5
           FROM documents
          WHERE name = 'Specific document name'
+         ORDER BY created_at DESC
+         LIMIT 1
         """
 
-        query = (
-            select(OrmDocument)
-            .filter_by(**kwargs)
+        query = await self._prepare_select(
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            **kwargs
         )
-        if include_fields:
-            query = query.options(load_only(*include_fields))
-        if exclude_fields:
-            query = query.options(defer(*exclude_fields))
-
         query_result = await self.uow.session.execute(query)
-        db_document = query_result.scalar_one_or_none()
+        document = query_result.scalar_one_or_none()
 
-        return db_document
+        return document
+
+    async def get_many(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> list[OrmDocument]:
+        """
+        Get specified documents from DB.
+
+        @:param include_fields: Sequence of OrmDocument fields to include into output object.
+        @:param exclude_fields: Sequence of OrmDocument fields to exclude from output object.
+        @:param kwargs: Filter keywords.
+
+        The same as .get, but without limiting number of returning objects.
+
+        Example:
+        self.get_many(
+          name="Specific document name",
+          include_fields=(OrmDocument.section_id, OrmDocument.md5,)
+        )
+        This call will filter documents by specified name and query only fields of include_fields argument.
+
+        SQL query will be:
+        SELECT section_id, md5
+          FROM documents
+         WHERE name = 'Specific document name'
+         ORDER BY created_at DESC
+        """
+
+        query = await self._prepare_select(
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            **kwargs
+        )
+        query_result = await self.uow.session.execute(query)
+        documents = query_result.scalars().all()
+
+        return documents
 
     async def delete(self, document_id: uuid.UUID) -> None:
         """ Delete document from DB. """
@@ -120,3 +175,29 @@ class DocumentsRepository(AbstractDocumentsRepository):
         await self.uow.session.execute(query)
 
         logger.info(f"Document {document_id} successfully deleted from DB")
+
+    async def _prepare_select(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> Select:
+        """
+        Prepare select query.
+
+        Filter objects by specified kwargs,
+        Filter fields to include in output query,
+        order results by descending created_at field.
+        """
+
+        query = (
+            select(OrmDocument)
+            .filter_by(**kwargs)
+            .order_by(OrmDocument.created_at.desc())
+        )
+        if include_fields:
+            query = query.options(load_only(*include_fields))
+        if exclude_fields:
+            query = query.options(defer(*exclude_fields))
+
+        return query

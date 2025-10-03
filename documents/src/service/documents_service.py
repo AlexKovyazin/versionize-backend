@@ -36,7 +36,11 @@ class AbstractDocumentService(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def get(self, document_id: UUID):
+    async def get(self, **kwargs):
+        ...
+
+    @abc.abstractmethod
+    async def get_many(self, **kwargs):
         ...
 
 
@@ -94,6 +98,14 @@ class DocumentService(AbstractDocumentService):
 
         return created_document
 
+    async def get(self, **kwargs) -> DocumentOut:
+        retrieved_document = await self.repository.get(**kwargs)
+        return DocumentOut.model_validate(retrieved_document)
+
+    async def get_many(self, **kwargs) -> list[DocumentOut]:
+        retrieved_documents = await self.repository.get_many(**kwargs)
+        return [DocumentOut.model_validate(d) for d in retrieved_documents]
+
     async def download(self, document_id: UUID) -> tuple[str, AsyncGenerator]:
         """ Download file from S3. """
 
@@ -104,6 +116,7 @@ class DocumentService(AbstractDocumentService):
         file_stream = await self.s3.get(document.doc_path)
 
         return document.name, file_stream
+
 
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """
@@ -118,8 +131,3 @@ class DocumentService(AbstractDocumentService):
         await self.repository.delete(document_id)
 
         logger.info(f"Document {document_id} deleted")
-
-
-    async def get(self, document_id: UUID):
-        retrieved_document = await self.repository.get(id=document_id)
-        return DocumentOut.model_validate(retrieved_document)
