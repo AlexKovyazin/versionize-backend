@@ -12,7 +12,7 @@ from documents.src.service.documents_service import DocumentService
 router = APIRouter(tags=["Documents"])
 
 
-@router.post("", status_code=201, response_model=DocumentOut)
+@router.post("", response_model=DocumentOut, status_code=201,)
 async def create(
         name: str = Form(...),
         note: str | None = Form(...),
@@ -87,7 +87,7 @@ async def download(
     )
 
 
-@router.patch("/{document_id}", response_model=DocumentOut)
+@router.patch("/{document_id}", response_model=DocumentOut, status_code=202)
 async def update(
         document_id: UUID,
         data: DocumentUpdate,
