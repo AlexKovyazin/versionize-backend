@@ -51,15 +51,15 @@ class AbstractS3(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def delete(self, file_path: str) -> None:
-        ...
-
-    @abc.abstractmethod
     async def get_stream(self, file_path: str, chunk_size: int = 1024) -> AsyncGenerator:
         ...
 
     @abc.abstractmethod
     async def exists(self, file_path: str) -> bool:
+        ...
+
+    @abc.abstractmethod
+    async def delete(self, file_path: str) -> None:
         ...
 
 
@@ -138,17 +138,6 @@ class S3(AbstractS3):
             self._client = None
             self._context = None
 
-    async def exists(self, file_path) -> bool:
-        """ Check if file exists without getting file itself. """
-
-        try:  # if head_object successful - file already exists
-            await self._client.head_object(Bucket=self.bucket, Key=file_path)
-            return True
-        except ClientError as e:
-            if e.response["Error"]["Code"] == "404":
-                return False
-            raise e
-
     async def put(
             self,
             file_path: str,
@@ -164,13 +153,6 @@ class S3(AbstractS3):
 
         logger.info(f"Document {file_path} successfully added to S3")
 
-    async def delete(self, file_path: str) -> None:
-        """  Delete specified file. """
-
-        logger.info(f"Deleting document {file_path} from S3...")
-        await self._client.delete_object(Bucket=S3.bucket, Key=file_path)
-        logger.info(f"Document {file_path} successfully deleted from S3")
-
     async def get_stream(
             self,
             file_path: str,
@@ -179,3 +161,21 @@ class S3(AbstractS3):
         """  Getting stream of file from S3. """
 
         return S3Stream(file_path, chunk_size=chunk_size)
+
+    async def exists(self, file_path) -> bool:
+        """ Check if file exists without getting file itself. """
+
+        try:  # if head_object successful - file already exists
+            await self._client.head_object(Bucket=self.bucket, Key=file_path)
+            return True
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "404":
+                return False
+            raise e
+
+    async def delete(self, file_path: str) -> None:
+        """  Delete specified file. """
+
+        logger.info(f"Deleting document {file_path} from S3...")
+        await self._client.delete_object(Bucket=S3.bucket, Key=file_path)
+        logger.info(f"Document {file_path} successfully deleted from S3")
