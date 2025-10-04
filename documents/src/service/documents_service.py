@@ -129,6 +129,19 @@ class DocumentService(AbstractDocumentService):
 
         return updated_document
 
+    async def reupload(self, document_id: UUID, file_content: bytes):
+        logger.info(f"Reuploading file for document {document_id}...")
+        document = await self.repository.get(
+            id=document_id,
+            include_fields=(OrmDocument.doc_path, OrmDocument.section_id)
+        )
+        md5_hash = hashlib.md5(file_content).hexdigest()
+        new_doc_path = f"{document.section_id}_{md5_hash}"
+
+        await self.s3.delete(document.doc_path)
+        await self.s3.put(new_doc_path, file_content)
+        await self.repository.update(document_id, doc_path=new_doc_path)
+
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """
 

@@ -101,6 +101,18 @@ async def update(
     return document
 
 
+@router.post("/{document_id}/reupload", status_code=202)
+async def reupload(
+        document_id: UUID,
+        file: UploadFile = File(...),
+        document_service: DocumentService = Depends(get_document_service)
+):
+    logger.info("Starting of reupload request")
+
+    file_content = await file.read()
+    await document_service.reupload(document_id, file_content)
+
+
 @router.delete("/{document_id}", status_code=204)
 async def delete(
         document_id: UUID,
