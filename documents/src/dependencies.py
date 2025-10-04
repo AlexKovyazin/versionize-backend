@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
 from documents.src.adapters.repository import AbstractDocumentsRepository, DocumentsRepository
-from documents.src.adapters.s3 import AbstractS3, S3
+from documents.src.adapters.s3 import S3
 from documents.src.domain.schemas.document import DocumentsSearch
 from documents.src.service.documents_service import DocumentService
 from documents.src.service.uow import UnitOfWork
@@ -13,19 +13,19 @@ from documents.src.service.uow import UnitOfWork
 
 async def get_uow():
     """ Real dependency of UnitOfWork for production. """
-    uow = UnitOfWork()
-    async with uow:
+    async with UnitOfWork() as uow:
         yield uow
+
+
+async def get_s3():
+    """ Real dependency of S3 client for production. """
+    async with S3() as s3:
+        yield s3
 
 
 def get_documents_repository(uow=Depends(get_uow)) -> AbstractDocumentsRepository:
     """ Real dependency of DocumentsService for production. """
     return DocumentsRepository(uow)
-
-
-def get_s3() -> AbstractS3:
-    """ Real dependency of S3 for production. """
-    return S3()
 
 
 def get_document_service(
