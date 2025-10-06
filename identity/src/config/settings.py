@@ -1,0 +1,44 @@
+import os
+import pathlib
+
+from dotenv import load_dotenv
+from pydantic import SecretStr
+from pydantic_settings import BaseSettings
+
+env_path = pathlib.Path(__file__).parent.parent / '.env'
+load_dotenv(env_path)
+
+
+class Settings(BaseSettings):
+    base_dir: pathlib.Path = pathlib.Path(__file__).parent.parent.resolve()
+    debug: int = os.getenv("DEBUG", 0)
+    local: int = os.getenv("LOCAL", 0)
+    is_test: int = os.getenv("IS_TEST", 0)
+    service_host: str = os.getenv("SERVICE_HOST")
+    service_port: int = os.getenv("SERVICE_PORT")
+    db_database: SecretStr = os.getenv("POSTGRES_DB")
+    db_username: SecretStr = os.getenv("POSTGRES_USER")
+    db_password: SecretStr = os.getenv("POSTGRES_PASSWORD")
+    db_host: SecretStr = os.getenv("DB_HOST")
+    db_port: SecretStr = os.getenv("DB_PORT")
+
+    @property
+    def async_db_url(self):
+        return self._get_db_url(sync=False)
+
+    @property
+    def sync_db_url(self):
+        return self._get_db_url(sync=True)
+
+    def _get_db_url(self, sync=False):
+        return (
+            f"postgresql{'' if sync else '+asyncpg'}://"
+            f"{self.db_username.get_secret_value()}:"
+            f"{self.db_password.get_secret_value()}@"
+            f"{self.db_host.get_secret_value()}:"
+            f"{self.db_port.get_secret_value()}/"
+            f"{self.db_database.get_secret_value()}"
+        )
+
+
+settings = Settings()
