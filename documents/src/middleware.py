@@ -24,7 +24,7 @@ async def logging_middleware(request: Request, call_next: Callable):
 
     # Log request start
     logger.info(
-        "Request started",
+        f"Request {request.url.path} started",
         extra={
             "extra_fields": {
                 "request_id": request_id,
@@ -43,7 +43,7 @@ async def logging_middleware(request: Request, call_next: Callable):
 
         # Log request completion
         logger.info(
-            "Request completed",
+            f"Request {request.url.path} completed",
             extra={
                 "extra_fields": {
                     "request_id": request_id,
