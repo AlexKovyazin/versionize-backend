@@ -11,6 +11,7 @@ load_dotenv(env_path)
 
 class Settings(BaseSettings):
     base_dir: pathlib.Path = pathlib.Path(__file__).parent.parent.resolve()
+    base_url: str = os.getenv("BASE_URL")
     debug: int = os.getenv("DEBUG", 0)
     local: int = os.getenv("LOCAL", 0)
     is_test: int = os.getenv("IS_TEST", 0)
@@ -21,6 +22,38 @@ class Settings(BaseSettings):
     db_password: SecretStr = os.getenv("POSTGRES_PASSWORD")
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
+
+    kc_external_base_url: str = os.getenv("KC_EXTERNAL_BASE_URL")
+    kc_internal_base_url: str = os.getenv("KC_INTERNAL_BASE_URL")
+    kc_realm: str = os.getenv("KC_REALM")
+    kc_client_id: str = os.getenv("KC_CLIENT_ID")
+    kc_client_secret: SecretStr = os.getenv("KC_CLIENT_SECRET")
+
+    login_redirect_url: str = os.getenv("LOGIN_REDIRECT_URL")
+
+    @property
+    def kc_auth_url(self):
+        return (
+            f"{settings.kc_external_base_url}/"
+            f"realms/{settings.kc_realm}/"
+            f"protocol/openid-connect/auth"
+        )
+
+    @property
+    def kc_token_url(self):
+        return (
+            f"{settings.kc_external_base_url}/"
+            f"realms/{settings.kc_realm}/"
+            f"protocol/openid-connect/token"
+        )
+
+    @property
+    def kc_logout_url(self):
+        return (
+            f"{settings.kc_external_base_url}/"
+            f"realms/{settings.kc_realm}/"
+            f"protocol/openid-connect/logout"
+        )
 
     @property
     def async_db_url(self):

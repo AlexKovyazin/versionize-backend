@@ -33,7 +33,7 @@ services:
       - ./identity:/usr/src/identity
       - app_logs:/var/log
     env_file:
-      - ./identity/.env
+      - ./identity/identity.env
     depends_on:
       - identity_db
 
@@ -45,7 +45,32 @@ services:
     ports:
       - "5602:5432"
     env_file:
-      - identity/.env
+      - identity/identity.env
+
+  keycloak_db:
+    image: postgres:17.6
+    container_name: keycloak_db
+    restart: on-failure
+    volumes:
+      - keycloak_db_data:/var/lib/postgresql/data
+    ports:
+      - "5600:5432"
+    env_file:
+      - identity/keycloak.env
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:26.4.0
+    command: start
+    ports:
+      - "8443:8443"
+      - "8080:8080"
+    depends_on:
+      - keycloak_db
+    env_file:
+      - identity/keycloak.env
+    volumes:
+      - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
 
   loki:
     image: grafana/loki:3.5
@@ -92,5 +117,6 @@ networks:
 volumes:
   documents_db_data:
   identity_db_data:
+  keycloak_db_data:
   grafana-storage:
   app_logs:
