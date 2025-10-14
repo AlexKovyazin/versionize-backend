@@ -58,7 +58,7 @@ class AbstractAuthService(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def get_or_create_user(
+    async def resolve_user(
             self,
             authenticated_user: AuthenticatedUser
     ) -> User:
@@ -70,7 +70,7 @@ class AuthService(AbstractAuthService):
     async def introspect(self, token) -> dict:
         return await self.keycloak.introspect(token)
 
-    async def get_or_create_user(
+    async def resolve_user(
             self,
             authenticated_user: AuthenticatedUser
     ) -> User:

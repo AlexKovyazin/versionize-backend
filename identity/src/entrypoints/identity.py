@@ -54,7 +54,7 @@ async def get_user(
         auth_service: AuthService = Depends(get_auth_service)
 ) -> User:
     """
-    Endpoint for authenticating user.
+    Endpoint for authenticating user by its Bearer token.
 
     Use flow:
     - frontend calls protected client service endpoint using bearer header;
@@ -65,7 +65,7 @@ async def get_user(
     - client service do its job and return result to frontend.
     """
 
-    user = await auth_service.get_or_create_user(authenticated_user)
+    user = await auth_service.resolve_user(authenticated_user)
     return user
 
 
