@@ -65,4 +65,5 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_companies_id'), table_name='companies')
     op.drop_index(op.f('ix_companies_created_at'), table_name='companies')
     op.drop_table('companies')
+    op.execute('DROP TYPE IF EXISTS userprojectrole')
     # ### end Alembic commands ###
