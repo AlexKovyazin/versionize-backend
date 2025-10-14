@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Company(BaseModel):
@@ -11,3 +11,5 @@ class Company(BaseModel):
     name: str
     phone: str
     email: str
+
+    model_config = ConfigDict(from_attributes=True)

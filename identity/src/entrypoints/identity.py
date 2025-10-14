@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response, RedirectResponse
 
 from identity.src.config.settings import settings
-from identity.src.dependencies import get_authenticated_user, require_roles
-from identity.src.domain.user import AuthenticatedUser
+from identity.src.dependencies import get_authenticated_user, get_auth_service
+from identity.src.domain.user import AuthenticatedUser, User
+from identity.src.service.auth import AuthService, require_roles
 
 router = APIRouter(tags=["Identity"])
 
@@ -34,10 +35,6 @@ async def login_callback(
             f"state={state}&code={code}&iss={iss}&session_state={session_state}"
         )
 
-    # Business logic
-    # - check if user exist:
-    #   - if not - create
-
     return RedirectResponse(redirect_url)
 
 
@@ -53,8 +50,9 @@ async def logout():
 
 @router.post("/auth/get-user")
 async def get_user(
-        authenticated_user: AuthenticatedUser = Depends(get_authenticated_user)
-):
+        authenticated_user: AuthenticatedUser = Depends(get_authenticated_user),
+        auth_service: AuthService = Depends(get_auth_service)
+) -> User:
     """
     Endpoint for authenticating user.
 
@@ -62,15 +60,13 @@ async def get_user(
     - frontend calls protected client service endpoint using bearer header;
     - client service (or any) calls identity/auth/get-user through its own dependency;
     - get_authenticated_user dependency calls keycloak through OAuth and get users id and roles;
-    - this get_user function calls db to collect all users data;
-    - make User object and return it back to client service;
+    - auth service calls db to collect all users data;
+    - get_user make User object and return it back to client service;
     - client service do its job and return result to frontend.
     """
 
-    # get all user data using authenticated_user
-    # return full user object
-
-    return authenticated_user  # TODO it's temporary approach
+    user = await auth_service.get_or_create_user(authenticated_user)
+    return user
 
 
 # TODO it's temporary endpoint for debug

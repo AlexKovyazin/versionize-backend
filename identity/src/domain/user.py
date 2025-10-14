@@ -1,27 +1,32 @@
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from identity.src.domain.company import Company
 from identity.src.enums import UserProjectRole
 
 
-class AuthenticatedUser(BaseModel):
+class UserBase(BaseModel):
     id: uuid.UUID
+    email: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AuthenticatedUser(UserBase):
     roles: list[str] = []
 
 
 class User(AuthenticatedUser):
+    first_name: str | None
+    last_name: str | None
+    patronymic: str | None
+    phone: str | None
+    company: Company | None
+    position: str | None
+    project_role: UserProjectRole | None
+    last_login: datetime | None
+    validated: bool
     created_at: datetime
     updated_at: datetime | None
-
-    first_name: str | None
-    first_name: str | None
-    patronymic: str | None
-    email: str
-    phone: str | None
-    position: str | None
-    project_role: UserProjectRole
-    last_login: datetime | None
-    company: Company
