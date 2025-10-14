@@ -45,7 +45,7 @@ class OrmUser(BaseMixin, Base):
     position: Mapped[str | None]
     project_role: Mapped[UserProjectRole | None]
     last_login: Mapped[datetime | None]
-    validated: Mapped[bool] = mapped_column(default=False)
+    validated: Mapped[bool] = mapped_column(server_default="false")
     company_id: Mapped[str] = mapped_column(
         sa.UUID, sa.ForeignKey("companies.id"), index=True
     )
