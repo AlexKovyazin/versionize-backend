@@ -38,7 +38,7 @@ class OrmUser(BaseMixin, Base):
     __tablename__ = "users"
 
     first_name: Mapped[str | None]
-    first_name: Mapped[str | None]
+    last_name: Mapped[str | None]
     patronymic: Mapped[str | None]
     email: Mapped[str] = mapped_column(index=True)
     phone: Mapped[str | None]
