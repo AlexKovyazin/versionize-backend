@@ -48,7 +48,7 @@ async def logout():
     return {"logout_url": settings.kc_logout_url}
 
 
-@router.post("/auth/get-user")
+@router.get("/auth/get-user")
 async def get_user(
         authenticated_user: AuthenticatedUser = Depends(get_authenticated_user),
         auth_service: AuthService = Depends(get_auth_service)
