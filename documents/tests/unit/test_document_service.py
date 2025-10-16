@@ -1,6 +1,6 @@
 import uuid
 
-from documents.src.domain.schemas.document import DocumentIn
+from documents.src.domain.document import DocumentIn
 from documents.tests.fixtures.factories import create_document_in_data
 
 

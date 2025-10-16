@@ -1,7 +1,7 @@
-import enum
+from enum import Enum
 
 
-class DocumentStatuses(enum.Enum):
+class DocumentStatuses(Enum):
     NEW = "Новый"
     IN_WORK = "В работе"
     READY_FOR_UPLOAD = "Готово к загрузке"
@@ -11,3 +11,11 @@ class DocumentStatuses(enum.Enum):
     EXPIRED = "Просрочено"
     POSITIVE = "Положительное"
     NEGATIVE = "Отрицательное"
+
+
+class UserProjectRole(Enum):
+    PM = "Руководитель проекта"
+    PM_ASSISTANT = "Помощник руководителя проекта"
+    DEVELOPER = "Разработчик раздела"
+    CA_MANAGER = "Менеджер организации"
+    EXPERT = "Эксперт"

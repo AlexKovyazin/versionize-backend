@@ -1,4 +1,4 @@
-from documents.src.domain.schemas.document import DocumentIn, DocumentOut
+from documents.src.domain.document import DocumentIn, DocumentOut
 from documents.src.service.documents_service import AbstractDocumentService
 
 

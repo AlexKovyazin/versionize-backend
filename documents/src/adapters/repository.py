@@ -8,7 +8,7 @@ from sqlalchemy.orm import load_only, defer, InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.config.logging import logger
-from documents.src.domain.schemas.document import DocumentCreate
+from documents.src.domain.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 
 

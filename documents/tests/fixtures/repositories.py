@@ -3,7 +3,7 @@ from datetime import datetime
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.adapters.repository import AbstractDocumentsRepository
-from documents.src.domain.schemas.document import DocumentCreate
+from documents.src.domain.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 
 

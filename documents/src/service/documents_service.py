@@ -7,7 +7,7 @@ from documents.src.adapters.orm import OrmDocument
 from documents.src.adapters.repository import AbstractDocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
-from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentCreate
+from documents.src.domain.document import DocumentIn, DocumentOut, DocumentCreate
 
 
 class AbstractDocumentService(abc.ABC):

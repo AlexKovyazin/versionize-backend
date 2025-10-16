@@ -5,14 +5,14 @@ from fastapi.responses import StreamingResponse
 
 from documents.src.config.logging import logger
 from documents.src.dependencies import get_document_service, get_search_params
-from documents.src.domain.schemas.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
+from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
 from documents.src.enums import DocumentStatuses
 from documents.src.service.documents_service import DocumentService
 
 router = APIRouter(tags=["Documents"])
 
 
-@router.post("", response_model=DocumentOut, status_code=201,)
+@router.post("", response_model=DocumentOut, status_code=201, )
 async def create(
         name: str = Form(...),
         note: str | None = Form(...),
@@ -22,8 +22,9 @@ async def create(
         section_id: UUID = Form(...),
         responsible_id: UUID = Form(...),
         file: UploadFile = File(...),
+        raise_variation: bool | None = False,
         document_service: DocumentService = Depends(get_document_service),
-        raise_variation: bool | None = False
+
 ):
     """Create a new document in db and upload file to S3."""
 

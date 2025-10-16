@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from documents.src.adapters.repository import AbstractDocumentsRepository, DocumentsRepository
 from documents.src.adapters.s3 import S3
-from documents.src.domain.schemas.document import DocumentsSearch
+from documents.src.domain.document import DocumentsSearch
 from documents.src.service.documents_service import DocumentService
 from documents.src.service.uow import UnitOfWork
 

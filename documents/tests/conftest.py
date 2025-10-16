@@ -5,7 +5,7 @@ import uuid
 import pytest
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.domain.schemas.document import DocumentOut
+from documents.src.domain.document import DocumentOut
 from documents.src.service.documents_service import DocumentService
 from documents.tests.fixtures.factories import create_document_in_data
 from documents.tests.fixtures.repositories import FakeDocumentsRepository

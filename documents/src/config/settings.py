@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     s3_secret_key: SecretStr = os.getenv("S3_SECRET_KEY")
     s3_bucket: SecretStr = os.getenv("S3_BUCKET")
     s3_region: SecretStr = os.getenv("S3_REGION")
+    auth_service_url: str = os.getenv("AUTH_SERVICE_URL")
 
     @property
     def async_db_url(self):
