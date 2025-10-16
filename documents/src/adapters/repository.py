@@ -50,7 +50,6 @@ class AbstractDocumentsRepository(abc.ABC):
     async def delete(self, document_id: UUID) -> OrmDocument:
         ...
 
-    @abc.abstractmethod
     async def _prepare_select(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),

@@ -1,5 +1,9 @@
+from typing import Sequence
 from uuid import UUID, uuid4
 from datetime import datetime
+from xml.dom.minidom import Document
+
+from sqlalchemy.orm import InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.adapters.repository import AbstractDocumentsRepository
@@ -26,3 +30,32 @@ class FakeDocumentsRepository(AbstractDocumentsRepository):
         )
         self.documents.append(document)
         return document
+
+    async def get(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> OrmDocument:
+        ...
+
+    async def get_many(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> list[OrmDocument]:
+        ...
+
+    async def update(
+            self,
+            document_id: UUID,
+            **kwargs
+    ) -> OrmDocument:
+        ...
+
+    async def delete(
+            self,
+            document_id: UUID
+    ) -> OrmDocument:
+        ...

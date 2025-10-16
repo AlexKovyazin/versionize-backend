@@ -1,3 +1,5 @@
+from typing import AsyncGenerator
+
 from documents.src.adapters.s3 import AbstractS3, FileExistError
 
 
@@ -7,6 +9,12 @@ class FakeS3(AbstractS3):
     def __init__(self, documents: dict | None = None):
         self.documents = documents or {}
         super().__init__()
+
+    async def __aenter__(self):
+        ...
+
+    async def __aexit__(self, exc_type, exc, tb):
+        ...
 
     async def put(self, file_path: str, file_data: bytes) -> None:
         if await self.exists(file_path):
@@ -21,3 +29,10 @@ class FakeS3(AbstractS3):
 
     async def exists(self, file_path: str) -> bool:
         return True if self.documents.get(file_path) else False
+
+    async def get_stream(
+            self,
+            file_path: str,
+            chunk_size: int = 1024
+    ) -> AsyncGenerator:
+        ...
