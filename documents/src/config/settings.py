@@ -14,19 +14,29 @@ class Settings(BaseSettings):
     debug: int = os.getenv("DEBUG", 0)
     local: int = os.getenv("LOCAL", 0)
     is_test: int = os.getenv("IS_TEST", 0)
+
     service_host: str = os.getenv("SERVICE_HOST")
     service_port: int = os.getenv("SERVICE_PORT")
+
     db_database: SecretStr = os.getenv("POSTGRES_DB")
     db_username: SecretStr = os.getenv("POSTGRES_USER")
     db_password: SecretStr = os.getenv("POSTGRES_PASSWORD")
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
+
     s3_endpoint: SecretStr = os.getenv("S3_ENDPOINT")
     s3_access_key: SecretStr = os.getenv("S3_ACCESS_KEY")
     s3_secret_key: SecretStr = os.getenv("S3_SECRET_KEY")
     s3_bucket: SecretStr = os.getenv("S3_BUCKET")
     s3_region: SecretStr = os.getenv("S3_REGION")
+
+    # full path to the /get-user endpoint of identity service
     auth_service_url: str = os.getenv("AUTH_SERVICE_URL")
+    # keycloak setting are needed only in debug mode for auth with swagger
+    kc_external_base_url: str = os.getenv("KC_EXTERNAL_BASE_URL")
+    kc_realm: str = os.getenv("KC_REALM")
+    kc_client_id: str = os.getenv("KC_CLIENT_ID")
+    kc_client_secret: SecretStr = os.getenv("KC_CLIENT_SECRET")
 
     @property
     def async_db_url(self):
@@ -44,6 +54,22 @@ class Settings(BaseSettings):
             f"{self.db_host.get_secret_value()}:"
             f"{self.db_port.get_secret_value()}/"
             f"{self.db_database.get_secret_value()}"
+        )
+
+    @property
+    def kc_auth_url(self):
+        return (
+            f"{settings.kc_external_base_url}/"
+            f"realms/{settings.kc_realm}/"
+            f"protocol/openid-connect/auth"
+        )
+
+    @property
+    def kc_token_url(self):
+        return (
+            f"{settings.kc_external_base_url}/"
+            f"realms/{settings.kc_realm}/"
+            f"protocol/openid-connect/token"
         )
 
 

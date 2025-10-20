@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response, RedirectResponse
 
 from identity.src.config.settings import settings
-from identity.src.dependencies import get_authenticated_user, get_auth_service
+from identity.src.dependencies import get_authenticated_user, get_auth_service, require_roles
 from identity.src.domain.user import AuthenticatedUser, User
-from identity.src.service.auth import AuthService, require_roles
+from identity.src.service.auth import AuthService
 
 router = APIRouter(tags=["Identity"])
 

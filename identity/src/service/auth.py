@@ -1,13 +1,10 @@
 import abc
-from functools import wraps
 
-from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2AuthorizationCodeBearer
 
 from identity.src.adapters.keycloak import AbstractKeycloak
 from identity.src.adapters.repository import AbstractUsersRepository
 from identity.src.config.settings import settings
-from identity.src.dependencies import get_authenticated_user
 from identity.src.domain.user import User, AuthenticatedUser
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
@@ -17,31 +14,6 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
         "openid": "OpenID Connect",
     }
 )
-
-
-def require_roles(required_roles: list[str]):
-    """ Decorator to require specific roles. """
-
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(
-                *args,
-                user: AuthenticatedUser = Depends(get_authenticated_user),
-                **kwargs
-        ):
-            user_roles = set(user.roles)
-            required_roles_set = set(required_roles)
-
-            if not user_roles.intersection(required_roles_set):
-                raise HTTPException(
-                    status_code=403,
-                    detail=f"Required roles: {required_roles}"
-                )
-            return await func(*args, current_user=user, **kwargs)
-
-        return wrapper
-
-    return decorator
 
 
 class AbstractAuthService(abc.ABC):

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 
 from documents.src.config.logging import logger
-from documents.src.dependencies import get_document_service, get_search_params
+from documents.src.dependencies import get_document_service, get_search_params, get_user
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
 from documents.src.enums import DocumentStatuses
 from documents.src.service.documents_service import DocumentService
@@ -12,7 +12,20 @@ from documents.src.service.documents_service import DocumentService
 router = APIRouter(tags=["Documents"])
 
 
-@router.post("", response_model=DocumentOut, status_code=201, )
+# TODO for production:
+#  - file uploading should be in a separate endpoint of separate service;
+#  - it only accept document_id, section_id and file as UploadFile to escape memory issues;
+#  - it generates doc_path from section_id and md5 hash;
+#  - upload it straight to S3 by chunks;
+#  - send msg to a msg queue with doc_path of uploaded file;
+#  - documents service get this msg and writes doc_path to corresponding doc.
+@router.post(
+    "",
+    response_model=DocumentOut,
+    status_code=201,
+    # just for debugging of auth with identity
+    dependencies=[Depends(get_user), ]
+)
 async def create(
         name: str = Form(...),
         note: str | None = Form(...),
@@ -24,7 +37,6 @@ async def create(
         file: UploadFile = File(...),
         raise_variation: bool | None = False,
         document_service: DocumentService = Depends(get_document_service),
-
 ):
     """Create a new document in db and upload file to S3."""
 
@@ -69,6 +81,8 @@ async def get(
     return await document_service.get(id=document_id)
 
 
+# TODO for production:
+#  - file downloading should be in separate service as file uploading
 @router.get("/{document_id}/download", response_model=UploadFile)
 async def download(
         document_id: UUID,
@@ -102,6 +116,8 @@ async def update(
     return document
 
 
+# TODO for production:
+#  - file reuploading should use the same endpoint that used for base uploading
 @router.post("/{document_id}/reupload", status_code=202)
 async def reupload(
         document_id: UUID,

@@ -1,12 +1,16 @@
 from uuid import UUID
 
+import httpx
 from fastapi import Depends
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
 from documents.src.adapters.repository import AbstractDocumentsRepository, DocumentsRepository
 from documents.src.adapters.s3 import S3
+from documents.src.config.settings import settings
 from documents.src.domain.document import DocumentsSearch
+from documents.src.domain.user import User
+from documents.src.service.auth import oauth2_scheme
 from documents.src.service.documents_service import DocumentService
 from documents.src.service.uow import UnitOfWork
 
@@ -34,6 +38,21 @@ def get_document_service(
 ):
     """ Real dependency of DocumentsService for production. """
     return DocumentService(repo, s3)
+
+
+async def get_user(token: str = Depends(oauth2_scheme)):
+    """ Real dependency for authenticating of user by identity service. """
+
+    # TODO maybe it should be refactor for using IdentityService class,
+    #  not straight call with request
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            settings.auth_service_url,
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        response.raise_for_status()
+
+    return User.model_validate(response.json())
 
 
 async def get_search_params(
