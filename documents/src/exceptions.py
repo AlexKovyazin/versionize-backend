@@ -1,0 +1,6 @@
+class FileExistError(Exception):
+    ...
+
+
+class FileNotExistError(Exception):
+    ...

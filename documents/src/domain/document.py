@@ -26,7 +26,6 @@ class DocumentCreate(DocumentIn):
     version: int
     variation: int
     md5: str
-    doc_path: str
 
 
 class DocumentOut(DocumentCreate):

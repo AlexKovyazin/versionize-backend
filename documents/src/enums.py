@@ -19,3 +19,17 @@ class UserProjectRole(Enum):
     DEVELOPER = "Разработчик раздела"
     CA_MANAGER = "Менеджер организации"
     EXPERT = "Эксперт"
+
+
+class DocumentContentType(Enum):
+    PDF = "application/pdf"
+    DOC = "application/msword"
+    DOCX = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+    @classmethod
+    def is_valid(cls, value: str) -> bool:
+        return True if value in cls._value_set else False
+
+    @classmethod
+    def _value_set(cls):
+        return {member.value for member in cls}

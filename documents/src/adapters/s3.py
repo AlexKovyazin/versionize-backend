@@ -1,5 +1,6 @@
 import abc
 from typing import AsyncGenerator
+from uuid import UUID
 
 import aioboto3
 import aiobotocore.client
@@ -8,6 +9,8 @@ from botocore.exceptions import ClientError
 
 from documents.src.config.logging import logger
 from documents.src.config.settings import settings
+from documents.src.enums import DocumentContentType
+from documents.src.exceptions import FileExistError, FileNotExistError
 
 
 def get_s3_session_context():
@@ -20,17 +23,11 @@ def get_s3_session_context():
     )
 
 
-class FileExistError(Exception):
-    ...
-
-
-class FileNotExistError(Exception):
-    ...
-
-
 class AbstractS3(abc.ABC):
-    endpoint: str = settings.s3_endpoint.get_secret_value()
-    bucket: str = settings.s3_bucket.get_secret_value()
+    endpoint: str
+    bucket: str
+    download_url_expires_in: int
+    upload_url_expires_in: int
     _client: aiobotocore.client.AioBaseClient | None
     _context: ClientCreatorContext | None
 
@@ -47,19 +44,27 @@ class AbstractS3(abc.ABC):
         ...
 
     @abc.abstractmethod
-    async def put(self, file_path: str, file_data: bytes) -> None:
+    async def put(self, file_path: str | UUID, file_data: bytes) -> None:
         ...
 
     @abc.abstractmethod
-    async def get_stream(self, file_path: str, chunk_size: int = 1024) -> AsyncGenerator:
+    async def get_stream(self, file_path: str | UUID, chunk_size: int = 1024) -> AsyncGenerator:
         ...
 
     @abc.abstractmethod
-    async def exists(self, file_path: str) -> bool:
+    async def get_download_url(self, file_path: str | UUID) -> str:
         ...
 
     @abc.abstractmethod
-    async def delete(self, file_path: str) -> None:
+    async def get_upload_url(self, file_path: str | UUID, file_type: str = DocumentContentType.PDF.value) -> str:
+        ...
+
+    @abc.abstractmethod
+    async def exists(self, file_path: str | UUID) -> bool:
+        ...
+
+    @abc.abstractmethod
+    async def delete(self, file_path: str | UUID) -> None:
         ...
 
 
@@ -73,10 +78,10 @@ class S3Stream:
 
     def __init__(
             self,
-            file_path: str,
+            file_path: str | UUID,
             chunk_size: int = 1024 * 128
     ):
-        self.file_path = file_path
+        self.file_path = str(file_path)
         self.chunk_size = chunk_size
 
     async def __aiter__(self):
@@ -124,6 +129,8 @@ class S3(AbstractS3):
 
     endpoint: str = settings.s3_endpoint.get_secret_value()
     bucket: str = settings.s3_bucket.get_secret_value()
+    download_url_expires_in: int = 60 * 5
+    upload_url_expires_in: int = 60 * 10
     _client: aiobotocore.client.AioBaseClient | None
     _context: ClientCreatorContext | None
 
@@ -140,7 +147,7 @@ class S3(AbstractS3):
 
     async def put(
             self,
-            file_path: str,
+            file_path: str | UUID,
             file_data: bytes
     ) -> None:
         """ Upload file to specified path. """
@@ -149,33 +156,69 @@ class S3(AbstractS3):
 
         if await self.exists(file_path):
             raise FileExistError
-        await self._client.put_object(Bucket=S3.bucket, Key=file_path, Body=file_data)
-
+        await self._client.put_object(
+            Bucket=S3.bucket,
+            Key=str(file_path),
+            Body=file_data
+        )
         logger.info(f"Document {file_path} successfully added to S3")
 
     async def get_stream(
             self,
-            file_path: str,
+            file_path: str | UUID,
             chunk_size: int = 1024 * 128,
     ) -> S3Stream:
         """  Getting stream of file from S3. """
 
         return S3Stream(file_path, chunk_size=chunk_size)
 
-    async def exists(self, file_path) -> bool:
+    async def get_download_url(self, file_path: str | UUID) -> str:
+        if not await self.exists(file_path):
+            raise FileNotExistError("There is no such document in S3")
+
+        return await self._client.generate_presigned_url(
+            "get_object",
+            Params={
+                "Bucket": self.bucket,
+                "Key": str(file_path),
+            },
+            ExpiresIn=self.download_url_expires_in
+        )
+
+    async def get_upload_url(
+            self,
+            file_path: str | UUID,
+            file_type: str = DocumentContentType.PDF.value
+    ) -> str:
+        """ Getting upload url of file from S3. """
+
+        if not DocumentContentType.is_valid(file_type):
+            raise ValueError("Invalid file type")
+
+        return await self._client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": self.bucket,
+                "Key": file_path,
+                "ContentType": str(file_type),
+            },
+            ExpiresIn=self.upload_url_expires_in
+        )
+
+    async def exists(self, file_path: str | UUID) -> bool:
         """ Check if file exists without getting file itself. """
 
         try:  # if head_object successful - file already exists
-            await self._client.head_object(Bucket=self.bucket, Key=file_path)
+            await self._client.head_object(Bucket=self.bucket, Key=str(file_path))
             return True
         except ClientError as e:
             if e.response["Error"]["Code"] == "404":
                 return False
             raise e
 
-    async def delete(self, file_path: str) -> None:
+    async def delete(self, file_path: str | UUID) -> None:
         """  Delete specified file. """
 
         logger.info(f"Deleting document {file_path} from S3...")
-        await self._client.delete_object(Bucket=S3.bucket, Key=file_path)
+        await self._client.delete_object(Bucket=S3.bucket, Key=str(file_path))
         logger.info(f"Document {file_path} successfully deleted from S3")

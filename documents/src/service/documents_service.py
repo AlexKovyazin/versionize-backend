@@ -8,6 +8,7 @@ from documents.src.adapters.repository import AbstractDocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentCreate
+from documents.src.exceptions import FileNotExistError
 
 
 class AbstractDocumentService(abc.ABC):
@@ -69,9 +70,6 @@ class DocumentService(AbstractDocumentService):
             extra=document_in.model_dump()
         )
         md5_hash = hashlib.md5(file_content).hexdigest()
-        doc_path = f"{document_in.section_id}_{md5_hash}"
-        await self.s3.put(doc_path, file_content)
-
         latest_document = await self.repository.get_latest(document_in.section_id)
         version = latest_document.version + 1 if latest_document else 1
         variation = 0
@@ -87,10 +85,13 @@ class DocumentService(AbstractDocumentService):
             version=version,
             variation=variation,
             md5=md5_hash,
-            doc_path=doc_path
         )
         created_document = await self.repository.create(document_for_creation)
         created_document = DocumentOut.model_validate(created_document)
+
+        # TODO The S3 call should be removed after using the get-upload-url endpoint.
+        await self.s3.put(created_document.id, file_content)
+
         logger.info(
             f"New document for section {created_document.section_id} created",
             extra=created_document.model_dump()
@@ -111,11 +112,29 @@ class DocumentService(AbstractDocumentService):
 
         document = await self.repository.get(
             id=document_id,
-            include_fields=(OrmDocument.name, OrmDocument.doc_path,)
+            include_fields=(OrmDocument.name,)
         )
-        file_stream = await self.s3.get_stream(document.doc_path)
+        file_stream = await self.s3.get_stream(document_id)
 
         return document.name, file_stream
+
+    async def get_download_url(self, document_id: UUID) -> tuple[str, str]:
+        """ Get S3 download url and filename. """
+
+        document = await self.repository.get(
+            id=document_id,
+            include_fields=[OrmDocument.name]
+        )
+        if not document:
+            raise FileNotExistError("There is no such document in DB")
+        url = await self.s3.get_download_url(document_id)
+
+        return url, document.name
+
+    async def get_upload_url(self, document_id: UUID) -> str:
+        """  Get S3 upload url. """
+
+        return await self.s3.get_upload_url(document_id)
 
     async def update(self, document_id: UUID, **kwargs) -> DocumentOut:
         """ Update document attributes in DB. """
@@ -129,29 +148,12 @@ class DocumentService(AbstractDocumentService):
 
         return updated_document
 
-    async def reupload(self, document_id: UUID, file_content: bytes):
-        logger.info(f"Reuploading file for document {document_id}...")
-        document = await self.repository.get(
-            id=document_id,
-            include_fields=(OrmDocument.doc_path, OrmDocument.section_id)
-        )
-        md5_hash = hashlib.md5(file_content).hexdigest()
-        new_doc_path = f"{document.section_id}_{md5_hash}"
-
-        await self.s3.delete(document.doc_path)
-        await self.s3.put(new_doc_path, file_content)
-        await self.repository.update(document_id, doc_path=new_doc_path)
-
     async def delete(self, document_id: UUID):
         """ Delete document from S3 and DB. """
 
         logger.info(f"Deleting document with id {document_id}...")
 
-        document = await self.repository.get(
-            id=document_id,
-            include_fields=(OrmDocument.doc_path,)
-        )
-        await self.s3.delete(document.doc_path)
+        await self.s3.delete(document_id)
         await self.repository.delete(document_id)
 
         logger.info(f"Document {document_id} deleted")
