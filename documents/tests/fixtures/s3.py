@@ -1,6 +1,8 @@
 from typing import AsyncGenerator
+from uuid import UUID
 
 from documents.src.adapters.s3 import AbstractS3, FileExistError
+from documents.src.enums import DocumentContentType
 
 
 class FakeS3(AbstractS3):
@@ -36,3 +38,13 @@ class FakeS3(AbstractS3):
             chunk_size: int = 1024
     ) -> AsyncGenerator:
         ...
+
+    async def get_download_url(self, file_path: str | UUID) -> str:
+        return "https://testing-link.com"
+
+    async def get_upload_url(
+            self,
+            file_path: str | UUID,
+            file_type: str = DocumentContentType.PDF.value
+    ) -> str:
+        return "https://testing-link.com"
