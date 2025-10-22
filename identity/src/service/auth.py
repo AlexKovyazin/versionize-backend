@@ -3,7 +3,7 @@ import abc
 from fastapi.security import OAuth2AuthorizationCodeBearer
 
 from identity.src.adapters.keycloak import AbstractKeycloak
-from identity.src.adapters.repositories.base import AbstractUsersRepository
+from identity.src.adapters.repositories.base import IUsersRepository
 from identity.src.config.settings import settings
 from identity.src.domain.user import User, AuthenticatedUser
 
@@ -19,7 +19,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 class AbstractAuthService(abc.ABC):
     def __init__(
             self,
-            repository: AbstractUsersRepository,
+            repository: IUsersRepository,
             keycloak: AbstractKeycloak
     ):
         self.repository = repository

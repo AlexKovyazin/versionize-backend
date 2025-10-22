@@ -1,14 +1,14 @@
 import abc
 from uuid import UUID
 
-from identity.src.adapters.repositories.base import AbstractUsersRepository
+from identity.src.adapters.repositories.base import IUsersRepository
 from identity.src.domain.user import User
 
 
 class AbstractUserService(abc.ABC):
     def __init__(
             self,
-            repository: AbstractUsersRepository,
+            repository: IUsersRepository,
     ):
         self.repository = repository
 

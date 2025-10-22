@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from uuid import UUID
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import IDocumentsRepository
 from documents.src.adapters.repositories.documents import DocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
@@ -15,7 +15,7 @@ from documents.src.exceptions import FileNotExistError
 class AbstractDocumentService(abc.ABC):
     def __init__(
             self,
-            repository: AbstractDocumentsRepository,
+            repository: IDocumentsRepository,
             s3: AbstractS3
     ):
         self.repository = repository

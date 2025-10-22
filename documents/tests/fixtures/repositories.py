@@ -5,12 +5,12 @@ from datetime import datetime
 from sqlalchemy.orm import InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import IDocumentsRepository
 from documents.src.domain.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 
 
-class FakeDocumentsRepository(AbstractDocumentsRepository):
+class FakeDocumentsRepository(IDocumentsRepository):
     """In-memory fake repository for testing."""
 
     def __init__(self, uow: AbstractUnitOfWork, documents: list[OrmDocument] = None):

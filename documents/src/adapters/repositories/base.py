@@ -13,7 +13,7 @@ MODEL = TypeVar("MODEL", bound=Base)
 SCHEMA = TypeVar("SCHEMA")
 
 
-class AbstractGenericRepository(ABC, Generic[MODEL, SCHEMA]):
+class IGenericRepository(ABC, Generic[MODEL, SCHEMA]):
     def __init__(self, uow: AbstractUnitOfWork, model: Type[MODEL]):
         self.uow = uow
         self.model = model
@@ -49,7 +49,7 @@ class AbstractGenericRepository(ABC, Generic[MODEL, SCHEMA]):
         ...
 
 
-class GenericRepository(AbstractGenericRepository[MODEL, SCHEMA]):
+class GenericRepository(IGenericRepository[MODEL, SCHEMA]):
     async def create(self, entity: SCHEMA) -> MODEL:
         logger.info(
             f"Adding new {self.model.__name__} with id {entity.id}...",
@@ -171,7 +171,8 @@ class GenericRepository(AbstractGenericRepository[MODEL, SCHEMA]):
 
         return query
 
-class AbstractDocumentsRepository(AbstractGenericRepository, ABC):
+
+class IDocumentsRepository(IGenericRepository, ABC):
     def __init__(self, uow: AbstractUnitOfWork):
         """ Throws OrmUser model into generic base. """
         super().__init__(uow, OrmDocument)

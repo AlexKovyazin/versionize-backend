@@ -1,11 +1,11 @@
 from identity.src.adapters.orm import OrmUser
-from identity.src.adapters.repositories.base import GenericRepository, AbstractUsersRepository
+from identity.src.adapters.repositories.base import GenericRepository, IUsersRepository
 from identity.src.config.logging import logger
 from identity.src.domain.user import UserBase
 
 
 class UsersRepository(
-    AbstractUsersRepository,
+    IUsersRepository,
     GenericRepository[OrmUser, UserBase]
 ):
     async def create(self, user: UserBase) -> OrmUser:

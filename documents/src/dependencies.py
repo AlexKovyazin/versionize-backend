@@ -5,7 +5,7 @@ from fastapi import Depends
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
-from documents.src.adapters.repositories.base import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import IDocumentsRepository
 from documents.src.adapters.repositories.documents import DocumentsRepository
 from documents.src.adapters.s3 import S3
 from documents.src.config.settings import settings
@@ -28,7 +28,7 @@ async def get_s3():
         yield s3
 
 
-def get_documents_repository(uow=Depends(get_uow)) -> AbstractDocumentsRepository:
+def get_documents_repository(uow=Depends(get_uow)) -> IDocumentsRepository:
     """ Real dependency of DocumentsService for production. """
     return DocumentsRepository(uow)
 

@@ -3,12 +3,12 @@ from uuid import UUID
 from sqlalchemy import select
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import AbstractDocumentsRepository, GenericRepository
+from documents.src.adapters.repositories.base import IDocumentsRepository, GenericRepository
 from documents.src.domain.document import DocumentCreate
 
 
 class DocumentsRepository(
-    AbstractDocumentsRepository,
+    IDocumentsRepository,
     GenericRepository[OrmDocument, DocumentCreate]
 ):
     async def get_latest(self, section_id: UUID) -> OrmDocument | None:
