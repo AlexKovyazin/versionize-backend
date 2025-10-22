@@ -19,4 +19,4 @@ if settings.debug:
         "scopeSeparator": " ",
         "scopes": "openid profile email",
     }
-    app.swagger_ui_oauth2_redirect_url = "/identity/auth/login/callback"
+    app.swagger_ui_oauth2_redirect_url = "/auth/login/callback"

@@ -1,7 +1,8 @@
 import abc
 from typing import Sequence
+from uuid import UUID
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
 from identity.src.adapters.orm import OrmUser
@@ -27,6 +28,22 @@ class AbstractUsersRepository(abc.ABC):
     ) -> OrmUser:
         ...
 
+    @abc.abstractmethod
+    async def get_many(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> list[OrmUser]:
+        ...
+
+    @abc.abstractmethod
+    async def update(self, user_id: UUID, **kwargs) -> OrmUser:
+        ...
+
+    @abc.abstractmethod
+    async def delete(self, user_id: UUID) -> OrmUser:
+        ...
 
 
 class UsersRepository(AbstractUsersRepository):
@@ -83,6 +100,77 @@ class UsersRepository(AbstractUsersRepository):
         document = query_result.scalar_one_or_none()
 
         return document
+
+    async def get_many(
+            self,
+            include_fields: Sequence[InstrumentedAttribute] = (),
+            exclude_fields: Sequence[InstrumentedAttribute] = (),
+            **kwargs
+    ) -> list[OrmUser]:
+        """
+        Get specified users from DB.
+
+        @:param include_fields: Sequence of OrmUser fields to include into output object.
+        @:param exclude_fields: Sequence of OrmUser fields to exclude from output object.
+        @:param kwargs: Filter keywords.
+
+        The same as .get, but without limiting number of returning objects.
+
+        Example with documents:
+        self.get_many(
+          name="Specific document name",
+          include_fields=(OrmDocument.section_id, OrmDocument.md5,)
+        )
+        This call will filter documents by specified name and query only fields of include_fields argument.
+
+        SQL query will be:
+        SELECT section_id, md5
+          FROM documents
+         WHERE name = 'Specific document name'
+         ORDER BY created_at DESC
+        """
+
+        query = await self._prepare_select(
+            include_fields=include_fields,
+            exclude_fields=exclude_fields,
+            **kwargs
+        )
+        query_result = await self.uow.session.execute(query)
+        users = query_result.scalars().all()
+
+        return users
+
+    async def update(self, user_id: UUID, **kwargs) -> OrmUser:
+        """ Update user in DB. """
+
+        logger.info(
+            f"Updating user {user_id} in DB...",
+            extra=kwargs
+        )
+        query = (
+            update(OrmUser)
+            .where(OrmUser.id == user_id)
+            .values(**kwargs)
+            .returning(OrmUser)
+        )
+        result = await self.uow.session.execute(query)
+        document: OrmUser = result.scalar_one()
+
+        logger.info(
+            f"User {user_id} successfully updated in DB",
+            extra=document.to_dict()
+        )
+        return document
+
+    async def delete(self, user_id: UUID) -> None:
+        """ Delete user from DB. """
+
+        logger.info(f"Deleting user {user_id} from DB...")
+
+        query = delete(OrmUser).where(OrmUser.id == user_id)
+        await self.uow.session.execute(query)
+
+        logger.info(f"User {user_id} successfully deleted from DB")
 
     async def _prepare_select(
             self,

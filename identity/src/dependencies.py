@@ -1,13 +1,17 @@
 from functools import wraps
+from uuid import UUID
 
 from fastapi import Depends, HTTPException
+from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 
 from identity.src.adapters.keycloak import Keycloak
 from identity.src.adapters.repository import UsersRepository
-from identity.src.domain.user import AuthenticatedUser
+from identity.src.domain.user import AuthenticatedUser, UsersSearch
 from identity.src.service.auth import AuthService
 from identity.src.service.auth import oauth2_scheme
 from identity.src.service.uow import UnitOfWork
+from identity.src.service.user import UserService
 
 
 async def get_uow():
@@ -32,6 +36,13 @@ async def get_auth_service(
 ) -> AuthService:
     """ Real dependency of AuthService for production. """
     return AuthService(repo, keycloak)
+
+
+async def get_user_service(
+        repo=Depends(get_users_repository),
+):
+    """ Real dependency of UserService for production. """
+    return UserService(repo)
 
 
 async def get_authenticated_user(
@@ -68,6 +79,35 @@ async def get_authenticated_user(
             status_code=401,
             detail=f"Authentication failed: {str(e)}"
         )
+
+
+async def get_users_search_params(
+        email: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        patronymic: str | None = None,
+        phone: str | None = None,
+        company_id: UUID | None = None,
+        position: str | None = None,
+        validated: bool | None = None,
+) -> UsersSearch:
+    """ Dependency for parsing query results of get requests for getting users. """
+
+    try:
+        search_data = UsersSearch(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            patronymic=patronymic,
+            phone=phone,
+            company_id=company_id,
+            position=position,
+            validated=validated,
+        )
+    except ValidationError as e:
+        raise RequestValidationError(e.errors())
+
+    return search_data
 
 
 def require_roles(required_roles: list[str]):

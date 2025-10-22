@@ -47,7 +47,7 @@ class AuthService(AbstractAuthService):
             authenticated_user: AuthenticatedUser
     ) -> User:
         user = await self.repository.get(id=authenticated_user.id)
-        if not user:
+        if not user:  # TODO keep this logic in auth/login/callback when frontend will be ready
             user = await self.repository.create(authenticated_user)
 
         # because roles are not stored in the database

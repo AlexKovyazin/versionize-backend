@@ -6,15 +6,9 @@ from identity.src.dependencies import get_authenticated_user, get_auth_service, 
 from identity.src.domain.user import AuthenticatedUser, User
 from identity.src.service.auth import AuthService
 
-router = APIRouter(tags=["Identity"])
+router = APIRouter(tags=["Authentication"])
 
-
-@router.get("/healthcheck")
-async def healthcheck():
-    return Response(status_code=200)
-
-
-@router.get("/auth/login/callback")
+@router.get("/login/callback")
 async def login_callback(
         state: str,
         session_state: str,
@@ -38,7 +32,7 @@ async def login_callback(
     return RedirectResponse(redirect_url)
 
 
-@router.get("/auth/logout")
+@router.get("/logout")
 async def logout():
     """ Endpoint for logout. """
 
@@ -48,7 +42,7 @@ async def logout():
     return {"logout_url": settings.kc_logout_url}
 
 
-@router.get("/auth/get-user")
+@router.get("/get-user")
 async def get_user(
         authenticated_user: AuthenticatedUser = Depends(get_authenticated_user),
         auth_service: AuthService = Depends(get_auth_service)
@@ -67,15 +61,3 @@ async def get_user(
 
     user = await auth_service.resolve_user(authenticated_user)
     return user
-
-
-# TODO it's temporary endpoint for debug
-@router.get("/role-protected")
-@require_roles(["admin"])
-async def role_protected(
-        authenticated_user: AuthenticatedUser = Depends(get_authenticated_user)
-):
-    return {
-        "message": "Access to role-protected granted",
-        "user": authenticated_user
-    }
