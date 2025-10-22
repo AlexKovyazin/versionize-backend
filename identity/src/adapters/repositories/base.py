@@ -1,76 +1,78 @@
-import abc
-from typing import Sequence
+from abc import ABC, abstractmethod
+from typing import Sequence, TypeVar, Generic, Type
 from uuid import UUID
 
 from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
-from identity.src.adapters.orm import OrmUser
+from identity.src.adapters.orm import Base, OrmUser
 from identity.src.config.logging import logger
-from identity.src.domain.user import UserBase
 from identity.src.service.uow import AbstractUnitOfWork
 
+MODEL = TypeVar("MODEL", bound=Base)
+SCHEMA = TypeVar("SCHEMA")
 
-class AbstractUsersRepository(abc.ABC):
-    def __init__(self, uow: AbstractUnitOfWork):
+
+class AbstractGenericRepository(ABC, Generic[MODEL, SCHEMA]):
+    def __init__(self, uow: AbstractUnitOfWork, model: Type[MODEL]):
         self.uow = uow
+        self.model = model
 
-    @abc.abstractmethod
-    async def create(self, user: UserBase) -> OrmUser:
+    @abstractmethod
+    async def create(self, entity: SCHEMA) -> MODEL:
         ...
 
-    @abc.abstractmethod
+    @abstractmethod
     async def get(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> OrmUser:
+    ) -> MODEL:
         ...
 
-    @abc.abstractmethod
+    @abstractmethod
     async def get_many(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> list[OrmUser]:
+    ) -> list[MODEL]:
         ...
 
-    @abc.abstractmethod
-    async def update(self, user_id: UUID, **kwargs) -> OrmUser:
+    @abstractmethod
+    async def update(self, entity_id: UUID, **kwargs) -> MODEL:
         ...
 
-    @abc.abstractmethod
-    async def delete(self, user_id: UUID) -> OrmUser:
+    @abstractmethod
+    async def delete(self, entity_id: UUID) -> None:
         ...
 
 
-class UsersRepository(AbstractUsersRepository):
-
-    async def create(self, user: UserBase) -> OrmUser:
+class GenericRepository(AbstractGenericRepository[MODEL, SCHEMA]):
+    async def create(self, entity: SCHEMA) -> MODEL:
         logger.info(
-            f"Adding new user {user.id}...",
-            extra=user.model_dump()
+            f"Adding new {self.model.__name__} with id {entity.id}...",
+            extra=entity.model_dump()
         )
-        db_user = OrmUser(**user.model_dump(exclude={"roles"}))
-        self.uow.session.add(db_user)
+        db_entity = self.model(**entity.model_dump())
+        self.uow.session.add(db_entity)
         await self.uow.session.flush()
 
         logger.info(
-            f"New user {user.id} added to DB",
-            extra=db_user.to_dict()
+            f"New {self.model.__name__} {db_entity.id} added to DB",
+            extra=db_entity.to_dict()
         )
-        return db_user
+        return db_entity
 
     async def get(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> OrmUser:
+    ) -> MODEL:
         """
-        Get specified user from DB.
+        Get specified entity from DB.
 
         @:param include_fields: Sequence of OrmUser fields to include into output object.
         @:param exclude_fields: Sequence of OrmUser fields to exclude from output object.
@@ -97,37 +99,20 @@ class UsersRepository(AbstractUsersRepository):
             **kwargs
         )
         query_result = await self.uow.session.execute(query)
-        document = query_result.scalar_one_or_none()
+        db_entity = query_result.scalar_one_or_none()
 
-        return document
+        return db_entity
 
     async def get_many(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> list[OrmUser]:
+    ) -> list[MODEL]:
         """
-        Get specified users from DB.
+        Get specified entities from DB.
 
-        @:param include_fields: Sequence of OrmUser fields to include into output object.
-        @:param exclude_fields: Sequence of OrmUser fields to exclude from output object.
-        @:param kwargs: Filter keywords.
-
-        The same as .get, but without limiting number of returning objects.
-
-        Example with documents:
-        self.get_many(
-          name="Specific document name",
-          include_fields=(OrmDocument.section_id, OrmDocument.md5,)
-        )
-        This call will filter documents by specified name and query only fields of include_fields argument.
-
-        SQL query will be:
-        SELECT section_id, md5
-          FROM documents
-         WHERE name = 'Specific document name'
-         ORDER BY created_at DESC
+        The same as .get, but without limiting.
         """
 
         query = await self._prepare_select(
@@ -136,41 +121,37 @@ class UsersRepository(AbstractUsersRepository):
             **kwargs
         )
         query_result = await self.uow.session.execute(query)
-        users = query_result.scalars().all()
+        db_entities = query_result.scalars().all()
 
-        return users
+        return db_entities
 
-    async def update(self, user_id: UUID, **kwargs) -> OrmUser:
-        """ Update user in DB. """
-
+    async def update(self, entity_id: UUID, **kwargs) -> MODEL:
         logger.info(
-            f"Updating user {user_id} in DB...",
+            f"Updating {self.model.__name__} with id {entity_id} in DB...",
             extra=kwargs
         )
         query = (
-            update(OrmUser)
-            .where(OrmUser.id == user_id)
+            update(self.model)
+            .where(self.model.id == entity_id)
             .values(**kwargs)
-            .returning(OrmUser)
+            .returning(self.model)
         )
         result = await self.uow.session.execute(query)
-        document: OrmUser = result.scalar_one()
+        db_entity = result.scalar_one()
 
         logger.info(
-            f"User {user_id} successfully updated in DB",
-            extra=document.to_dict()
+            f"{self.model.__name__} with id {entity_id} updated in DB",
+            extra=db_entity.to_dict()
         )
-        return document
+        return db_entity
 
-    async def delete(self, user_id: UUID) -> None:
-        """ Delete user from DB. """
+    async def delete(self, entity_id: UUID) -> None:
+        logger.info(f"Deleting {self.model.__name__} with id {entity_id} from DB...")
 
-        logger.info(f"Deleting user {user_id} from DB...")
-
-        query = delete(OrmUser).where(OrmUser.id == user_id)
+        query = delete(self.model).where(self.model.id == entity_id)
         await self.uow.session.execute(query)
 
-        logger.info(f"User {user_id} successfully deleted from DB")
+        logger.info(f"{self.model.__name__} with id {entity_id} deleted from DB")
 
     async def _prepare_select(
             self,
@@ -178,18 +159,10 @@ class UsersRepository(AbstractUsersRepository):
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
     ) -> Select:
-        """
-        Prepare select query.
-
-        Filter objects by specified kwargs,
-        Filter fields to include in output query,
-        order results by descending created_at field.
-        """
-
         query = (
-            select(OrmUser)
+            select(self.model)
             .filter_by(**kwargs)
-            .order_by(OrmUser.created_at.desc())
+            .order_by(self.model.created_at.desc())
         )
         if include_fields:
             query = query.options(load_only(*include_fields))
@@ -197,3 +170,9 @@ class UsersRepository(AbstractUsersRepository):
             query = query.options(defer(*exclude_fields))
 
         return query
+
+
+class AbstractUsersRepository(AbstractGenericRepository, ABC):
+    def __init__(self, uow: AbstractUnitOfWork):
+        """ Throws OrmUser model into generic base. """
+        super().__init__(uow, OrmUser)

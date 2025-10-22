@@ -3,7 +3,7 @@ import abc
 from fastapi.security import OAuth2AuthorizationCodeBearer
 
 from identity.src.adapters.keycloak import AbstractKeycloak
-from identity.src.adapters.repository import AbstractUsersRepository
+from identity.src.adapters.repositories.base import AbstractUsersRepository
 from identity.src.config.settings import settings
 from identity.src.domain.user import User, AuthenticatedUser
 

@@ -1,7 +1,7 @@
 import abc
 from uuid import UUID
 
-from identity.src.adapters.repository import AbstractUsersRepository
+from identity.src.adapters.repositories.base import AbstractUsersRepository
 from identity.src.domain.user import User
 
 

@@ -8,10 +8,6 @@ from identity.src.enums import UserProjectRole
 
 
 class Base(DeclarativeBase):
-    pass
-
-
-class BaseMixin:
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, index=True)
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now(), index=True)
     updated_at: Mapped[datetime | None] = mapped_column(onupdate=sa.func.now())
@@ -34,7 +30,7 @@ class BaseMixin:
         return data
 
 
-class OrmUser(BaseMixin, Base):
+class OrmUser(Base):
     __tablename__ = "users"
 
     first_name: Mapped[str | None]
@@ -55,7 +51,7 @@ class OrmUser(BaseMixin, Base):
     )
 
 
-class OrmCompany(BaseMixin, Base):
+class OrmCompany(Base):
     __tablename__ = "companies"
 
     name: Mapped[str]

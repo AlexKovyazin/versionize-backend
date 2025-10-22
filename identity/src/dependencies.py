@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
 from identity.src.adapters.keycloak import Keycloak
-from identity.src.adapters.repository import UsersRepository
+from identity.src.adapters.repositories.users import UsersRepository
 from identity.src.domain.user import AuthenticatedUser, UsersSearch
 from identity.src.service.auth import AuthService
 from identity.src.service.auth import oauth2_scheme
