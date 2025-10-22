@@ -174,5 +174,5 @@ class GenericRepository(IGenericRepository[MODEL, SCHEMA]):
 
 class IUsersRepository(IGenericRepository, ABC):
     def __init__(self, uow: AbstractUnitOfWork):
-        """ Throws OrmUser model into generic base. """
+        """ Throws model into generic base. """
         super().__init__(uow, OrmUser)
