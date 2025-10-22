@@ -1,12 +1,11 @@
 from typing import Sequence
 from uuid import UUID, uuid4
 from datetime import datetime
-from xml.dom.minidom import Document
 
 from sqlalchemy.orm import InstrumentedAttribute
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repository import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import AbstractDocumentsRepository
 from documents.src.domain.document import DocumentCreate
 from documents.src.service.uow import AbstractUnitOfWork
 

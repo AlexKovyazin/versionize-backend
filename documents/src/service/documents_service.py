@@ -4,7 +4,8 @@ from typing import AsyncGenerator
 from uuid import UUID
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repository import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import AbstractDocumentsRepository
+from documents.src.adapters.repositories.documents import DocumentsRepository
 from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentCreate
@@ -46,6 +47,7 @@ class AbstractDocumentService(abc.ABC):
 
 
 class DocumentService(AbstractDocumentService):
+    repository: DocumentsRepository
 
     async def create(
             self,

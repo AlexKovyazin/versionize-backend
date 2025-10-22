@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from documents.src.adapters.repository import AbstractDocumentsRepository
+from documents.src.adapters.repositories.base import AbstractDocumentsRepository
 from documents.src.dependencies import get_uow, get_documents_repository
 from documents.tests.fixtures.repositories import FakeDocumentsRepository
 from documents.tests.fixtures.services import FakeDocumentService

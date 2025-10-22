@@ -2,30 +2,15 @@ import uuid
 from datetime import datetime
 
 import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from documents.src.enums import DocumentStatuses
 
-Base = declarative_base()
 
-
-class OrmDocument(Base):
-    __tablename__ = "documents"
-
+class Base(DeclarativeBase):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, index=True)
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now(), index=True)
-    updated_at: Mapped[datetime | None] = mapped_column(server_default=sa.func.now())
-    status: Mapped[DocumentStatuses] = mapped_column(default=DocumentStatuses.NEW)
-    name: Mapped[str]
-    version: Mapped[int] = mapped_column(comment="Used on expertise")
-    variation: Mapped[int] = mapped_column(comment="Continuous numbering for every document")
-    md5: Mapped[str] = mapped_column(sa.String(32), unique=True)
-    note: Mapped[str | None]
-
-    company_id: Mapped[uuid.UUID] = mapped_column(index=True)
-    project_id: Mapped[uuid.UUID] = mapped_column(index=True)
-    section_id: Mapped[uuid.UUID] = mapped_column(index=True)
-    responsible_id: Mapped[uuid.UUID] = mapped_column(index=True)
+    updated_at: Mapped[datetime | None] = mapped_column(onupdate=sa.func.now())
 
     def to_dict(self, exclude: list = None):
         """Convert model instance to dictionary."""
@@ -43,3 +28,19 @@ class OrmDocument(Base):
                 data[column.name] = value
 
         return data
+
+
+class OrmDocument(Base):
+    __tablename__ = "documents"
+
+    status: Mapped[DocumentStatuses] = mapped_column(default=DocumentStatuses.NEW)
+    name: Mapped[str]
+    version: Mapped[int] = mapped_column(comment="Used on expertise")
+    variation: Mapped[int] = mapped_column(comment="Continuous numbering for every document")
+    md5: Mapped[str] = mapped_column(sa.String(32), unique=True)
+    note: Mapped[str | None]
+
+    company_id: Mapped[uuid.UUID] = mapped_column(index=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(index=True)
+    section_id: Mapped[uuid.UUID] = mapped_column(index=True)
+    responsible_id: Mapped[uuid.UUID] = mapped_column(index=True)

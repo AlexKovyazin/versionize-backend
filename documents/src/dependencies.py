@@ -5,7 +5,8 @@ from fastapi import Depends
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
-from documents.src.adapters.repository import AbstractDocumentsRepository, DocumentsRepository
+from documents.src.adapters.repositories.base import AbstractDocumentsRepository
+from documents.src.adapters.repositories.documents import DocumentsRepository
 from documents.src.adapters.s3 import S3
 from documents.src.config.settings import settings
 from documents.src.domain.document import DocumentsSearch
