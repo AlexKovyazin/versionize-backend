@@ -25,7 +25,7 @@ class User(AuthenticatedUser):
     phone: str | None
     company: Company | None
     position: str | None
-    project_role: UserProjectRole | None
+    project_role: UserProjectRole | None  # TODO этот атрибут относится к проекту, а не к пользователю
     last_login: datetime | None
     validated: bool
     created_at: datetime
