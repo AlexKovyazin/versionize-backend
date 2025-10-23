@@ -8,6 +8,8 @@ class UsersRepository(
     IUsersRepository,
     GenericRepository[OrmUser, UserBase]
 ):
+    """ UsersRepository implementation. """
+
     async def create(self, user: UserBase) -> OrmUser:
         logger.info(
             f"Adding new OrmUser with id {user.id}...",

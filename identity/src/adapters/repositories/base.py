@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
-from identity.src.adapters.orm import Base, OrmUser
+from identity.src.adapters.orm import Base, OrmUser, OrmCompany
 from identity.src.config.logging import logger
 from identity.src.service.uow import AbstractUnitOfWork
 
@@ -176,3 +176,9 @@ class IUsersRepository(IGenericRepository, ABC):
     def __init__(self, uow: AbstractUnitOfWork):
         """ Throws model into generic base. """
         super().__init__(uow, OrmUser)
+
+
+class ICompaniesRepository(IGenericRepository, ABC):
+    def __init__(self, uow: AbstractUnitOfWork):
+        """ Throws model into generic base. """
+        super().__init__(uow, OrmCompany)

@@ -6,10 +6,13 @@ from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
 from identity.src.adapters.keycloak import Keycloak
+from identity.src.adapters.repositories.companies import CompaniesRepository
 from identity.src.adapters.repositories.users import UsersRepository
+from identity.src.domain.company import CompaniesSearch
 from identity.src.domain.user import AuthenticatedUser, UsersSearch
 from identity.src.service.auth import AuthService
 from identity.src.service.auth import oauth2_scheme
+from identity.src.service.company import CompaniesService
 from identity.src.service.uow import UnitOfWork
 from identity.src.service.user import UserService
 
@@ -23,6 +26,11 @@ async def get_uow():
 async def get_users_repository(uow=Depends(get_uow)) -> UsersRepository:
     """ Real dependency of users repository for production. """
     return UsersRepository(uow)
+
+
+async def get_companies_repository(uow=Depends(get_uow)) -> CompaniesRepository:
+    """ Real dependency of users repository for production. """
+    return CompaniesRepository(uow)
 
 
 async def get_keycloak_adapter() -> Keycloak:
@@ -43,6 +51,13 @@ async def get_user_service(
 ):
     """ Real dependency of UserService for production. """
     return UserService(repo)
+
+
+async def get_companies_service(
+        repo=Depends(get_companies_repository),
+):
+    """ Real dependency of CompaniesService for production. """
+    return CompaniesService(repo)
 
 
 async def get_authenticated_user(
@@ -103,6 +118,25 @@ async def get_users_search_params(
             company_id=company_id,
             position=position,
             validated=validated,
+        )
+    except ValidationError as e:
+        raise RequestValidationError(e.errors())
+
+    return search_data
+
+
+async def get_companies_search_params(
+        name: str | None = None,
+        phone: str | None = None,
+        email: str | None = None,
+) -> CompaniesSearch:
+    """ Dependency for parsing query results of get requests for getting companies. """
+
+    try:
+        search_data = CompaniesSearch(
+            name=name,
+            phone=phone,
+            email=email
         )
     except ValidationError as e:
         raise RequestValidationError(e.errors())
