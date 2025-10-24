@@ -10,16 +10,16 @@ from identity.src.config.logging import logger
 from identity.src.service.uow import AbstractUnitOfWork
 
 MODEL = TypeVar("MODEL", bound=Base)
-SCHEMA = TypeVar("SCHEMA")
+IN_SCHEMA = TypeVar("IN_SCHEMA")
 
 
-class IGenericRepository(ABC, Generic[MODEL, SCHEMA]):
+class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
     def __init__(self, uow: AbstractUnitOfWork, model: Type[MODEL]):
         self.uow = uow
         self.model = model
 
     @abstractmethod
-    async def create(self, entity: SCHEMA) -> MODEL:
+    async def create(self, entity: IN_SCHEMA) -> MODEL:
         ...
 
     @abstractmethod
@@ -49,8 +49,8 @@ class IGenericRepository(ABC, Generic[MODEL, SCHEMA]):
         ...
 
 
-class GenericRepository(IGenericRepository[MODEL, SCHEMA]):
-    async def create(self, entity: SCHEMA) -> MODEL:
+class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
+    async def create(self, entity: IN_SCHEMA) -> MODEL:
         logger.info(
             f"Adding new {self.model.__name__} with id {entity.id}...",
             extra=entity.model_dump()
