@@ -38,11 +38,11 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         ...
 
     @abstractmethod
-    async def update(self, user_id: UUID, **kwargs) -> OUT_SCHEMA:
+    async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA:
         ...
 
     @abstractmethod
-    async def delete(self, user_id: UUID) -> None:
+    async def delete(self, entity_id: UUID) -> None:
         ...
 
 
