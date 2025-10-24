@@ -26,7 +26,7 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         self.out_schema = out_schema
 
     @abstractmethod
-    async def create(self, entity: IN_SCHEMA) -> IN_SCHEMA:
+    async def create(self, entity: IN_SCHEMA, **kwargs) -> IN_SCHEMA:
         ...
 
     @abstractmethod
@@ -42,14 +42,14 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         ...
 
     @abstractmethod
-    async def delete(self, entity_id: UUID) -> None:
+    async def delete(self, entity_id: UUID, **kwargs) -> None:
         ...
 
 
 class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
     """ Generic service implementation. """
 
-    async def create(self, entity: IN_SCHEMA) -> OUT_SCHEMA:
+    async def create(self, entity: IN_SCHEMA, **kwargs) -> OUT_SCHEMA:
         created_entity = await self.repository.create(entity)
         created_entity = self.out_schema.model_validate(created_entity)
         return created_entity
@@ -67,7 +67,7 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
         updated_entity = self.out_schema.model_validate(updated_entity)
         return updated_entity
 
-    async def delete(self, entity_id: UUID) -> None:
+    async def delete(self, entity_id: UUID, **kwargs) -> None:
         await self.repository.delete(entity_id)
 
 
