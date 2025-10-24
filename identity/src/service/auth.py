@@ -16,7 +16,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 )
 
 
-class AbstractAuthService(abc.ABC):
+class IAuthService(abc.ABC):
     def __init__(
             self,
             repository: IUsersRepository,
@@ -37,7 +37,7 @@ class AbstractAuthService(abc.ABC):
         ...
 
 
-class AuthService(AbstractAuthService):
+class AuthService(IAuthService):
 
     async def introspect(self, token) -> dict:
         return await self.keycloak.introspect(token)

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from identity.src.adapters.repositories.base import IGenericRepository
 from identity.src.domain.company import Company, CompanyBase
+from identity.src.domain.user import UserBase, User
 
 REPO = TypeVar("REPO", bound=IGenericRepository)
 IN_SCHEMA = TypeVar("IN_SCHEMA", bound=BaseModel)
@@ -80,4 +81,16 @@ class ICompaniesService(IGenericService, ABC):
             repository=repository,
             in_schema=CompanyBase,
             out_schema=Company
+        )
+
+
+class IUserService(IGenericService, ABC):
+    """ Interface of UserService. """
+
+    def __init__(self, repository: REPO):
+        """ Throws model into generic base. """
+        super().__init__(
+            repository=repository,
+            in_schema=UserBase,
+            out_schema=User
         )
