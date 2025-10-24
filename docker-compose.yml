@@ -47,6 +47,30 @@ services:
     env_file:
       - identity/identity.env
 
+  projects:
+    container_name: projects
+    build: ./documents
+    command: [ "python", "-m", "projects" ]
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./projects:/usr/src/projects
+      - app_logs:/var/log
+    env_file:
+      - ./projects/.env
+    depends_on:
+      - projects_db
+
+  projects_db:
+    container_name: projects_db
+    image: postgres:17.6
+    volumes:
+      - projects_db_data:/var/lib/postgresql/data
+    ports:
+      - "5601:5432"
+    env_file:
+      - projects/.env
+
   keycloak_db:
     image: postgres:17.6
     container_name: keycloak_db
@@ -124,6 +148,7 @@ networks:
 volumes:
   documents_db_data:
   identity_db_data:
+  projects_db_data:
   keycloak_db_data:
   grafana-storage:
   app_logs:
