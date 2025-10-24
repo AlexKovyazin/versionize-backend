@@ -6,7 +6,7 @@ import pytest
 
 from documents.src.adapters.orm import OrmDocument
 from documents.src.domain.document import DocumentOut
-from documents.src.service.documents_service import DocumentService
+from documents.src.service.document import DocumentService
 from documents.tests.fixtures.factories import create_document_in_data
 from documents.tests.fixtures.repositories import FakeDocumentsRepository
 from documents.tests.fixtures.uow import FakeUnitOfWork

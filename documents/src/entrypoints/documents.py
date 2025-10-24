@@ -9,7 +9,7 @@ from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSear
 from documents.src.domain.responses import DownloadResponse, UploadResponse
 from documents.src.enums import DocumentStatuses
 from documents.src.exceptions import FileNotExistError
-from documents.src.service.documents_service import DocumentService
+from documents.src.service.document import DocumentService
 
 router = APIRouter(tags=["Documents"])
 

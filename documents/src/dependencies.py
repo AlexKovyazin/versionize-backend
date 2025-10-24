@@ -12,7 +12,7 @@ from documents.src.config.settings import settings
 from documents.src.domain.document import DocumentsSearch
 from documents.src.domain.user import User
 from documents.src.service.auth import oauth2_scheme
-from documents.src.service.documents_service import DocumentService
+from documents.src.service.document import DocumentService
 from documents.src.service.uow import UnitOfWork
 
 
