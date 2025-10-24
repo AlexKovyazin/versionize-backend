@@ -17,7 +17,7 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
 
     def __init__(
             self,
-            repository: Type[REPO],
+            repository: REPO,
             in_schema: Type[IN_SCHEMA],
             out_schema: Type[OUT_SCHEMA]
     ):
@@ -74,7 +74,7 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
 class ICompaniesService(IGenericService, ABC):
     """ Interface of CompaniesService. """
 
-    def __init__(self, repository: Type[REPO]):
+    def __init__(self, repository: REPO):
         """ Throws model into generic base. """
         super().__init__(
             repository=repository,
