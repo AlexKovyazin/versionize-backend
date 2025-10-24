@@ -29,7 +29,7 @@ def default_first_document() -> DocumentOut:
 
     document_in_data = create_document_in_data()
     document_orm = OrmDocument(
-        id=str(uuid.uuid4()),
+        id=uuid.uuid4(),
         version=1,
         variation=0,
         md5=hashlib.md5().hexdigest(),
@@ -47,7 +47,7 @@ def make_two_versions_of_a_document() -> callable:
             note="First variation"
         )
         first_document_orm = OrmDocument(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             version=1,
             variation=0,
             md5=hashlib.md5().hexdigest(),
@@ -59,7 +59,7 @@ def make_two_versions_of_a_document() -> callable:
         second_document_variation = 1 if raise_variation else 0
         second_document_version = first_document_orm.version + 1
         second_document_orm = OrmDocument(
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
             version=second_document_version,
             variation=second_document_variation,
             md5=hashlib.md5().hexdigest(),

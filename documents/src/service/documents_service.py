@@ -1,59 +1,27 @@
-import abc
 import hashlib
 from typing import AsyncGenerator
 from uuid import UUID
 
 from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import IDocumentsRepository
 from documents.src.adapters.repositories.documents import DocumentsRepository
-from documents.src.adapters.s3 import AbstractS3
 from documents.src.config.logging import logger
-from documents.src.domain.document import DocumentIn, DocumentOut, DocumentCreate
+from documents.src.domain.document import DocumentCreate
+from documents.src.domain.document import DocumentIn, DocumentOut
 from documents.src.exceptions import FileNotExistError
+from documents.src.service.base import IDocumentService, GenericService
 
 
-class AbstractDocumentService(abc.ABC):
-    def __init__(
-            self,
-            repository: IDocumentsRepository,
-            s3: AbstractS3
-    ):
-        self.repository = repository
-        self.s3 = s3
-
-    @abc.abstractmethod
-    async def create(
-            self,
-            document_in: DocumentIn,
-            file_content: bytes
-    ) -> DocumentOut:
-        ...
-
-    @abc.abstractmethod
-    async def get(self, **kwargs):
-        ...
-
-    @abc.abstractmethod
-    async def get_many(self, **kwargs):
-        ...
-
-    @abc.abstractmethod
-    async def download(self, document_id: UUID):
-        ...
-
-    @abc.abstractmethod
-    async def delete(self, document_id: UUID):
-        ...
-
-
-class DocumentService(AbstractDocumentService):
-    repository: DocumentsRepository
+class DocumentService(
+    IDocumentService,
+    GenericService[DocumentsRepository, DocumentIn, DocumentOut]
+):
+    """ DocumentsService implementation. """
 
     async def create(
             self,
             document_in: DocumentIn,
-            file_content: bytes,
-            raise_variation=False
+            file_content: bytes | None = None,
+            raise_variation: bool = False
     ) -> DocumentOut:
         """
         Creates a new document with business logic:
@@ -66,6 +34,9 @@ class DocumentService(AbstractDocumentService):
         raise_variation flag used when document is examining by expert.
         If set to True - variation number of new versions will be increased.
         """
+
+        if not file_content:
+            raise AttributeError("file_content cannot be None on document creation")
 
         logger.info(
             f"Creating new document for section {document_in.section_id}",
@@ -101,14 +72,6 @@ class DocumentService(AbstractDocumentService):
 
         return created_document
 
-    async def get(self, **kwargs) -> DocumentOut:
-        retrieved_document = await self.repository.get(**kwargs)
-        return DocumentOut.model_validate(retrieved_document)
-
-    async def get_many(self, **kwargs) -> list[DocumentOut]:
-        retrieved_documents = await self.repository.get_many(**kwargs)
-        return [DocumentOut.model_validate(d) for d in retrieved_documents]
-
     async def download(self, document_id: UUID) -> tuple[str, AsyncGenerator]:
         """ Download file from S3. """
 
@@ -138,24 +101,8 @@ class DocumentService(AbstractDocumentService):
 
         return await self.s3.get_upload_url(document_id)
 
-    async def update(self, document_id: UUID, **kwargs) -> DocumentOut:
-        """ Update document attributes in DB. """
-
-        logger.info(f"Updating document {document_id}...")
-
-        updated_document = await self.repository.update(document_id, **kwargs)
-        updated_document = DocumentOut.model_validate(updated_document)
-
-        logger.info(f"Document {document_id} updated", extra=updated_document.model_dump())
-
-        return updated_document
-
-    async def delete(self, document_id: UUID):
+    async def delete(self, document_id: UUID, **kwargs):
         """ Delete document from S3 and DB. """
-
-        logger.info(f"Deleting document with id {document_id}...")
 
         await self.s3.delete(document_id)
         await self.repository.delete(document_id)
-
-        logger.info(f"Document {document_id} deleted")
