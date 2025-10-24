@@ -49,7 +49,7 @@ services:
 
   projects:
     container_name: projects
-    build: ./documents
+    build: ./projects
     command: [ "python", "-m", "projects" ]
     ports:
       - "8002:8002"
