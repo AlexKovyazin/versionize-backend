@@ -39,6 +39,8 @@ class OrmDocument(Base):
     variation: Mapped[int] = mapped_column(comment="Continuous numbering for every document")
     md5: Mapped[str] = mapped_column(sa.String(32), unique=True)
     note: Mapped[str | None]
+    # TODO добавь поле, сделай миграцию и реализуй логику томов
+    # volume: Mapped[int] = mapped_column(comment="Номер тома")
 
     company_id: Mapped[uuid.UUID] = mapped_column(index=True)
     project_id: Mapped[uuid.UUID] = mapped_column(index=True)

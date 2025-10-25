@@ -67,7 +67,7 @@ services:
     volumes:
       - projects_db_data:/var/lib/postgresql/data
     ports:
-      - "5601:5432"
+      - "5603:5432"
     env_file:
       - projects/.env
 

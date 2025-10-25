@@ -7,3 +7,8 @@ class UserProjectRole(Enum):
     DEVELOPER = "Разработчик раздела"
     CA_MANAGER = "Менеджер организации"
     EXPERT = "Эксперт"
+
+
+class ProjectTypes(Enum):
+    LINEAR = 1
+    AREAL = 2
