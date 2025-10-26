@@ -1,6 +1,6 @@
 from fastapi.security import OAuth2AuthorizationCodeBearer
 
-from src.config.settings import settings
+from documents.src.config.settings import settings
 
 oauth2_scheme = OAuth2AuthorizationCodeBearer(
     authorizationUrl=settings.kc_auth_url,

@@ -4,13 +4,13 @@ import uuid
 
 import pytest
 
-from src.adapters.orm import OrmDocument
-from src.domain.document import DocumentOut
-from src.service.document import DocumentService
-from tests.fixtures.factories import create_document_in_data
-from tests.fixtures.repositories import FakeDocumentsRepository
-from tests.fixtures.uow import FakeUnitOfWork
-from tests.fixtures.s3 import FakeS3
+from documents.src.adapters.orm import OrmDocument
+from documents.src.domain.document import DocumentOut
+from documents.src.service.document import DocumentService
+from documents.tests.fixtures.factories import create_document_in_data
+from documents.tests.fixtures.repositories import FakeDocumentsRepository
+from documents.tests.fixtures.uow import FakeUnitOfWork
+from documents.tests.fixtures.s3 import FakeS3
 
 
 @pytest.fixture

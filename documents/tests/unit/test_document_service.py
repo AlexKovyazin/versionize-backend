@@ -1,7 +1,7 @@
 import uuid
 
-from src.domain.document import DocumentIn
-from tests.fixtures.factories import create_document_in_data
+from documents.src.domain.document import DocumentIn
+from documents.tests.fixtures.factories import create_document_in_data
 
 
 async def test_document_creation(fake_documents_service):

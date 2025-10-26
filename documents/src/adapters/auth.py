@@ -1,7 +1,6 @@
+from documents.src.domain.user import User
 import httpx
-
-from src.config.settings import settings
-from src.domain.user import User
+from documents.src.config.settings import settings
 
 
 class AuthService:

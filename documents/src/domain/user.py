@@ -3,8 +3,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from src.domain.company import Company
-from src.enums import UserProjectRole
+from documents.src.domain.company import Company
+from documents.src.enums import UserProjectRole
 
 
 class UserBase(BaseModel):

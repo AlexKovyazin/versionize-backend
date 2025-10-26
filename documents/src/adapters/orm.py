@@ -4,7 +4,7 @@ from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from src.enums import DocumentStatuses
+from documents.src.enums import DocumentStatuses
 
 
 class Base(DeclarativeBase):

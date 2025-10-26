@@ -2,7 +2,7 @@ import abc
 
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
-from src.config.settings import settings
+from documents.src.config.settings import settings
 
 
 async_engine = create_async_engine(

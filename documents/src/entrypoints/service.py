@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 
-from src.config.settings import settings
-from src.dependencies import get_user
-from src.domain.user import User
+from documents.src.config.settings import settings
+from documents.src.dependencies import get_user
+from documents.src.domain.user import User
 
 router = APIRouter(tags=["Service"])
 

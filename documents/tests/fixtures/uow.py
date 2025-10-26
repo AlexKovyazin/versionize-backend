@@ -1,4 +1,4 @@
-from src.service.uow import AbstractUnitOfWork
+from documents.src.service.uow import AbstractUnitOfWork
 
 
 class FakeUnitOfWork(AbstractUnitOfWork):

@@ -5,9 +5,9 @@ from uuid import UUID
 from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
-from src.adapters.orm import Base, OrmDocument
-from src.config.logging import logger
-from src.service.uow import AbstractUnitOfWork
+from documents.src.adapters.orm import Base, OrmDocument
+from documents.src.config.logging import logger
+from documents.src.service.uow import AbstractUnitOfWork
 
 MODEL = TypeVar("MODEL", bound=Base)
 IN_SCHEMA = TypeVar("IN_SCHEMA")

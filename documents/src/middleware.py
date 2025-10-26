@@ -6,7 +6,7 @@ from typing import Callable
 
 from fastapi import Request
 
-from src.config.logging import user_ip_var, request_id_var
+from documents.src.config.logging import user_ip_var, request_id_var
 
 logger = logging.getLogger(__name__)
 

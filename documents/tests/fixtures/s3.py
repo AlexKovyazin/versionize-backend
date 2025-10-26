@@ -1,8 +1,8 @@
 from typing import AsyncGenerator
 from uuid import UUID
 
-from src.adapters.s3 import AbstractS3, FileExistError
-from src.enums import DocumentContentType
+from documents.src.adapters.s3 import AbstractS3, FileExistError
+from documents.src.enums import DocumentContentType
 
 
 class FakeS3(AbstractS3):
