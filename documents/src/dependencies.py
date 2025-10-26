@@ -5,15 +5,15 @@ from fastapi import Depends
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
-from documents.src.adapters.repositories.base import IDocumentsRepository
-from documents.src.adapters.repositories.documents import DocumentsRepository
-from documents.src.adapters.s3 import S3
-from documents.src.config.settings import settings
-from documents.src.domain.document import DocumentsSearch
-from documents.src.domain.user import User
-from documents.src.service.auth import oauth2_scheme
-from documents.src.service.document import DocumentService
-from documents.src.service.uow import UnitOfWork
+from src.adapters.repositories.base import IDocumentsRepository
+from src.adapters.repositories.documents import DocumentsRepository
+from src.adapters.s3 import S3
+from src.config.settings import settings
+from src.domain.document import DocumentsSearch
+from src.domain.user import User
+from src.service.auth import oauth2_scheme
+from src.service.document import DocumentService
+from src.service.uow import UnitOfWork
 
 
 async def get_uow():

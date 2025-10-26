@@ -4,9 +4,9 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from documents.src.adapters.s3 import AbstractS3
-from documents.src.domain.document import DocumentIn, DocumentOut
-from documents.src.adapters.repositories.base import IGenericRepository
+from src.adapters.s3 import AbstractS3
+from src.domain.document import DocumentIn, DocumentOut
+from src.adapters.repositories.base import IGenericRepository
 
 REPO = TypeVar("REPO", bound=IGenericRepository)
 IN_SCHEMA = TypeVar("IN_SCHEMA", bound=BaseModel)

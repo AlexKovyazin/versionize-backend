@@ -7,10 +7,10 @@ import aiobotocore.client
 from aiobotocore.session import ClientCreatorContext
 from botocore.exceptions import ClientError
 
-from documents.src.config.logging import logger
-from documents.src.config.settings import settings
-from documents.src.enums import DocumentContentType
-from documents.src.exceptions import FileExistError, FileNotExistError
+from src.config.logging import logger
+from src.config.settings import settings
+from src.enums import DocumentContentType
+from src.exceptions import FileExistError, FileNotExistError
 
 
 def get_s3_session_context():

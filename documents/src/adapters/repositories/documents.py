@@ -2,9 +2,9 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import IDocumentsRepository, GenericRepository
-from documents.src.domain.document import DocumentCreate
+from src.adapters.orm import OrmDocument
+from src.adapters.repositories.base import IDocumentsRepository, GenericRepository
+from src.domain.document import DocumentCreate
 
 
 class DocumentsRepository(

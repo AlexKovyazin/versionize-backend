@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from documents.src.config.settings import settings
-from documents.src.entrypoints.router import router
-from documents.src.middleware import logging_middleware
+from src.config.settings import settings
+from src.entrypoints.router import router
+from src.middleware import logging_middleware
 
 app = FastAPI(
     title="Documents",

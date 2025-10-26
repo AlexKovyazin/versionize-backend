@@ -1,9 +1,9 @@
 from fastapi import Depends
 
-from documents.src.adapters.repositories.base import IDocumentsRepository
-from documents.src.dependencies import get_uow
-from documents.tests.fixtures.repositories import FakeDocumentsRepository
-from documents.tests.fixtures.uow import FakeUnitOfWork
+from src.adapters.repositories.base import IDocumentsRepository
+from src.dependencies import get_uow
+from tests.fixtures.repositories import FakeDocumentsRepository
+from tests.fixtures.uow import FakeUnitOfWork
 
 
 async def fake_uow():

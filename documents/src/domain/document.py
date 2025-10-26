@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from documents.src.enums import DocumentStatuses
+from src.enums import DocumentStatuses
 
 
 class DocumentIn(BaseModel):

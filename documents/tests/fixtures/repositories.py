@@ -4,10 +4,10 @@ from datetime import datetime
 
 from sqlalchemy.orm import InstrumentedAttribute
 
-from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.base import IDocumentsRepository
-from documents.src.domain.document import DocumentCreate
-from documents.src.service.uow import AbstractUnitOfWork
+from src.adapters.orm import OrmDocument
+from src.adapters.repositories.base import IDocumentsRepository
+from src.domain.document import DocumentCreate
+from src.service.uow import AbstractUnitOfWork
 
 
 class FakeDocumentsRepository(IDocumentsRepository):

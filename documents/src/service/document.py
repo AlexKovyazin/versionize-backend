@@ -2,13 +2,13 @@ import hashlib
 from typing import AsyncGenerator
 from uuid import UUID
 
-from documents.src.adapters.orm import OrmDocument
-from documents.src.adapters.repositories.documents import DocumentsRepository
-from documents.src.config.logging import logger
-from documents.src.domain.document import DocumentCreate
-from documents.src.domain.document import DocumentIn, DocumentOut
-from documents.src.exceptions import FileNotExistError
-from documents.src.service.base import IDocumentService, GenericService
+from src.adapters.orm import OrmDocument
+from src.adapters.repositories.documents import DocumentsRepository
+from src.config.logging import logger
+from src.domain.document import DocumentCreate
+from src.domain.document import DocumentIn, DocumentOut
+from src.exceptions import FileNotExistError
+from src.service.base import IDocumentService, GenericService
 
 
 class DocumentService(

@@ -3,13 +3,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi import HTTPException
 
-from documents.src.config.logging import logger
-from documents.src.dependencies import get_document_service, get_search_params
-from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
-from documents.src.domain.responses import DownloadResponse, UploadResponse
-from documents.src.enums import DocumentStatuses
-from documents.src.exceptions import FileNotExistError
-from documents.src.service.document import DocumentService
+from src.config.logging import logger
+from src.dependencies import get_document_service, get_search_params
+from src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
+from src.domain.responses import DownloadResponse, UploadResponse
+from src.enums import DocumentStatuses
+from src.exceptions import FileNotExistError
+from src.service.document import DocumentService
 
 router = APIRouter(tags=["Documents"])
 
