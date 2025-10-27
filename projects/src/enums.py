@@ -9,6 +9,6 @@ class UserProjectRole(Enum):
     EXPERT = "Эксперт"
 
 
-class ProjectTypes(Enum):
+class ProjectType(Enum):
     LINEAR = 1
     AREAL = 2

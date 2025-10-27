@@ -54,6 +54,10 @@ class OrmProject(Base):
     project_type: Mapped[ProjectType] = mapped_column(comment="Тип объекта")
     company_id: Mapped[UUID] = mapped_column(comment="Проектная организация")
 
+    sections: Mapped[list["OrmSection"]] = relationship(
+        "OrmSection", back_populates="project"
+    )
+
 
 class OrmSection(Base):
     __tablename__ = "sections"
