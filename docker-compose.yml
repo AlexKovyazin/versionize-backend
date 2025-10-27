@@ -71,6 +71,30 @@ services:
     env_file:
       - projects/.env
 
+  reviewer:
+    container_name: reviewer
+    build: ./reviewer
+    command: [ "python", "-m", "reviewer" ]
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./reviewer:/usr/src/reviewer
+      - app_logs:/var/log
+    env_file:
+      - ./reviewer/.env
+    depends_on:
+      - reviewer_db
+
+  reviewer_db:
+    container_name: reviewer_db
+    image: postgres:17.6
+    volumes:
+      - reviewer_db_data:/var/lib/postgresql/data
+    ports:
+      - "5604:5432"
+    env_file:
+      - reviewer/.env
+
   keycloak_db:
     image: postgres:17.6
     container_name: keycloak_db
@@ -149,6 +173,7 @@ volumes:
   documents_db_data:
   identity_db_data:
   projects_db_data:
+  reviewer_db_data:
   keycloak_db_data:
   grafana-storage:
   app_logs:
