@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
-from sqlalchemy import UniqueConstraint, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -27,3 +27,34 @@ class Base(DeclarativeBase):
                 data[column.name] = value
 
         return data
+
+
+class OrmRemarkDoc(Base):
+    __tablename__ = 'remark_docs'
+
+    version: Mapped[int]
+    md5: Mapped[str] = mapped_column(sa.String(32), unique=True)
+    note: Mapped[str | None] = mapped_column(comment="Примечание к замечаниям")
+    section_id: Mapped[UUID | None] = mapped_column(index=True)
+    project_id: Mapped[UUID | None] = mapped_column(index=True)
+
+    remarks: Mapped[list["OrmRemark"]] = relationship(
+        "OrmRemark", back_populates="remark_doc"
+    )
+
+
+class OrmRemark(Base):
+    __tablename__ = 'remarks'
+
+    number: Mapped[int] = mapped_column(comment="Порядковый номер замечания")
+    section_id: Mapped[UUID] = mapped_column(index=True, comment="ID раздела документации")
+    expert_id: Mapped[UUID] = mapped_column(comment="ID эксперта")
+    date: Mapped[datetime] = mapped_column(index=True, comment="Дата замечания")
+    body: Mapped[str] = mapped_column(comment="Текст замечания")
+    link: Mapped[str] = mapped_column(comment="Ссылка на источник замечания в разделе")
+    basis: Mapped[str] = mapped_column(comment="Нормативное обоснование замечания")
+    remark_doc_id: Mapped[UUID] = mapped_column(ForeignKey("remark_docs.id"), index=True)
+
+    remark_doc: Mapped["OrmRemarkDoc"] = relationship(
+        "OrmRemarkDoc", back_populates="remarks"
+    )

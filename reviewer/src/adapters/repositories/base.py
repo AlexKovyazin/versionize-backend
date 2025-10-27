@@ -5,9 +5,9 @@ from uuid import UUID
 from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
-from projects.src.adapters.orm import Base
-from projects.src.config.logging import logger
-from projects.src.service.uow import AbstractUnitOfWork
+from reviewer.src.adapters.orm import Base, OrmRemark, OrmRemarkDoc
+from reviewer.src.config.logging import logger
+from reviewer.src.service.uow import AbstractUnitOfWork
 
 MODEL = TypeVar("MODEL", bound=Base)
 IN_SCHEMA = TypeVar("IN_SCHEMA")
@@ -170,3 +170,15 @@ class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
             query = query.options(defer(*exclude_fields))
 
         return query
+
+
+class IRemarksRepository(IGenericRepository, ABC):
+    def __init__(self, uow: AbstractUnitOfWork):
+        """ Throws model into generic base. """
+        super().__init__(uow, OrmRemark)
+
+
+class IRemarkDocsRepository(IGenericRepository, ABC):
+    def __init__(self, uow: AbstractUnitOfWork):
+        """ Throws model into generic base. """
+        super().__init__(uow, OrmRemarkDoc)

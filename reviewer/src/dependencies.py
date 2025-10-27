@@ -5,6 +5,10 @@ from reviewer.src.config.settings import settings
 from reviewer.src.domain.user import User
 from reviewer.src.service.auth import oauth2_scheme
 from reviewer.src.service.uow import UnitOfWork
+from reviewer.src.adapters.repositories.remarks import RemarksRepository
+from reviewer.src.adapters.repositories.remark_docs import RemarkDocsRepository
+from reviewer.src.service.remark import RemarkService
+from reviewer.src.service.remark_doc import RemarkDocService
 
 
 async def get_user(token: str = Depends(oauth2_scheme)):
@@ -35,3 +39,31 @@ async def get_uow():
     """ Real dependency of UnitOfWork for production. """
     async with UnitOfWork() as uow:
         yield uow
+
+
+async def get_remarks_repository(
+        uow=Depends(get_uow)
+) -> RemarksRepository:
+    """ Real dependency of RemarksRepository for production. """
+    return RemarksRepository(uow=uow)
+
+
+async def get_remark_docs_repository(
+        uow=Depends(get_uow)
+) -> RemarkDocsRepository:
+    """ Real dependency of RemarkDocsRepository for production. """
+    return RemarkDocsRepository(uow=uow)
+
+
+async def get_remark_service(
+        repo=Depends(get_remarks_repository),
+) -> RemarkService:
+    """ Real dependency of RemarkService for production. """
+    return RemarkService(repo)
+
+
+async def get_remark_doc_service(
+        repo=Depends(get_remark_docs_repository),
+) -> RemarkDocService:
+    """ Real dependency of RemarkDocService for production. """
+    return RemarkDocService(repo)

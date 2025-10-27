@@ -5,6 +5,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from reviewer.src.adapters.repositories.base import IGenericRepository
+from reviewer.src.domain.remark import RemarkIn, RemarkOut
+from reviewer.src.domain.remark_doc import RemarkDocIn, RemarkDocOut
 
 REPO = TypeVar("REPO", bound=IGenericRepository)
 IN_SCHEMA = TypeVar("IN_SCHEMA", bound=BaseModel)
@@ -68,3 +70,27 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
 
     async def delete(self, entity_id: UUID, **kwargs) -> None:
         await self.repository.delete(entity_id)
+
+
+class IRemarkService(IGenericService, ABC):
+    """ Interface of RemarkService. """
+
+    def __init__(self, repository: REPO):
+        """ Throws model into generic base. """
+        super().__init__(
+            repository=repository,
+            in_schema=RemarkIn,
+            out_schema=RemarkOut
+        )
+
+
+class IRemarkDocService(IGenericService, ABC):
+    """ Interface of RemarkDocService. """
+
+    def __init__(self, repository: REPO):
+        """ Throws model into generic base. """
+        super().__init__(
+            repository=repository,
+            in_schema=RemarkDocIn,
+            out_schema=RemarkDocOut
+        )
