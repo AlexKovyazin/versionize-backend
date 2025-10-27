@@ -4,7 +4,6 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 
 from projects.src.enums import ProjectType
-from projects.src.domain.project import ProjectOut
 
 
 class SectionIn(BaseModel):
@@ -14,8 +13,8 @@ class SectionIn(BaseModel):
     abbreviation: str
     project_id: UUID
     company_id: UUID
-    responsible_id: UUID
-    expert_id: UUID
+    responsible_id: UUID | None = None
+    expert_id: UUID | None = None
 
 
 class SectionOut(SectionIn):

@@ -78,8 +78,8 @@ class OrmSection(Base):
     abbreviation: Mapped[str] = mapped_column(comment="Аббревиатура раздела")
     project_id: Mapped[UUID] = mapped_column(ForeignKey("projects.id"), index=True, comment="Объект")
     company_id: Mapped[UUID] = mapped_column(index=True, comment="Ответственная организация")
-    responsible_id: Mapped[UUID] = mapped_column(index=True, comment="Ответственный исполнитель")
-    expert_id: Mapped[UUID] = mapped_column(index=True, comment="Эксперт")
+    responsible_id: Mapped[UUID | None] = mapped_column(index=True, comment="Ответственный исполнитель")
+    expert_id: Mapped[UUID | None] = mapped_column(index=True, comment="Эксперт")
 
     project: Mapped["OrmProject"] = relationship(
         "OrmProject", back_populates="sections"
