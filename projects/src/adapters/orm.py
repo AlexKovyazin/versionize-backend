@@ -2,10 +2,10 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
-from sqlalchemy import UniqueConstraint
+from sqlalchemy import UniqueConstraint, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-from projects.src.enums import ProjectTypes
+from projects.src.enums import ProjectType
 
 
 class Base(DeclarativeBase):
@@ -51,7 +51,7 @@ class OrmProject(Base):
     exp_date: Mapped[datetime | None] = mapped_column(comment="Срок экспертизы")
     next_upload: Mapped[datetime | None] = mapped_column(comment="Крайний срок следующей загрузки в экспертизу")
     pm_id: Mapped[UUID] = mapped_column(comment="ГИП")
-    project_type: Mapped[ProjectTypes] = mapped_column(comment="Тип объекта")
+    project_type: Mapped[ProjectType] = mapped_column(comment="Тип объекта")
     company_id: Mapped[UUID] = mapped_column(comment="Проектная организация")
 
 
@@ -72,7 +72,7 @@ class OrmSection(Base):
 
     name: Mapped[str] = mapped_column(comment="Наименование раздела")
     abbreviation: Mapped[str] = mapped_column(comment="Аббревиатура раздела")
-    project_id: Mapped[UUID] = mapped_column(index=True, comment="Объект")
+    project_id: Mapped[UUID] = mapped_column(ForeignKey("projects.id"), index=True, comment="Объект")
     company_id: Mapped[UUID] = mapped_column(index=True, comment="Ответственная организация")
     responsible_id: Mapped[UUID] = mapped_column(index=True, comment="Ответственный исполнитель")
     expert_id: Mapped[UUID] = mapped_column(index=True, comment="Эксперт")
@@ -97,6 +97,6 @@ class OrmDefaultSection(Base):
         )
     )
 
-    project_type: Mapped[ProjectTypes] = mapped_column(index=True, comment="Тип объекта")
+    project_type: Mapped[ProjectType] = mapped_column(index=True, comment="Тип объекта")
     name: Mapped[str] = mapped_column(comment="Наименование раздела")
     abbreviation: Mapped[str] = mapped_column(comment="Аббревиатура раздела")
