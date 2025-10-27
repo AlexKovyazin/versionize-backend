@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from identity.src.dependencies import get_user_service, get_users_search_params
+from identity.src.dependencies import get_user_service
 from identity.src.domain.user import User, UsersSearch, UserUpdate
 from identity.src.service.user import UserService
 
@@ -11,7 +11,7 @@ router = APIRouter(tags=["Users"])
 
 @router.get("", response_model=list[User])
 async def get_many(
-        data: UsersSearch = Depends(get_users_search_params),
+        data: UsersSearch = Depends(),
         user_service: UserService = Depends(get_user_service),
 ):
     """Get all users by provided fields."""

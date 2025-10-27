@@ -96,54 +96,6 @@ async def get_authenticated_user(
         )
 
 
-async def get_users_search_params(
-        email: str | None = None,
-        first_name: str | None = None,
-        last_name: str | None = None,
-        patronymic: str | None = None,
-        phone: str | None = None,
-        company_id: UUID | None = None,
-        position: str | None = None,
-        validated: bool | None = None,
-) -> UsersSearch:
-    """ Dependency for parsing query results of get requests for getting users. """
-
-    try:
-        search_data = UsersSearch(
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-            patronymic=patronymic,
-            phone=phone,
-            company_id=company_id,
-            position=position,
-            validated=validated,
-        )
-    except ValidationError as e:
-        raise RequestValidationError(e.errors())
-
-    return search_data
-
-
-async def get_companies_search_params(
-        name: str | None = None,
-        phone: str | None = None,
-        email: str | None = None,
-) -> CompaniesSearch:
-    """ Dependency for parsing query results of get requests for getting companies. """
-
-    try:
-        search_data = CompaniesSearch(
-            name=name,
-            phone=phone,
-            email=email
-        )
-    except ValidationError as e:
-        raise RequestValidationError(e.errors())
-
-    return search_data
-
-
 def require_roles(required_roles: list[str]):
     """ Decorator to require specific roles. """
 

@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from identity.src.dependencies import get_companies_service, get_companies_search_params
+from identity.src.dependencies import get_companies_service
 from identity.src.domain.company import Company, CompanyBase, CompaniesSearch, CompaniesUpdate
 from identity.src.service.company import CompaniesService
 
@@ -29,7 +29,7 @@ async def get(
 
 @router.get("", response_model=list[Company])
 async def get_many(
-        data: CompaniesSearch = Depends(get_companies_search_params),
+        data: CompaniesSearch = Depends(),
         companies_service: CompaniesService = Depends(get_companies_service),
 ):
     """Get all companies by provided fields."""
