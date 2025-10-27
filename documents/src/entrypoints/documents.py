@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from fastapi import HTTPException
 
 from documents.src.config.logging import logger
-from documents.src.dependencies import get_document_service, get_search_params
+from documents.src.dependencies import get_document_service
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
 from documents.src.domain.responses import DownloadResponse, UploadResponse
 from documents.src.enums import DocumentStatuses
@@ -81,7 +81,7 @@ async def create(
 
 @router.get("", response_model=list[DocumentOut])
 async def get_many(
-        data: DocumentsSearch = Depends(get_search_params),
+        data: DocumentsSearch = Depends(),
         document_service: DocumentService = Depends(get_document_service),
 ):
     """Get all documents descriptions by provided fields."""

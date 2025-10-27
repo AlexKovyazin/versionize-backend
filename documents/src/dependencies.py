@@ -9,7 +9,6 @@ from documents.src.adapters.repositories.base import IDocumentsRepository
 from documents.src.adapters.repositories.documents import DocumentsRepository
 from documents.src.adapters.s3 import S3
 from documents.src.config.settings import settings
-from documents.src.domain.document import DocumentsSearch
 from documents.src.domain.user import User
 from documents.src.service.auth import oauth2_scheme
 from documents.src.service.document import DocumentService
@@ -63,26 +62,3 @@ async def get_user(token: str = Depends(oauth2_scheme)):
         raise
 
     return User.model_validate(response.json())
-
-
-async def get_search_params(
-        document_id: UUID | None = None,
-        company_id: UUID | None = None,
-        project_id: UUID | None = None,
-        section_id: UUID | None = None,
-        responsible_id: UUID | None = None,
-) -> DocumentsSearch:
-    """ Dependency for parsing query results of get requests for getting documents. """
-
-    try:
-        search_data = DocumentsSearch(
-            id=document_id,
-            company_id=company_id,
-            project_id=project_id,
-            section_id=section_id,
-            responsible_id=responsible_id
-        )
-    except ValidationError as e:
-        raise RequestValidationError(e.errors())
-
-    return search_data

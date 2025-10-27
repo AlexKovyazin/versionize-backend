@@ -51,7 +51,7 @@ class BaseValidationMixin:
         return values
 
 
-class DocumentsSearch(BaseValidationMixin, BaseModel):
+class DocumentsSearch(BaseModel):
     id: UUID | None = None
     company_id: UUID | None = None
     project_id: UUID | None = None
