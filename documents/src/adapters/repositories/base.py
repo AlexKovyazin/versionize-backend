@@ -52,7 +52,7 @@ class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
 class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
     async def create(self, entity: IN_SCHEMA) -> MODEL:
         logger.info(
-            f"Adding new {self.model.__name__} with id {entity.id}...",
+            f"Adding new {self.model.__name__}",
             extra=entity.model_dump()
         )
         db_entity = self.model(**entity.model_dump())
