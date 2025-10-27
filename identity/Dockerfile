@@ -3,7 +3,6 @@ RUN apt-get update && apt-get install -y gcc libc-dev libpq-dev
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/usr/src/identity \
     POETRY_HOME="/opt/poetry" \
     POETRY_VIRTUALENVS_CREATE=false \
     PATH="/opt/poetry/bin:$PATH"
