@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from projects.src.domain.tools import BaseValidationMixin
 from projects.src.enums import ProjectType
 
 
@@ -33,7 +34,7 @@ class SectionsSearch(BaseModel):
     expert_id: UUID | None = None
 
 
-class SectionUpdate(BaseModel):
+class SectionUpdate(BaseValidationMixin, BaseModel):
     name: str | None = None
     abbreviation: str | None = None
     project_id: UUID | None = None
@@ -63,7 +64,7 @@ class DefaultSectionsSearch(BaseModel):
     abbreviation: str | None = None
 
 
-class DefaultSectionUpdate(BaseModel):
+class DefaultSectionUpdate(BaseValidationMixin, BaseModel):
     project_type: ProjectType | None = None
     name: str | None = None
     abbreviation: str | None = None

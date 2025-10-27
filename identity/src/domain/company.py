@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+from identity.src.domain.tools import BaseValidationMixin
 
 
 class CompanyBase(BaseModel):
@@ -24,5 +25,8 @@ class CompaniesSearch(BaseModel):
     email: str | None = None
 
 
-class CompaniesUpdate(CompaniesSearch):
+class CompaniesUpdate(
+    BaseValidationMixin,
+    CompaniesSearch
+):
     ...

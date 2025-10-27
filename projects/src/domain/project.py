@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from projects.src.domain.tools import BaseValidationMixin
 from projects.src.enums import ProjectType
 
 
@@ -35,7 +36,7 @@ class ProjectsSearchParams(BaseModel):
     company_id: UUID | None = None
 
 
-class ProjectUpdate(BaseModel):
+class ProjectUpdate(BaseValidationMixin, BaseModel):
     code: str | None = None
     name: str | None = None
     exp_date: datetime | None = None
