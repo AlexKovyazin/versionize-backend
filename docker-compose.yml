@@ -1,4 +1,16 @@
 services:
+  bff:
+    container_name: bff
+    build: ./bff
+    command: [ "python", "-m", "bff" ]
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./bff:/usr/src/bff
+      - app_logs:/var/log
+    env_file:
+      - ./bff/.env
+
   documents:
     container_name: documents
     build: ./documents
