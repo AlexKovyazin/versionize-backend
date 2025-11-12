@@ -1,6 +1,7 @@
 import httpx
 from fastapi import Depends, HTTPException
 
+from bff.src.adapters.projects import ProjectServiceAdapter
 from bff.src.config.settings import settings
 from bff.src.domain.user import User
 from bff.src.service.auth import oauth2_scheme
@@ -28,3 +29,8 @@ async def get_user(token: str = Depends(oauth2_scheme)):
         raise
 
     return User.model_validate(response.json())
+
+
+async def get_projects_adapter():
+    """ Real dependency of ProjectServiceAdapter for production. """
+    return ProjectServiceAdapter(settings.projects_service_url)

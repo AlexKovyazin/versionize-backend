@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     service_host: str = os.getenv("SERVICE_HOST")
     service_port: int = os.getenv("SERVICE_PORT")
 
+    projects_service_url: str = os.getenv("PROJECTS_SERVICE_URL")
+
     # full path to the /get-user endpoint of identity service
     auth_service_url: str = os.getenv("AUTH_SERVICE_URL")
     # keycloak setting are needed only in debug mode for auth with swagger
