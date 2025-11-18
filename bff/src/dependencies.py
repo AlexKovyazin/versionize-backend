@@ -2,7 +2,7 @@ import httpx
 from fastapi import Depends, HTTPException
 
 from bff.src.adapters.broker.nats import NatsJS
-from bff.src.adapters.projects import ProjectServiceAdapter
+from bff.src.adapters.services.projects import ProjectServiceAdapter
 from bff.src.config.settings import settings
 from bff.src.domain.user import User
 from bff.src.service.auth import oauth2_scheme

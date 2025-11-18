@@ -2,7 +2,7 @@ from uuid import UUID
 
 from nats.js.api import PubAck
 
-from bff.src.adapters.base import BaseServiceAdapter
+from bff.src.adapters.services.base import BaseServiceAdapter
 from bff.src.adapters.broker import cmd
 from bff.src.adapters.broker.nats import NatsJS, Streams
 from bff.src.config.logging import request_id_var
@@ -15,14 +15,14 @@ class ProjectServiceAdapter(BaseServiceAdapter):
         super().__init__(service_url)
         self.broker: NatsJS = broker
 
-    async def get_project(
+    async def get(
             self,
             project_id: UUID
     ) -> ProjectOut:
         response = await self._make_request(f"projects/{project_id}")
         return ProjectOut.model_validate(response.json())
 
-    async def get_many_projects(
+    async def get_many(
             self,
             filter_data: ProjectsSearchParams
     ) -> list[ProjectOut]:

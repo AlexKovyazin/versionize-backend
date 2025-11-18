@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
-from bff.src.adapters.projects import ProjectServiceAdapter
+from bff.src.adapters.services.projects import ProjectServiceAdapter
 from bff.src.dependencies import get_projects_adapter
 from bff.src.domain.project import ProjectOut, ProjectsSearchParams, ProjectIn, ProjectUpdate
 
@@ -25,7 +25,7 @@ async def get(
         projects_adapter: ProjectServiceAdapter = Depends(get_projects_adapter)
 ):
     """Get specified project. """
-    return await projects_adapter.get_project(project_id)
+    return await projects_adapter.get(project_id)
 
 
 @router.get("", response_model=list[ProjectOut])
@@ -34,7 +34,7 @@ async def get_many(
         projects_adapter: ProjectServiceAdapter = Depends(get_projects_adapter)
 ):
     """Get all projects by provided fields."""
-    return await projects_adapter.get_many_projects(filter_data)
+    return await projects_adapter.get_many(filter_data)
 
 @router.patch("/{project_id}", status_code=202)
 async def update(
@@ -52,5 +52,3 @@ async def delete(
 ):
     """ Delete specified project. """
     await projects_adapter.delete(project_id)
-
-
