@@ -3,8 +3,8 @@ from uuid import UUID
 from nats.js.api import PubAck
 
 from bff.src.adapters.base import BaseServiceAdapter
-from bff.src.adapters.nats import cmd
-from bff.src.adapters.nats.nats import NatsJS, Streams
+from bff.src.adapters.broker import cmd
+from bff.src.adapters.broker.nats import NatsJS, Streams
 from bff.src.config.logging import request_id_var
 from bff.src.domain.project import ProjectOut, ProjectsSearchParams, ProjectIn, ProjectUpdate
 

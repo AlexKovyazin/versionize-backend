@@ -1,26 +1,15 @@
 import traceback
-from datetime import datetime
-from decimal import Decimal
 from enum import Enum
-from typing import TypeAlias, Sequence, Any
+from typing import Any
 
 from nats.aio.client import Client
 from nats.js import api, JetStreamContext
-from pydantic import BaseModel, TypeAdapter
+from pydantic import TypeAdapter
 
+from bff.src.adapters.broker.base import IBroker
+from bff.src.adapters.broker.types import SendableMessage
 from bff.src.config.logging import logger
 from bff.src.config.settings import settings
-
-JsonDecodable: TypeAlias = bool | bytes | bytearray | float | int | str | None
-SendableArray: TypeAlias = Sequence["SendableMessage"]
-SendableMessage: TypeAlias = (
-        JsonDecodable
-        | Decimal
-        | datetime
-        | BaseModel
-        | SendableArray
-        | None
-)
 
 
 class Streams(Enum):
@@ -28,8 +17,7 @@ class Streams(Enum):
     EVENTS = "events"
 
 
-class NatsJS:
-    _instance = None
+class NatsJS(IBroker):
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -37,7 +25,7 @@ class NatsJS:
         return cls._instance
 
     def __init__(self):
-        if hasattr(self, '_initialized') and self._initialized:
+        if self.initialized:
             return
 
         self.server = settings.nats_url
@@ -47,8 +35,13 @@ class NatsJS:
         self._streams = tuple([s.value for s in Streams])
         self._initialized = True
 
-    def __bool__(self) -> bool:
-        return self._connected
+    @property
+    def initialized(self):
+        """ Current state of singleton instance. """
+
+        if hasattr(self, "_initialized"):
+            return self._initialized
+        return False
 
     async def connect(self) -> None:
         if not self._connected:
@@ -99,16 +92,20 @@ class NatsJS:
 
     @classmethod
     async def disconnected_cb(cls):
+        """ Callback on disconnecting. """
         logger.warning("Disconnected from NATS server")
 
     @classmethod
     async def reconnected_cb(cls):
+        """ Callback on reconnecting. """
         logger.warning("Reconnected to NATS server")
 
     @classmethod
     async def error_cb(cls, e):
+        """ Callback on error. """
         logger.error(f"NATS {type(e).__name__}: {traceback.format_exc()}")
 
     @classmethod
     async def closed_cb(cls):
+        """ Callback on closed connection. """
         logger.info("NATS connection is closed")

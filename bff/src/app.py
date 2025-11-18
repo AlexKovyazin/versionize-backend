@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from bff.src.adapters.nats.nats import NatsJS
+from bff.src.adapters.broker.nats import NatsJS
 from bff.src.config.settings import settings
 from bff.src.entrypoints.router import router
 from bff.src.middleware import logging_middleware
@@ -10,12 +10,12 @@ from bff.src.middleware import logging_middleware
 
 @asynccontextmanager
 async def lifespan(application: FastAPI):
-    nats_adapter = NatsJS()
-    await nats_adapter.connect()
+    broker_adapter = NatsJS()
+    await broker_adapter.connect()
 
     yield
 
-    await nats_adapter.disconnect()
+    await broker_adapter.disconnect()
 
 
 app = FastAPI(
