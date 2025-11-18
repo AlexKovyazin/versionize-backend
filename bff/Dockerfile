@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     POETRY_VIRTUALENVS_CREATE=false \
     PATH="/opt/poetry/bin:$PATH"
 
-WORKDIR /usr/src/projects
+WORKDIR /usr/src/bff
 
 RUN pip install --no-cache-dir poetry
 COPY pyproject.toml poetry.lock* ./

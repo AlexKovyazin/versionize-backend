@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     service_host: str = os.getenv("SERVICE_HOST")
     service_port: int = os.getenv("SERVICE_PORT")
 
+    nats_url: str = os.getenv("NATS_URL")
     projects_service_url: str = os.getenv("PROJECTS_SERVICE_URL")
 
     # full path to the /get-user endpoint of identity service

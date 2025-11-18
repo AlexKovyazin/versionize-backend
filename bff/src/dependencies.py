@@ -1,6 +1,7 @@
 import httpx
 from fastapi import Depends, HTTPException
 
+from bff.src.adapters.nats.nats import NatsJS
 from bff.src.adapters.projects import ProjectServiceAdapter
 from bff.src.config.settings import settings
 from bff.src.domain.user import User
@@ -31,6 +32,11 @@ async def get_user(token: str = Depends(oauth2_scheme)):
     return User.model_validate(response.json())
 
 
-async def get_projects_adapter():
+async def get_broker() -> NatsJS:
+    """ Returns broker adapter. """
+    return NatsJS()
+
+
+async def get_projects_adapter(broker=Depends(get_broker)) -> ProjectServiceAdapter:
     """ Real dependency of ProjectServiceAdapter for production. """
-    return ProjectServiceAdapter(settings.projects_service_url)
+    return ProjectServiceAdapter(settings.projects_service_url, broker)

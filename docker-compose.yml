@@ -139,6 +139,24 @@ services:
     volumes:
       - ./identity/realm-export.json:/opt/keycloak/data/import/realm-export.json
 
+  nats:
+    image: nats:2.12
+    command: [ "-c", "/etc/nats/server.conf" ]
+    ports:
+      - "4222:4222" # default client port
+      - "8222:8222" # HTTP monitoring and management
+    volumes:
+      - ./nats/server.conf:/etc/nats/server.conf
+      - ./nats-data:/data
+
+  nats-init:
+    image: natsio/nats-box
+    depends_on:
+      - nats
+    volumes:
+      - ./nats/init.sh:/init.sh
+    entrypoint: ["/bin/sh", "/init.sh"]
+
   loki:
     image: grafana/loki:3.5
     ports:
@@ -189,3 +207,4 @@ volumes:
   keycloak_db_data:
   grafana-storage:
   app_logs:
+  nats-data:

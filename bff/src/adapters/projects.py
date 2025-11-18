@@ -1,10 +1,18 @@
 from uuid import UUID
 
 from bff.src.adapters.base import BaseServiceAdapter
-from bff.src.domain.project import ProjectOut, ProjectsSearchParams
+from bff.src.adapters.nats import cmd
+from bff.src.adapters.nats.nats import NatsJS, Streams
+from bff.src.config.logging import request_id_var
+from bff.src.domain.project import ProjectOut, ProjectsSearchParams, ProjectIn, ProjectUpdate
 
 
 class ProjectServiceAdapter(BaseServiceAdapter):
+
+    def __init__(self, service_url: str, broker):
+        super().__init__(service_url)
+        self.broker: NatsJS = broker
+
     async def get_project(
             self,
             project_id: UUID
@@ -21,3 +29,27 @@ class ProjectServiceAdapter(BaseServiceAdapter):
             params=filter_data.model_dump(exclude_none=True)
         )
         return [ProjectOut.model_validate(p) for p in response.json()]
+
+    async def create(self, data: ProjectIn) -> None:
+        await self.broker.publish(
+            data,
+            cmd.CREATE_PROJECT,
+            headers={"correlation_id": request_id_var.get()},
+            stream=Streams.CMD
+        )
+
+    async def update(self, data: ProjectUpdate) -> None:
+        await self.broker.publish(
+            data.model_dump_json(),
+            cmd.UPDATE_PROJECT,
+            headers={"correlation_id": request_id_var.get()},
+            stream=Streams.CMD
+        )
+
+    async def delete(self, project_id: UUID) -> None:
+        await self.broker.publish(
+            str(project_id),
+            cmd.DELETE_PROJECT,
+            headers={"correlation_id": request_id_var.get()},
+            stream=Streams.CMD
+        )
