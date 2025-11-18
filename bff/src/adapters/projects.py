@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from nats.js.api import PubAck
+
 from bff.src.adapters.base import BaseServiceAdapter
 from bff.src.adapters.nats import cmd
 from bff.src.adapters.nats.nats import NatsJS, Streams
@@ -30,24 +32,24 @@ class ProjectServiceAdapter(BaseServiceAdapter):
         )
         return [ProjectOut.model_validate(p) for p in response.json()]
 
-    async def create(self, data: ProjectIn) -> None:
-        await self.broker.publish(
+    async def create(self, data: ProjectIn) -> PubAck:
+        return await self.broker.publish(
             data,
             cmd.CREATE_PROJECT,
             headers={"correlation_id": request_id_var.get()},
             stream=Streams.CMD
         )
 
-    async def update(self, data: ProjectUpdate) -> None:
-        await self.broker.publish(
+    async def update(self, data: ProjectUpdate) -> PubAck:
+        return await self.broker.publish(
             data.model_dump_json(),
             cmd.UPDATE_PROJECT,
             headers={"correlation_id": request_id_var.get()},
             stream=Streams.CMD
         )
 
-    async def delete(self, project_id: UUID) -> None:
-        await self.broker.publish(
+    async def delete(self, project_id: UUID) -> PubAck:
+        return await self.broker.publish(
             str(project_id),
             cmd.DELETE_PROJECT,
             headers={"correlation_id": request_id_var.get()},

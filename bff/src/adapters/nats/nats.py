@@ -5,7 +5,7 @@ from enum import Enum
 from typing import TypeAlias, Sequence, Any
 
 from nats.aio.client import Client
-from nats.js import JetStreamContext
+from nats.js import api, JetStreamContext
 from pydantic import BaseModel, TypeAdapter
 
 from bff.src.config.logging import logger
@@ -78,7 +78,7 @@ class NatsJS:
             headers: dict[str, Any] | None = None,
             msg_ttl: float | None = None,
             timeout: float | None = None,
-    ) -> None:
+    ) -> api.PubAck:
 
         if not isinstance(stream, Streams):
             raise ValueError("stream arg must be an instance of Streams")
@@ -87,7 +87,8 @@ class NatsJS:
 
         adapter = TypeAdapter(type(message))
         prepared_msg = adapter.dump_json(message)
-        await self.js.publish(
+
+        return await self.js.publish(
             subject,
             prepared_msg,
             stream=stream.value,
