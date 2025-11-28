@@ -46,16 +46,34 @@ class OrmProject(Base):
         ),
     )
 
-    code: Mapped[str] = mapped_column(index=True, comment="Шифр")
-    name: Mapped[str] = mapped_column(comment="Наименование объекта")
-    exp_date: Mapped[datetime | None] = mapped_column(comment="Срок экспертизы")
-    next_upload: Mapped[datetime | None] = mapped_column(comment="Крайний срок следующей загрузки в экспертизу")
-    pm_id: Mapped[UUID] = mapped_column(comment="ГИП")
-    project_type: Mapped[ProjectType] = mapped_column(comment="Тип объекта")
-    company_id: Mapped[UUID] = mapped_column(comment="Проектная организация")
+    code: Mapped[str] = mapped_column(
+        index=True,
+        comment="Шифр"
+    )
+    name: Mapped[str] = mapped_column(
+        comment="Наименование объекта"
+    )
+    exp_date: Mapped[datetime | None] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        comment="Срок экспертизы"
+    )
+    next_upload: Mapped[datetime | None] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        comment="Крайний срок следующей загрузки в экспертизу"
+    )
+    pm_id: Mapped[UUID] = mapped_column(
+        comment="ГИП"
+    )
+    project_type: Mapped[ProjectType] = mapped_column(
+        comment="Тип объекта"
+    )
+    company_id: Mapped[UUID] = mapped_column(
+        comment="Проектная организация"
+    )
 
     sections: Mapped[list["OrmSection"]] = relationship(
-        "OrmSection", back_populates="project"
+        "OrmSection",
+        back_populates="project"
     )
 
 
