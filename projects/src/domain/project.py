@@ -44,3 +44,8 @@ class ProjectUpdate(BaseValidationMixin, BaseModel):
     pm_id: UUID | None = None
     project_type: ProjectType | None = None
     company_id: UUID | None = None
+
+
+class ProjectUpdateCmd(BaseValidationMixin, BaseModel):
+    id: UUID
+    data: ProjectUpdate

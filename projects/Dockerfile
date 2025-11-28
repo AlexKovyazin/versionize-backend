@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /usr/src/projects
 
 RUN pip install --no-cache-dir poetry
-COPY pyproject.toml poetry.lock* ./
+COPY pyproject.toml ./
 RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY src ./

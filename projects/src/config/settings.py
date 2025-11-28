@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
 
+    nats_url: str = os.getenv("NATS_URL")
     # full path to the /get-user endpoint of identity service
     auth_service_url: str = os.getenv("AUTH_SERVICE_URL")
     # keycloak setting are needed only in debug mode for auth with swagger

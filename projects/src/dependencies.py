@@ -9,10 +9,9 @@ from projects.src.service.auth import oauth2_scheme
 from projects.src.service.project import ProjectService
 from projects.src.service.section import SectionService, DefaultSectionService
 from projects.src.service.uow import UnitOfWork
-from projects.src.domain.project import ProjectsSearchParams
-from projects.src.domain.section import SectionsSearch, DefaultSectionsSearch
 
 
+# TODO удалить после того, как все write действия будут реализованы через брокер
 
 async def get_user(token: str = Depends(oauth2_scheme)):
     """ Real dependency for authenticating of user by identity service. """

@@ -1,8 +1,9 @@
 import httpx
 from fastapi import Depends, HTTPException
 
+from bff.src.adapters.broker.cmd import ProjectCmd
 from bff.src.adapters.broker.nats import NatsJS
-from bff.src.adapters.services.projects import ProjectServiceAdapter
+from bff.src.adapters.services.projects import ProjectsReadServiceAdapter, ProjectsWriteServiceAdapter
 from bff.src.config.settings import settings
 from bff.src.domain.user import User
 from bff.src.service.auth import oauth2_scheme
@@ -37,6 +38,16 @@ async def get_broker() -> NatsJS:
     return NatsJS()
 
 
-async def get_projects_adapter(broker=Depends(get_broker)) -> ProjectServiceAdapter:
-    """ Real dependency of ProjectServiceAdapter for production. """
-    return ProjectServiceAdapter(settings.projects_service_url, broker)
+async def get_projects_read_adapter() -> ProjectsReadServiceAdapter:
+    return ProjectsReadServiceAdapter()
+
+
+async def get_projects_write_adapter(
+        broker: NatsJS = Depends(get_broker)
+) -> ProjectsWriteServiceAdapter:
+    """ Returns projects service adapter. """
+
+    return ProjectsWriteServiceAdapter(
+        broker,
+        ProjectCmd(service_name="projects", entity_name="Project")
+    )

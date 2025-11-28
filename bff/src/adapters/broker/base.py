@@ -15,7 +15,7 @@ class IBroker(ABC):
         """ Disconnect from the broker. """
 
     @abstractmethod
-    async def publish(self, subject: str, message: SendableMessage, **kwargs):
+    async def publish(self, message: SendableMessage, subject: str, **kwargs):
         """ Publish message to subject."""
 
     @classmethod

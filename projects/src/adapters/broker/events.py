@@ -11,9 +11,9 @@ class Singleton:
 
 
 @dataclass(frozen=True)
-class BaseCmd:
+class BaseEvents:
     """
-    Base dataclass for C(r)UD commands.
+    Base dataclass for C(r)UD events.
 
     Implements Create, Update, Delete properties with correct command subjects.
     """
@@ -22,25 +22,25 @@ class BaseCmd:
     entity_name: str
 
     @property
-    def create(self) -> str:
-        return f"cmd.{self.service_name}.Create{self.entity_name}"
+    def created(self) -> str:
+        return f"cmd.{self.service_name}.{self.entity_name}Created"
 
     @property
-    def update(self) -> str:
-        return f"cmd.{self.service_name}.Update{self.entity_name}"
+    def updated(self) -> str:
+        return f"cmd.{self.service_name}.{self.entity_name}Updated"
 
     @property
-    def delete(self) -> str:
-        return f"cmd.{self.service_name}.Delete{self.entity_name}"
+    def deleted(self) -> str:
+        return f"cmd.{self.service_name}.{self.entity_name}Deleted"
 
 
 @dataclass(frozen=True)
-class ProjectCmdExtra:
+class ProjectEventsExtra:
     """ Example dataclass for extra commands. """
 
-    example: str = f"cmd.project.ExtraCommand"
+    example: str = f"cmd.project.ExtraEvent"
 
 
 @dataclass(frozen=True, slots=True)
-class ProjectCmd(Singleton, ProjectCmdExtra, BaseCmd):
+class ProjectEvents(Singleton, ProjectEventsExtra, BaseEvents):
     """ Implements all Project entity commands. """
