@@ -49,3 +49,8 @@ class ProjectEvents(Singleton, ProjectEventsExtra, BaseEvents):
 @dataclass(frozen=True, slots=True)
 class DefaultSectionEvents(Singleton, BaseEvents):
     """ Implements all default section events. """
+
+
+@dataclass(frozen=True, slots=True)
+class SectionEvents(Singleton, BaseEvents):
+    """ Implements all section events. """

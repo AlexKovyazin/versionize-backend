@@ -43,6 +43,11 @@ class SectionUpdate(BaseValidationMixin, BaseModel):
     expert_id: UUID | None = None
 
 
+class SectionUpdateCmd(BaseValidationMixin, BaseModel):
+    id: UUID
+    data: SectionUpdate
+
+
 class DefaultSectionIn(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

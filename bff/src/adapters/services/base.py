@@ -13,6 +13,7 @@ from bff.src.config.logging import request_id_var
 from bff.src.config.settings import settings
 from bff.src.domain.project import ProjectsSearchParams, ProjectOut
 from bff.src.domain.section import DefaultSectionsSearch, DefaultSectionOut
+from bff.src.domain.section import SectionsSearch, SectionOut
 
 CREATE_SCHEMA = TypeVar("CREATE_SCHEMA", bound=BaseModel)
 UPDATE_SCHEMA = TypeVar("UPDATE_SCHEMA", bound=BaseModel)
@@ -228,6 +229,24 @@ class IDefaultSectionsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IDefaultSectionsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
+    def __init__(self, broker: IBroker, commands: BaseCmd):
+        super().__init__(
+            commands=commands,
+            broker=broker
+        )
+
+
+class ISectionsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
+    def __init__(self):
+        super().__init__(
+            service_url=settings.projects_read_service_url,
+            entity_prefix="sections",
+            search_params=SectionsSearch,
+            out_schema=SectionOut
+        )
+
+
+class ISectionsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
     def __init__(self, broker: IBroker, commands: BaseCmd):
         super().__init__(
             commands=commands,

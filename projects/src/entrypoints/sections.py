@@ -1,36 +1,50 @@
 from uuid import UUID
 
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
+from faststream import Context
+from faststream.nats import NatsRouter
 
-from projects.src.dependencies import get_section_service
-from projects.src.domain.section import SectionIn, SectionOut, SectionsSearch, SectionUpdate
+from projects.src.adapters.broker import streams
+from projects.src.adapters.broker.cmd import SectionCmd
+from projects.src.adapters.broker.events import SectionEvents
+from projects.src.config.logging import request_id_var
+from projects.src.domain.section import SectionIn, SectionOut, SectionsSearch, SectionUpdateCmd
 from projects.src.service.section import SectionService
 
-router = APIRouter(tags=["Sections"])
+broker_router = NatsRouter()
+api_router = APIRouter(tags=["Sections"], route_class=DishkaRoute)
+
+section_commands = SectionCmd(service_name="projects", entity_name="Section")
+section_events = SectionEvents(service_name="projects", entity_name="Section")
 
 
-@router.post("", response_model=SectionOut, status_code=201)
+@broker_router.subscriber(section_commands.create, stream=streams.cmd)
+@broker_router.publisher(section_events.created, stream=streams.events)
 async def create(
         data: SectionIn,
-        section_service: SectionService = Depends(get_section_service),
+        section_service: FromDishka[SectionService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new section. """
+    request_id_var.set(cor_id)
     return await section_service.create(data)
 
 
-@router.get("/{section_id}", response_model=SectionOut)
+@api_router.get("/{section_id}", response_model=SectionOut)
 async def get(
         section_id: UUID,
-        section_service: SectionService = Depends(get_section_service),
+        section_service: FromDishka[SectionService],
 ):
     """Get specified section. """
     return await section_service.get(id=section_id)
 
 
-@router.get("", response_model=list[SectionOut])
+@api_router.get("", response_model=list[SectionOut])
 async def get_many(
+        section_service: FromDishka[SectionService],
         data: SectionsSearch = Depends(),
-        section_service: SectionService = Depends(get_section_service),
 ):
     """Get all sections by provided fields."""
     return await section_service.get_many(
@@ -38,24 +52,29 @@ async def get_many(
     )
 
 
-@router.patch("/{section_id}", response_model=SectionOut, status_code=202)
+@broker_router.subscriber(section_commands.update, stream=streams.cmd)
+@broker_router.publisher(section_events.updated, stream=streams.events)
 async def update(
-        section_id: UUID,
-        data: SectionUpdate,
-        section_service: SectionService = Depends(get_section_service)
+        update_data: SectionUpdateCmd,
+        section_service: FromDishka[SectionService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified sections. """
+    request_id_var.set(cor_id)
     document = await section_service.update(
-        section_id,
-        **data.model_dump(exclude_none=True)
+        update_data.id,
+        **update_data.data.model_dump(exclude_none=True)
     )
     return document
 
 
-@router.delete("/{section_id}", status_code=204)
+@broker_router.subscriber(section_commands.delete, stream=streams.cmd)
+@broker_router.publisher(section_events.deleted, stream=streams.events)
 async def delete(
         section_id: UUID,
-        section_service: SectionService = Depends(get_section_service),
+        section_service: FromDishka[SectionService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified section. """
+    request_id_var.set(cor_id)
     await section_service.delete(section_id)

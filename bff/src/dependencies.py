@@ -3,8 +3,9 @@ from fastapi import Depends, HTTPException
 
 from bff.src.adapters.broker.cmd import ProjectCmd
 from bff.src.adapters.broker.nats import NatsJS
-from bff.src.adapters.services.projects import ProjectsReadServiceAdapter, ProjectsWriteServiceAdapter
 from bff.src.adapters.services.projects import DefaultSectionsReadServiceAdapter, DefaultSectionsWriteServiceAdapter
+from bff.src.adapters.services.projects import ProjectsReadServiceAdapter, ProjectsWriteServiceAdapter
+from bff.src.adapters.services.projects import SectionsReadServiceAdapter, SectionsWriteServiceAdapter
 from bff.src.config.settings import settings
 from bff.src.domain.user import User
 from bff.src.service.auth import oauth2_scheme
@@ -40,13 +41,14 @@ async def get_broker() -> NatsJS:
 
 
 async def get_projects_read_adapter() -> ProjectsReadServiceAdapter:
+    """ Returns projects read service adapter. """
     return ProjectsReadServiceAdapter()
 
 
 async def get_projects_write_adapter(
         broker: NatsJS = Depends(get_broker)
 ) -> ProjectsWriteServiceAdapter:
-    """ Returns projects service adapter. """
+    """ Returns projects write service adapter. """
 
     return ProjectsWriteServiceAdapter(
         broker,
@@ -55,15 +57,32 @@ async def get_projects_write_adapter(
 
 
 async def get_default_sections_read_adapter() -> DefaultSectionsReadServiceAdapter:
+    """ Returns default sections read service adapter. """
     return DefaultSectionsReadServiceAdapter()
 
 
 async def get_default_sections_write_adapter(
         broker: NatsJS = Depends(get_broker)
 ) -> DefaultSectionsWriteServiceAdapter:
-    """ Returns projects service adapter. """
+    """ Returns default sections write service adapter. """
 
     return DefaultSectionsWriteServiceAdapter(
         broker,
         ProjectCmd(service_name="projects", entity_name="DefaultSection")
+    )
+
+
+async def get_sections_read_adapter() -> SectionsReadServiceAdapter:
+    """ Returns sections read service adapter. """
+    return SectionsReadServiceAdapter()
+
+
+async def get_sections_write_adapter(
+        broker: NatsJS = Depends(get_broker)
+) -> SectionsWriteServiceAdapter:
+    """ Returns sections write service adapter. """
+
+    return SectionsWriteServiceAdapter(
+        broker,
+        ProjectCmd(service_name="projects", entity_name="Section")
     )
