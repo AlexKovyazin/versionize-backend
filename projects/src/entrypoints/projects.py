@@ -56,9 +56,11 @@ async def get_many(
 @broker_router.publisher(project_events.updated, stream=streams.events)
 async def update(
         update_data: ProjectUpdateCmd,
-        project_service: FromDishka[ProjectService]
+        project_service: FromDishka[ProjectService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified projects. """
+    request_id_var.set(cor_id)
     document = await project_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
@@ -70,7 +72,9 @@ async def update(
 @broker_router.publisher(project_events.deleted, stream=streams.events)
 async def delete(
         project_id: UUID,
-        project_service: FromDishka[ProjectService]
+        project_service: FromDishka[ProjectService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified project. """
+    request_id_var.set(cor_id)
     await project_service.delete(project_id)
