@@ -23,24 +23,29 @@ class BaseEvents:
 
     @property
     def created(self) -> str:
-        return f"cmd.{self.service_name}.{self.entity_name}Created"
+        return f"events.{self.service_name}.{self.entity_name}Created"
 
     @property
     def updated(self) -> str:
-        return f"cmd.{self.service_name}.{self.entity_name}Updated"
+        return f"events.{self.service_name}.{self.entity_name}Updated"
 
     @property
     def deleted(self) -> str:
-        return f"cmd.{self.service_name}.{self.entity_name}Deleted"
+        return f"events.{self.service_name}.{self.entity_name}Deleted"
 
 
 @dataclass(frozen=True)
 class ProjectEventsExtra:
     """ Example dataclass for extra commands. """
 
-    example: str = f"cmd.project.ExtraEvent"
+    example: str = f"events.project.ExtraEvent"
 
 
 @dataclass(frozen=True, slots=True)
 class ProjectEvents(Singleton, ProjectEventsExtra, BaseEvents):
     """ Implements all Project entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class DefaultSectionEvents(Singleton, BaseEvents):
+    """ Implements all default section events. """

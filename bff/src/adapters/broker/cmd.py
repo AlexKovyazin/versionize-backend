@@ -44,3 +44,8 @@ class ProjectCmdExtra:
 @dataclass(frozen=True, slots=True)
 class ProjectCmd(Singleton, ProjectCmdExtra, BaseCmd):
     """ Implements all Project entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class DefaultSectionCmd(Singleton, BaseCmd):
+    """ Implements all DefaultSection entity commands. """

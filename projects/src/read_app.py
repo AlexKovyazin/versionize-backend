@@ -46,8 +46,13 @@ def get_read_app():
 def run_read_app():
     uvicorn.run(
         'projects.src.read_app:get_read_app',
+        factory=True,
         host="0.0.0.0",
         port=settings.service_port,
         reload=True if settings.debug else False,
-        factory=True
+        reload_dirs=["/usr/src"]
     )
+
+
+if __name__ == '__main__':
+    read_app = get_read_app()

@@ -1,61 +1,85 @@
 from uuid import UUID
 
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
+from faststream import Context
+from faststream.nats import NatsRouter
 
-from projects.src.dependencies import get_default_section_service
-from projects.src.domain.section import DefaultSectionIn, DefaultSectionOut, DefaultSectionsSearch, DefaultSectionUpdate
+from projects.src.adapters.broker import streams
+from projects.src.adapters.broker.cmd import DefaultSectionCmd
+from projects.src.adapters.broker.events import DefaultSectionEvents
+from projects.src.config.logging import request_id_var
+from projects.src.domain.section import DefaultSectionIn, DefaultSectionOut
+from projects.src.domain.section import DefaultSectionsSearch, DefaultSectionUpdateCmd
 from projects.src.service.section import DefaultSectionService
 
-router = APIRouter(tags=["Default Sections"])
+broker_router = NatsRouter()
+api_router = APIRouter(tags=["Default Sections"], route_class=DishkaRoute)
+
+default_section_commands = DefaultSectionCmd(
+    service_name="projects", entity_name="DefaultSection"
+)
+default_section_events = DefaultSectionEvents(
+    service_name="projects", entity_name="DefaultSection"
+)
 
 
-@router.post("", response_model=DefaultSectionOut, status_code=201)
+@broker_router.subscriber(default_section_commands.create, stream=streams.cmd)
+@broker_router.publisher(default_section_events.created, stream=streams.events)
 async def create(
         data: DefaultSectionIn,
-        default_section_service: DefaultSectionService = Depends(get_default_section_service),
+        default_section_service: FromDishka[DefaultSectionService],
+        cor_id: str = Context("message.correlation_id")
 ):
-    """ Create a new section. """
+    """ Create a new default section. """
+    request_id_var.set(cor_id)
     return await default_section_service.create(data)
 
 
-@router.get("/{default_section_id}", response_model=DefaultSectionOut)
+@api_router.get("/{default_section_id}", response_model=DefaultSectionOut)
 async def get(
         default_section_id: UUID,
-        default_section_service: DefaultSectionService = Depends(get_default_section_service),
+        default_section_service: FromDishka[DefaultSectionService]
 ):
-    """Get specified section. """
+    """Get specified default section. """
     return await default_section_service.get(id=default_section_id)
 
 
-@router.get("", response_model=list[DefaultSectionOut])
+@api_router.get("", response_model=list[DefaultSectionOut])
 async def get_many(
+        default_section_service: FromDishka[DefaultSectionService],
         data: DefaultSectionsSearch = Depends(),
-        default_section_service: DefaultSectionService = Depends(get_default_section_service),
 ):
-    """Get all sections by provided fields."""
+    """Get all default sections by provided fields."""
     return await default_section_service.get_many(
         **data.model_dump(exclude_none=True)
     )
 
 
-@router.patch("/{default_section_id}", response_model=DefaultSectionOut, status_code=202)
+@broker_router.subscriber(default_section_commands.update, stream=streams.cmd)
+@broker_router.publisher(default_section_events.updated, stream=streams.events)
 async def update(
-        default_section_id: UUID,
-        data: DefaultSectionUpdate,
-        default_section_service: DefaultSectionService = Depends(get_default_section_service)
+        update_data: DefaultSectionUpdateCmd,
+        default_section_service: FromDishka[DefaultSectionService],
+        cor_id: str = Context("message.correlation_id"),
 ):
-    """ Update specified sections. """
+    """ Update specified default sections. """
+    request_id_var.set(cor_id)
     document = await default_section_service.update(
-        default_section_id,
-        **data.model_dump(exclude_none=True)
+        update_data.id,
+        **update_data.data.model_dump(exclude_none=True)
     )
     return document
 
 
-@router.delete("/{default_section_id}", status_code=204)
+@broker_router.subscriber(default_section_commands.delete, stream=streams.cmd)
+@broker_router.publisher(default_section_events.deleted, stream=streams.events)
 async def delete(
         default_section_id: UUID,
-        default_section_service: DefaultSectionService = Depends(get_default_section_service),
+        default_section_service: FromDishka[DefaultSectionService],
+        cor_id: str = Context("message.correlation_id"),
 ):
-    """ Delete specified section. """
+    """ Delete specified default section. """
+    request_id_var.set(cor_id)
     await default_section_service.delete(default_section_id)

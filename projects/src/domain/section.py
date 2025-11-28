@@ -68,3 +68,8 @@ class DefaultSectionUpdate(BaseValidationMixin, BaseModel):
     project_type: ProjectType | None = None
     name: str | None = None
     abbreviation: str | None = None
+
+
+class DefaultSectionUpdateCmd(BaseValidationMixin, BaseModel):
+    id: UUID
+    data: DefaultSectionUpdate
