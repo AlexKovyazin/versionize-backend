@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     s3_bucket: SecretStr = os.getenv("S3_BUCKET")
     s3_region: SecretStr = os.getenv("S3_REGION")
 
+    nats_url: str = os.getenv("NATS_URL")
     # full path to the /get-user endpoint of identity service
     auth_service_url: str = os.getenv("AUTH_SERVICE_URL")
     # keycloak setting are needed only in debug mode for auth with swagger

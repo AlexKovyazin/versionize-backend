@@ -11,12 +11,26 @@ services:
     env_file:
       - ./bff/.env
 
-  documents:
-    container_name: documents
+  documents-read:
+    container_name: documents-read
     build: ./documents
-    command: [ "python", "-m", "documents" ]
+    command: [ "python", "-m", "documents", "read" ]
     ports:
       - "8000:8000"
+    volumes:
+      - ./documents:/usr/src/documents
+      - app_logs:/var/log
+    env_file:
+      - ./documents/.env
+    depends_on:
+      - documents_db
+
+  documents-write:
+    container_name: documents-write
+    build: ./documents
+    command: [ "python", "-m", "documents", "write" ]
+    ports:
+      - "8010:8010"
     volumes:
       - ./documents:/usr/src/documents
       - app_logs:/var/log

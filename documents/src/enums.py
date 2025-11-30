@@ -1,6 +1,15 @@
 from enum import Enum
 
 
+# TODO эти статусы должны быть у Sections, а не у Documents.
+#  Для документов должны быть статусы:
+#  - NEW
+#  - READY_FOR_UPLOAD
+#  - EXAMINATION
+#  - POSITIVE
+#  - NEGATIVE
+#  При этом по повторяющимся статусам должно быть настроено событие
+#  взаимного изменения статусов у раздела и документа
 class DocumentStatuses(Enum):
     NEW = "Новый"
     IN_WORK = "В работе"

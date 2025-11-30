@@ -1,8 +1,15 @@
 from fastapi import APIRouter
+from faststream.nats import NatsBroker
 
-from documents.src.entrypoints.documents import router as documents_router
+from documents.src.config.settings import settings
+from documents.src.entrypoints.documents import api_router as documents_api_router
+from documents.src.entrypoints.documents import broker_router as documents_broker_router
 from documents.src.entrypoints.service import router as service_router
 
 router = APIRouter()
-router.include_router(documents_router, prefix="/documents")
-router.include_router(service_router, prefix="/documents-service")
+broker = NatsBroker(settings.nats_url)
+
+router.include_router(service_router, prefix="/service")
+
+router.include_router(documents_api_router, prefix="/documents")
+broker.include_router(documents_broker_router)
