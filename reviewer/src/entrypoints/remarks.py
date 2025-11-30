@@ -1,36 +1,50 @@
 from uuid import UUID
 
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
+from faststream import Context
+from faststream.nats import NatsRouter
 
-from reviewer.src.dependencies import get_remark_service
-from reviewer.src.domain.remark import RemarkIn, RemarkOut, RemarksSearchParams, RemarkUpdate
+from reviewer.src.adapters.broker import streams
+from reviewer.src.adapters.broker.cmd import RemarkCmd
+from reviewer.src.adapters.broker.events import RemarkEvents
+from reviewer.src.config.logging import request_id_var
+from reviewer.src.domain.remark import RemarkIn, RemarkOut, RemarksSearchParams, RemarkUpdateCmd
 from reviewer.src.service.remark import RemarkService
 
-router = APIRouter(tags=["Remarks"])
+broker_router = NatsRouter()
+api_router = APIRouter(tags=["Remarks"], route_class=DishkaRoute)
+
+remark_commands = RemarkCmd(service_name="reviewer", entity_name="Remark")
+remark_events = RemarkEvents(service_name="reviewer", entity_name="Remark")
 
 
-@router.post("", response_model=RemarkOut, status_code=201)
+@broker_router.subscriber(remark_commands.create, stream=streams.cmd)
+@broker_router.publisher(remark_events.created, stream=streams.events)
 async def create(
         data: RemarkIn,
-        remark_service: RemarkService = Depends(get_remark_service),
+        remark_service: FromDishka[RemarkService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new remark. """
+    request_id_var.set(cor_id)
     return await remark_service.create(data)
 
 
-@router.get("/{remark_id}", response_model=RemarkOut)
+@api_router.get("/{remark_id}", response_model=RemarkOut)
 async def get(
         remark_id: UUID,
-        remark_service: RemarkService = Depends(get_remark_service),
+        remark_service: FromDishka[RemarkService],
 ):
     """Get specified remark. """
     return await remark_service.get(id=remark_id)
 
 
-@router.get("", response_model=list[RemarkOut])
+@api_router.get("", response_model=list[RemarkOut])
 async def get_many(
+        remark_service: FromDishka[RemarkService],
         data: RemarksSearchParams = Depends(),
-        remark_service: RemarkService = Depends(get_remark_service),
 ):
     """Get all remarks by provided fields."""
     return await remark_service.get_many(
@@ -38,24 +52,29 @@ async def get_many(
     )
 
 
-@router.patch("/{remark_id}", response_model=RemarkOut, status_code=202)
+@broker_router.subscriber(remark_commands.update, stream=streams.cmd)
+@broker_router.publisher(remark_events.updated, stream=streams.events)
 async def update(
-        remark_id: UUID,
-        data: RemarkUpdate,
-        remark_service: RemarkService = Depends(get_remark_service)
+        update_data: RemarkUpdateCmd,
+        remark_service: FromDishka[RemarkService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified remarks. """
+    request_id_var.set(cor_id)
     document = await remark_service.update(
-        remark_id,
-        **data.model_dump(exclude_none=True)
+        update_data.id,
+        **update_data.data.model_dump(exclude_none=True)
     )
     return document
 
 
-@router.delete("/{remark_id}", status_code=204)
+@broker_router.subscriber(remark_commands.delete, stream=streams.cmd)
+@broker_router.publisher(remark_events.deleted, stream=streams.events)
 async def delete(
         remark_id: UUID,
-        remark_service: RemarkService = Depends(get_remark_service),
+        remark_service: RemarkService = FromDishka[RemarkService],
+        cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified remark. """
+    request_id_var.set(cor_id)
     await remark_service.delete(remark_id)

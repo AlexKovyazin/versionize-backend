@@ -41,3 +41,8 @@ class RemarkUpdate(BaseValidationMixin, BaseModel):
     link: str | None = None
     basis: str | None = None
     remark_doc_id: UUID | None = None
+
+
+class RemarkUpdateCmd(BaseModel):
+    id: UUID
+    data: RemarkUpdate

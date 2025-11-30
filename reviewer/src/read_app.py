@@ -5,10 +5,10 @@ from dishka import make_async_container
 from dishka.integrations.fastapi import setup_dishka, FastapiProvider
 from fastapi import FastAPI
 
-from identity.src.config.settings import settings
-from identity.src.entrypoints.router import router
-from identity.src.middleware import logging_middleware
-from identity.src.provider import DependencyProvider
+from reviewer.src.config.settings import settings
+from reviewer.src.entrypoints.router import router
+from reviewer.src.middleware import logging_middleware
+from reviewer.src.provider import DependencyProvider
 
 
 @asynccontextmanager
@@ -45,7 +45,7 @@ def get_read_app():
 
 def run_read_app():
     uvicorn.run(
-        'identity.src.read_app:get_read_app',
+        'reviewer.src.read_app:get_read_app',
         factory=True,
         host="0.0.0.0",
         port=settings.service_port,

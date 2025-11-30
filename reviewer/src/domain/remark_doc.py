@@ -35,3 +35,8 @@ class RemarkDocUpdate(BaseValidationMixin, BaseModel):
     note: str | None = None
     section_id: UUID | None = None
     project_id: UUID | None = None
+
+
+class RemarkDocUpdateCmd(BaseModel):
+    id: UUID
+    data: RemarkDocUpdate

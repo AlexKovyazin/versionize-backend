@@ -111,12 +111,26 @@ services:
     env_file:
       - projects/.env
 
-  reviewer:
-    container_name: reviewer
+  reviewer-read:
+    container_name: reviewer-read
     build: ./reviewer
-    command: [ "python", "-m", "reviewer" ]
+    command: [ "python", "-m", "reviewer", "read"]
     ports:
       - "8003:8003"
+    volumes:
+      - ./reviewer:/usr/src/reviewer
+      - app_logs:/var/log
+    env_file:
+      - ./reviewer/.env
+    depends_on:
+      - reviewer_db
+
+  reviewer-write:
+    container_name: reviewer-write
+    build: ./reviewer
+    command: [ "python", "-m", "reviewer", "write" ]
+    ports:
+      - "8013:8013"
     volumes:
       - ./reviewer:/usr/src/reviewer
       - app_logs:/var/log
