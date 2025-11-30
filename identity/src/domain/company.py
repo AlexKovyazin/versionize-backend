@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
+
 from identity.src.domain.tools import BaseValidationMixin
 
 
@@ -30,3 +31,8 @@ class CompaniesUpdate(
     CompaniesSearch
 ):
     ...
+
+
+class CompaniesUpdateCmd(BaseModel):
+    id: uuid.UUID
+    data: CompaniesUpdate

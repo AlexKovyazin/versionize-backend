@@ -35,12 +35,26 @@ services:
     env_file:
       - documents/.env
 
-  identity:
-    container_name: identity
+  identity-read:
+    container_name: identity-read
     build: ./identity
-    command: ["python", "-m", "identity"]
+    command: ["python", "-m", "identity", "read"]
     ports:
       - "8001:8001"
+    volumes:
+      - ./identity:/usr/src/identity
+      - app_logs:/var/log
+    env_file:
+      - ./identity/identity.env
+    depends_on:
+      - identity_db
+
+  identity-write:
+    container_name: identity-write
+    build: ./identity
+    command: [ "python", "-m", "identity", "write" ]
+    ports:
+      - "8011:8011"
     volumes:
       - ./identity:/usr/src/identity
       - app_logs:/var/log
@@ -78,7 +92,7 @@ services:
     build: ./projects
     command: [ "python", "-m", "projects", "write"]
     ports:
-      - "8010:8010"
+      - "8012:8012"
     volumes:
       - ./projects:/usr/src/projects
       - app_logs:/var/log

@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     db_host: SecretStr = os.getenv("DB_HOST")
     db_port: SecretStr = os.getenv("DB_PORT")
 
+    nats_url: str = os.getenv("NATS_URL")
     kc_external_base_url: str = os.getenv("KC_EXTERNAL_BASE_URL")
     kc_internal_base_url: str = os.getenv("KC_INTERNAL_BASE_URL")
     kc_realm: str = os.getenv("KC_REALM")

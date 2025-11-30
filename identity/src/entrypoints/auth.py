@@ -1,12 +1,15 @@
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
-from fastapi.responses import Response, RedirectResponse
+from fastapi.responses import RedirectResponse
 
 from identity.src.config.settings import settings
-from identity.src.dependencies import get_authenticated_user, get_auth_service, require_roles
+from identity.src.dependencies import get_authenticated_user
 from identity.src.domain.user import AuthenticatedUser, User
 from identity.src.service.auth import AuthService
 
-router = APIRouter(tags=["Authentication"])
+router = APIRouter(tags=["Authentication"], route_class=DishkaRoute)
+
 
 @router.get("/login/callback")
 async def login_callback(
@@ -44,8 +47,8 @@ async def logout():
 
 @router.get("/get-user")
 async def get_user(
+        auth_service: FromDishka[AuthService],
         authenticated_user: AuthenticatedUser = Depends(get_authenticated_user),
-        auth_service: AuthService = Depends(get_auth_service)
 ) -> User:
     """
     Endpoint for authenticating user by its Bearer token.

@@ -51,3 +51,8 @@ class UserUpdate(BaseValidationMixin, BaseModel):
     phone: str | None = None
     company_id: uuid.UUID | None = None
     position: str | None = None
+
+
+class UserUpdateCmd(BaseModel):
+    id: uuid.UUID
+    data: UserUpdate
