@@ -12,12 +12,14 @@ from bff.src.adapters.broker.nats import Streams
 from bff.src.config.logging import request_id_var
 from bff.src.config.settings import settings
 from bff.src.domain.company import Company, CompaniesSearch
+from bff.src.domain.document import DocumentsSearch, DocumentOut
 from bff.src.domain.project import ProjectsSearchParams, ProjectOut
 from bff.src.domain.remark import RemarksSearch, RemarkOut
 from bff.src.domain.remark_doc import RemarkDocsSearch, RemarkDocOut
+from bff.src.domain.s3 import S3DownloadResponse, S3UploadResponse
 from bff.src.domain.section import DefaultSectionsSearch, DefaultSectionOut
 from bff.src.domain.section import SectionsSearch, SectionOut
-from bff.src.domain.user import User, UsersSearch
+from bff.src.domain.user import UsersSearch, User
 
 CREATE_SCHEMA = TypeVar("CREATE_SCHEMA", bound=BaseModel)
 UPDATE_SCHEMA = TypeVar("UPDATE_SCHEMA", bound=BaseModel)
@@ -323,6 +325,32 @@ class IRemarkDocsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IRemarkDocsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
+    def __init__(self, broker: IBroker, commands: BaseCmd):
+        super().__init__(
+            commands=commands,
+            broker=broker
+        )
+
+
+class IDocumentsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
+    def __init__(self):
+        super().__init__(
+            service_url=settings.documents_read_service_url,
+            entity_prefix="documents",
+            search_params=DocumentsSearch,
+            out_schema=DocumentOut
+        )
+
+    @abstractmethod
+    async def get_download_url(self, document_id: UUID, **kwargs) -> S3DownloadResponse:
+        ...
+
+    @abstractmethod
+    async def get_upload_url(self, document_id: UUID, **kwargs) -> S3UploadResponse:
+        ...
+
+
+class IDocumentsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
     def __init__(self, broker: IBroker, commands: BaseCmd):
         super().__init__(
             commands=commands,

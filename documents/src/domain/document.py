@@ -52,3 +52,8 @@ class DocumentUpdate(BaseValidationMixin, BaseModel):
     project_id: UUID | None = None
     section_id: UUID | None = None
     responsible_id: UUID | None = None
+
+
+class DocumentUpdateCmd(BaseModel):
+    id: UUID
+    data: DocumentUpdate

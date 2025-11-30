@@ -1,10 +1,11 @@
 import httpx
 from fastapi import Depends, HTTPException
 
-from bff.src.adapters.broker.cmd import ProjectCmd, DefaultSectionCmd, SectionCmd
+from bff.src.adapters.broker.cmd import ProjectCmd, DefaultSectionCmd, SectionCmd, DocumentCmd
 from bff.src.adapters.broker.cmd import RemarkCmd, RemarkDocCmd
 from bff.src.adapters.broker.cmd import UserCmd, CompanyCmd
 from bff.src.adapters.broker.nats import NatsJS
+from bff.src.adapters.services.documents import DocumentsReadServiceAdapter, DocumentsWriteServiceAdapter
 from bff.src.adapters.services.identity import CompaniesReadServiceAdapter, CompaniesWriteServiceAdapter
 from bff.src.adapters.services.identity import UsersReadServiceAdapter, UsersWriteServiceAdapter
 from bff.src.adapters.services.projects import DefaultSectionsReadServiceAdapter, DefaultSectionsWriteServiceAdapter
@@ -155,4 +156,20 @@ async def get_remark_docs_write_adapter(
     return RemarkDocsWriteServiceAdapter(
         broker,
         RemarkDocCmd(service_name="reviewer", entity_name="RemarkDoc")
+    )
+
+
+async def get_documents_read_adapter() -> DocumentsReadServiceAdapter:
+    """ Returns documents read service adapter. """
+    return DocumentsReadServiceAdapter()
+
+
+async def get_documents_write_adapter(
+        broker: NatsJS = Depends(get_broker)
+) -> DocumentsWriteServiceAdapter:
+    """ Returns documents write service adapter. """
+
+    return DocumentsWriteServiceAdapter(
+        broker,
+        DocumentCmd(service_name="documents", entity_name="Document")
     )

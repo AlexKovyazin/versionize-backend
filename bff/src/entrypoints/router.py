@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from bff.src.entrypoints.documents import router as documents_router
 from bff.src.entrypoints.identity import router as identity_router
 from bff.src.entrypoints.projects import router as project_router
 from bff.src.entrypoints.reviewer import router as reviewer_router
@@ -9,4 +10,5 @@ router = APIRouter()
 router.include_router(service_router, prefix="/service")
 router.include_router(identity_router, prefix="/identity")
 router.include_router(project_router, prefix="/projects")
+router.include_router(documents_router, prefix="/documents")
 router.include_router(reviewer_router, prefix="/reviewer")

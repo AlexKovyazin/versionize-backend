@@ -11,8 +11,8 @@ from documents.src.adapters.broker import streams
 from documents.src.adapters.broker.cmd import DocumentCmd
 from documents.src.adapters.broker.events import DocumentEvents
 from documents.src.config.logging import request_id_var
-from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdate
-from documents.src.domain.responses import DownloadResponse, UploadResponse
+from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdateCmd
+from documents.src.domain.s3 import S3DownloadResponse, S3UploadResponse
 from documents.src.exceptions import FileNotExistError
 from documents.src.service.document import DocumentService
 
@@ -55,7 +55,7 @@ async def get_many(
     )
 
 
-@api_router.get("/{document_id}/get-download-url", response_model=DownloadResponse)
+@api_router.get("/{document_id}/get-download-url", response_model=S3DownloadResponse)
 async def get_download_url(
         document_id: UUID,
         document_service: FromDishka[DocumentService],
@@ -66,21 +66,21 @@ async def get_download_url(
     except FileNotExistError as e:
         raise HTTPException(404, detail=e.args[0])
 
-    return DownloadResponse(
+    return S3DownloadResponse(
         url=url,  # type: ignore
         filename=filename,
         expires_in=document_service.s3.download_url_expires_in
     )
 
 
-@api_router.get("/{document_id}/get-upload-url", response_model=UploadResponse)
+@api_router.get("/{document_id}/get-upload-url", response_model=S3UploadResponse)
 async def get_upload_url(
         document_id: UUID,
         document_service: FromDishka[DocumentService],
 ):
     """ Get upload URL for specified file. """
     url = await document_service.get_upload_url(document_id)
-    return UploadResponse(
+    return S3UploadResponse(
         url=url,  # type: ignore
         expires_in=document_service.s3.upload_url_expires_in
     )
@@ -89,10 +89,11 @@ async def get_upload_url(
 @broker_router.subscriber(document_commands.update, stream=streams.cmd)
 @broker_router.publisher(document_events.updated, stream=streams.events)
 async def update(
-        update_data: DocumentUpdate,
-        document_service: DocumentService = FromDishka[DocumentService],
+        update_data: DocumentUpdateCmd,
+        document_service: FromDishka[DocumentService],
         cor_id: str = Context("message.correlation_id"),
 ):
+    """ Update specified document. """
     request_id_var.set(cor_id)
     document = await document_service.update(
         update_data.id,

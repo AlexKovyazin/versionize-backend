@@ -1,12 +1,12 @@
 from pydantic import BaseModel, AnyHttpUrl
 
 
-class DownloadResponse(BaseModel):
+class S3DownloadResponse(BaseModel):
     url: AnyHttpUrl
     filename: str
     expires_in: int
 
 
-class UploadResponse(BaseModel):
+class S3UploadResponse(BaseModel):
     url: AnyHttpUrl
     expires_in: int

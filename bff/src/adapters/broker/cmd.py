@@ -74,3 +74,8 @@ class RemarkCmd(Singleton, BaseCmd):
 @dataclass(frozen=True, slots=True)
 class RemarkDocCmd(Singleton, BaseCmd):
     """ Implements all RemarkDocCmd entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class DocumentCmd(Singleton, BaseCmd):
+    """ Implements all Document entity commands. """
