@@ -20,6 +20,15 @@ user_commands = UserCmd(service_name="identity", entity_name="User")
 user_events = UserEvents(service_name="identity", entity_name="User")
 
 
+@api_router.get("/{user_id}", response_model=User)
+async def get(
+        user_id: UUID,
+        user_service: FromDishka[UserService],
+):
+    """Get specified user. """
+    return await user_service.get(id=user_id)
+
+
 @api_router.get("", response_model=list[User])
 async def get_many(
         user_service: FromDishka[UserService],
@@ -29,15 +38,6 @@ async def get_many(
     return await user_service.get_many(
         **data.model_dump(exclude_none=True)
     )
-
-
-@api_router.get("/{user_id}", response_model=User)
-async def get(
-        user_id: UUID,
-        user_service: FromDishka[UserService],
-):
-    """Get specified user. """
-    return await user_service.get(id=user_id)
 
 
 @broker_router.subscriber(user_commands.update, stream=streams.cmd)

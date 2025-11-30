@@ -3,13 +3,31 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from bff.src.domain.tools import BaseValidationMixin
 
-class Company(BaseModel):
+
+class CompanyBase(BaseModel):
     id: uuid.UUID
-    created_at: datetime
-    updated_at: datetime | None
     name: str
     phone: str
     email: str
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class Company(CompanyBase):
+    created_at: datetime
+    updated_at: datetime | None
+
+
+class CompaniesSearch(BaseModel):
+    name: str | None = None
+    phone: str | None = None
+    email: str | None = None
+
+
+class CompaniesUpdate(
+    BaseValidationMixin,
+    CompaniesSearch
+):
+    ...

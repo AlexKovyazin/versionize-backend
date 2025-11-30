@@ -3,6 +3,8 @@ from fastapi import Depends, HTTPException
 
 from bff.src.adapters.broker.cmd import ProjectCmd
 from bff.src.adapters.broker.nats import NatsJS
+from bff.src.adapters.services.identity import CompaniesReadServiceAdapter, CompaniesWriteServiceAdapter
+from bff.src.adapters.services.identity import UsersReadServiceAdapter, UsersWriteServiceAdapter
 from bff.src.adapters.services.projects import DefaultSectionsReadServiceAdapter, DefaultSectionsWriteServiceAdapter
 from bff.src.adapters.services.projects import ProjectsReadServiceAdapter, ProjectsWriteServiceAdapter
 from bff.src.adapters.services.projects import SectionsReadServiceAdapter, SectionsWriteServiceAdapter
@@ -85,4 +87,36 @@ async def get_sections_write_adapter(
     return SectionsWriteServiceAdapter(
         broker,
         ProjectCmd(service_name="projects", entity_name="Section")
+    )
+
+
+async def get_users_read_adapter() -> UsersReadServiceAdapter:
+    """ Returns users read service adapter. """
+    return UsersReadServiceAdapter()
+
+
+async def get_users_write_adapter(
+        broker: NatsJS = Depends(get_broker)
+) -> UsersWriteServiceAdapter:
+    """ Returns users write service adapter. """
+
+    return UsersWriteServiceAdapter(
+        broker,
+        ProjectCmd(service_name="identity", entity_name="User")
+    )
+
+
+async def get_companies_read_adapter() -> CompaniesReadServiceAdapter:
+    """ Returns companies read service adapter. """
+    return CompaniesReadServiceAdapter()
+
+
+async def get_companies_write_adapter(
+        broker: NatsJS = Depends(get_broker)
+) -> CompaniesWriteServiceAdapter:
+    """ Returns companies write service adapter. """
+
+    return CompaniesWriteServiceAdapter(
+        broker,
+        ProjectCmd(service_name="identity", entity_name="Company")
     )

@@ -54,3 +54,13 @@ class DefaultSectionCmd(Singleton, BaseCmd):
 @dataclass(frozen=True, slots=True)
 class SectionCmd(Singleton, BaseCmd):
     """ Implements all Section entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class UserCmd(Singleton, BaseCmd):
+    """ Implements all User entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class CompanyCmd(Singleton, BaseCmd):
+    """ Implements all Company entity commands. """
