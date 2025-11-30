@@ -72,7 +72,7 @@ async def update(
 @broker_router.publisher(remark_events.deleted, stream=streams.events)
 async def delete(
         remark_id: UUID,
-        remark_service: RemarkService = FromDishka[RemarkService],
+        remark_service: FromDishka[RemarkService],
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified remark. """
