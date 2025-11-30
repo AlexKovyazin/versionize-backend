@@ -28,11 +28,6 @@ async def get_users_repository(uow=Depends(get_uow)) -> UsersRepository:
     return UsersRepository(uow)
 
 
-async def get_companies_repository(uow=Depends(get_uow)) -> CompaniesRepository:
-    """ Real dependency of users repository for production. """
-    return CompaniesRepository(uow)
-
-
 async def get_keycloak_adapter() -> Keycloak:
     """ Real dependency of keycloak adapter for production. """
     return Keycloak()
@@ -44,20 +39,6 @@ async def get_auth_service(
 ) -> AuthService:
     """ Real dependency of AuthService for production. """
     return AuthService(repo, keycloak)
-
-
-async def get_user_service(
-        repo=Depends(get_users_repository),
-):
-    """ Real dependency of UserService for production. """
-    return UserService(repo)
-
-
-async def get_companies_service(
-        repo=Depends(get_companies_repository),
-):
-    """ Real dependency of CompaniesService for production. """
-    return CompaniesService(repo)
 
 
 async def get_authenticated_user(
