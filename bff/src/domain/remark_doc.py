@@ -22,7 +22,7 @@ class RemarkDocOut(RemarkDocIn):
     updated_at: datetime | None
 
 
-class RemarkDocsSearchParams(BaseModel):
+class RemarkDocsSearch(BaseModel):
     id: UUID | None = None
     version: int | None = None
     md5: str | None = None

@@ -25,7 +25,7 @@ class RemarkOut(RemarkIn):
     updated_at: datetime | None
 
 
-class RemarksSearchParams(BaseModel):
+class RemarksSearch(BaseModel):
     number: int | None = None
     section_id: UUID | None = None
     expert_id: UUID | None = None

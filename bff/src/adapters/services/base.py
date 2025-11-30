@@ -13,6 +13,8 @@ from bff.src.config.logging import request_id_var
 from bff.src.config.settings import settings
 from bff.src.domain.company import Company, CompaniesSearch
 from bff.src.domain.project import ProjectsSearchParams, ProjectOut
+from bff.src.domain.remark import RemarksSearch, RemarkOut
+from bff.src.domain.remark_doc import RemarkDocsSearch, RemarkDocOut
 from bff.src.domain.section import DefaultSectionsSearch, DefaultSectionOut
 from bff.src.domain.section import SectionsSearch, SectionOut
 from bff.src.domain.user import User, UsersSearch
@@ -285,6 +287,42 @@ class ICompaniesReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class ICompaniesWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
+    def __init__(self, broker: IBroker, commands: BaseCmd):
+        super().__init__(
+            commands=commands,
+            broker=broker
+        )
+
+
+class IRemarksReadServiceAdapter(IGenericReadServiceAdapter, ABC):
+    def __init__(self):
+        super().__init__(
+            service_url=settings.reviewer_read_service_url,
+            entity_prefix="remarks",
+            search_params=RemarksSearch,
+            out_schema=RemarkOut
+        )
+
+
+class IRemarksWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
+    def __init__(self, broker: IBroker, commands: BaseCmd):
+        super().__init__(
+            commands=commands,
+            broker=broker
+        )
+
+
+class IRemarkDocsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
+    def __init__(self):
+        super().__init__(
+            service_url=settings.reviewer_read_service_url,
+            entity_prefix="remark-docs",
+            search_params=RemarkDocsSearch,
+            out_schema=RemarkDocOut
+        )
+
+
+class IRemarkDocsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
     def __init__(self, broker: IBroker, commands: BaseCmd):
         super().__init__(
             commands=commands,

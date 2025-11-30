@@ -64,3 +64,13 @@ class UserCmd(Singleton, BaseCmd):
 @dataclass(frozen=True, slots=True)
 class CompanyCmd(Singleton, BaseCmd):
     """ Implements all Company entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class RemarkCmd(Singleton, BaseCmd):
+    """ Implements all RemarkCmd entity commands. """
+
+
+@dataclass(frozen=True, slots=True)
+class RemarkDocCmd(Singleton, BaseCmd):
+    """ Implements all RemarkDocCmd entity commands. """
