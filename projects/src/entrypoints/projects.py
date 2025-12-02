@@ -22,7 +22,7 @@ project_events = ProjectEvents(service_name="projects", entity_name="Project")
 
 @broker_router.subscriber(project_commands.create, stream=streams.cmd)
 @broker_router.publisher(project_events.created, stream=streams.events)
-async def create(
+async def create_project(
         data: ProjectIn,
         project_service: FromDishka[ProjectService],
         cor_id: str = Context("message.correlation_id"),
@@ -33,7 +33,7 @@ async def create(
 
 
 @api_router.get("/{project_id}", response_model=ProjectOut)
-async def get(
+async def get_project(
         project_id: UUID,
         project_service: FromDishka[ProjectService],
 ):
@@ -42,19 +42,19 @@ async def get(
 
 
 @api_router.get("", response_model=list[ProjectOut])
-async def get_many(
+async def get_projects_list(
         project_service: FromDishka[ProjectService],
         data: ProjectsSearchParams = Depends(),
 ):
     """Get all projects by provided fields."""
-    return await project_service.get_many(
+    return await project_service.list(
         **data.model_dump(exclude_none=True)
     )
 
 
 @broker_router.subscriber(project_commands.update, stream=streams.cmd)
 @broker_router.publisher(project_events.updated, stream=streams.events)
-async def update(
+async def update_project(
         update_data: ProjectUpdateCmd,
         project_service: FromDishka[ProjectService],
         cor_id: str = Context("message.correlation_id"),
@@ -70,7 +70,7 @@ async def update(
 
 @broker_router.subscriber(project_commands.delete, stream=streams.cmd)
 @broker_router.publisher(project_events.deleted, stream=streams.events)
-async def delete(
+async def delete_project(
         project_id: UUID,
         project_service: FromDishka[ProjectService],
         cor_id: str = Context("message.correlation_id"),

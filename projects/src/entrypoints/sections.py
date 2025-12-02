@@ -22,7 +22,7 @@ section_events = SectionEvents(service_name="projects", entity_name="Section")
 
 @broker_router.subscriber(section_commands.create, stream=streams.cmd)
 @broker_router.publisher(section_events.created, stream=streams.events)
-async def create(
+async def create_section(
         data: SectionIn,
         section_service: FromDishka[SectionService],
         cor_id: str = Context("message.correlation_id"),
@@ -33,7 +33,7 @@ async def create(
 
 
 @api_router.get("/{section_id}", response_model=SectionOut)
-async def get(
+async def get_section(
         section_id: UUID,
         section_service: FromDishka[SectionService],
 ):
@@ -42,19 +42,19 @@ async def get(
 
 
 @api_router.get("", response_model=list[SectionOut])
-async def get_many(
+async def get_sections_list(
         section_service: FromDishka[SectionService],
         data: SectionsSearch = Depends(),
 ):
     """Get all sections by provided fields."""
-    return await section_service.get_many(
+    return await section_service.list(
         **data.model_dump(exclude_none=True)
     )
 
 
 @broker_router.subscriber(section_commands.update, stream=streams.cmd)
 @broker_router.publisher(section_events.updated, stream=streams.events)
-async def update(
+async def update_section(
         update_data: SectionUpdateCmd,
         section_service: FromDishka[SectionService],
         cor_id: str = Context("message.correlation_id"),
@@ -70,7 +70,7 @@ async def update(
 
 @broker_router.subscriber(section_commands.delete, stream=streams.cmd)
 @broker_router.publisher(section_events.deleted, stream=streams.events)
-async def delete(
+async def delete_section(
         section_id: UUID,
         section_service: FromDishka[SectionService],
         cor_id: str = Context("message.correlation_id"),

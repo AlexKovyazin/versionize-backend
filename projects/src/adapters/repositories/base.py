@@ -32,7 +32,7 @@ class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
         ...
 
     @abstractmethod
-    async def get_many(
+    async def list(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
@@ -103,7 +103,7 @@ class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
 
         return db_entity
 
-    async def get_many(
+    async def list(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),

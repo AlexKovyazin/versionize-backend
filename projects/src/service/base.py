@@ -36,7 +36,7 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         ...
 
     @abstractmethod
-    async def get_many(self, **kwargs) -> list[OUT_SCHEMA]:
+    async def list(self, **kwargs) -> list[OUT_SCHEMA]:
         ...
 
     @abstractmethod
@@ -60,8 +60,8 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
         db_entity = await self.repository.get(**kwargs)
         return self.out_schema.model_validate(db_entity)
 
-    async def get_many(self, **kwargs) -> list[OUT_SCHEMA]:
-        db_entity = await self.repository.get_many(**kwargs)
+    async def list(self, **kwargs) -> list[OUT_SCHEMA]:
+        db_entity = await self.repository.list(**kwargs)
         return [self.out_schema.model_validate(d) for d in db_entity]
 
     async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA:
