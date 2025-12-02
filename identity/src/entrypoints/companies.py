@@ -38,8 +38,9 @@ async def create_company(
 async def get_company(
         companies_service: FromDishka[CompaniesService],
         company_id: UUID,
-):
+) -> Company:
     """Get specified company. """
+
     return await companies_service.get(id=company_id)
 
 
@@ -47,8 +48,9 @@ async def get_company(
 async def get_companies_list(
         companies_service: FromDishka[CompaniesService],
         data: CompaniesSearch = Depends(),
-):
+) -> list[Company]:
     """Get all companies by provided fields."""
+
     return await companies_service.list(
         **data.model_dump(exclude_none=True)
     )

@@ -25,8 +25,9 @@ user_events = UserEvents(service_name="identity", entity_name="User")
 async def get_user(
         user_service: FromDishka[UserService],
         user_id: UUID,
-):
+) -> User:
     """Get specified user. """
+
     return await user_service.get(id=user_id)
 
 
@@ -34,7 +35,7 @@ async def get_user(
 async def get_users_list(
         user_service: FromDishka[UserService],
         data: UsersSearch = Depends(),
-):
+) -> list[User]:
     """Get all users by provided fields."""
 
     return await user_service.list(
