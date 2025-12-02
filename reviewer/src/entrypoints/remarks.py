@@ -22,7 +22,7 @@ remark_events = RemarkEvents(service_name="reviewer", entity_name="Remark")
 
 @broker_router.subscriber(remark_commands.create, stream=streams.cmd)
 @broker_router.publisher(remark_events.created, stream=streams.events)
-async def create(
+async def create_remark(
         data: RemarkIn,
         remark_service: FromDishka[RemarkService],
         cor_id: str = Context("message.correlation_id"),
@@ -33,7 +33,7 @@ async def create(
 
 
 @api_router.get("/{remark_id}", response_model=RemarkOut)
-async def get(
+async def get_remark(
         remark_id: UUID,
         remark_service: FromDishka[RemarkService],
 ):
@@ -42,19 +42,19 @@ async def get(
 
 
 @api_router.get("", response_model=list[RemarkOut])
-async def get_many(
+async def get_remarks_list(
         remark_service: FromDishka[RemarkService],
         data: RemarksSearchParams = Depends(),
 ):
     """Get all remarks by provided fields."""
-    return await remark_service.get_many(
+    return await remark_service.list(
         **data.model_dump(exclude_none=True)
     )
 
 
 @broker_router.subscriber(remark_commands.update, stream=streams.cmd)
 @broker_router.publisher(remark_events.updated, stream=streams.events)
-async def update(
+async def update_remark(
         update_data: RemarkUpdateCmd,
         remark_service: FromDishka[RemarkService],
         cor_id: str = Context("message.correlation_id"),
@@ -70,7 +70,7 @@ async def update(
 
 @broker_router.subscriber(remark_commands.delete, stream=streams.cmd)
 @broker_router.publisher(remark_events.deleted, stream=streams.events)
-async def delete(
+async def delete_remark(
         remark_id: UUID,
         remark_service: FromDishka[RemarkService],
         cor_id: str = Context("message.correlation_id"),

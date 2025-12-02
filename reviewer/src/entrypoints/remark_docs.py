@@ -22,7 +22,7 @@ remark_doc_events = RemarkDocEvents(service_name="reviewer", entity_name="Remark
 
 @broker_router.subscriber(remark_doc_commands.create, stream=streams.cmd)
 @broker_router.publisher(remark_doc_events.created, stream=streams.events)
-async def create(
+async def create_remark_doc(
         data: RemarkDocIn,
         remark_doc_service: FromDishka[RemarkDocService],
         cor_id: str = Context("message.correlation_id"),
@@ -33,7 +33,7 @@ async def create(
 
 
 @api_router.get("/{remark_doc_id}", response_model=RemarkDocOut)
-async def get(
+async def get_remark_doc(
         remark_doc_id: UUID,
         remark_doc_service: FromDishka[RemarkDocService],
 ):
@@ -42,19 +42,19 @@ async def get(
 
 
 @api_router.get("", response_model=list[RemarkDocOut])
-async def get_many(
+async def get_remark_docs_list(
         remark_doc_service: FromDishka[RemarkDocService],
         data: RemarkDocsSearchParams = Depends(),
 ):
     """Get all remark docs by provided fields."""
-    return await remark_doc_service.get_many(
+    return await remark_doc_service.list(
         **data.model_dump(exclude_none=True)
     )
 
 
 @broker_router.subscriber(remark_doc_commands.update, stream=streams.cmd)
 @broker_router.publisher(remark_doc_events.updated, stream=streams.events)
-async def update(
+async def update_remark_doc(
         update_data: RemarkDocUpdateCmd,
         remark_doc_service: FromDishka[RemarkDocService],
         cor_id: str = Context("message.correlation_id"),
@@ -70,7 +70,7 @@ async def update(
 
 @broker_router.subscriber(remark_doc_commands.delete, stream=streams.cmd)
 @broker_router.publisher(remark_doc_events.deleted, stream=streams.events)
-async def delete(
+async def delete_remark_doc(
         remark_doc_id: UUID,
         remark_doc_service: FromDishka[RemarkDocService],
         cor_id: str = Context("message.correlation_id"),
