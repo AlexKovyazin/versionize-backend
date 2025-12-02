@@ -8,9 +8,20 @@ from documents.src.enums import DocumentStatuses
 
 
 class Base(DeclarativeBase):
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4, index=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now(), index=True)
-    updated_at: Mapped[datetime | None] = mapped_column(onupdate=sa.func.now())
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        server_default=sa.func.now(),
+        index=True
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        onupdate=sa.func.now()
+    )
 
     def to_dict(self, exclude: list = None):
         """Convert model instance to dictionary."""

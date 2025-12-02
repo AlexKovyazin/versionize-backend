@@ -1,5 +1,5 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+import uuid
 
 import sqlalchemy as sa
 from sqlalchemy import UniqueConstraint, ForeignKey
@@ -9,9 +9,20 @@ from projects.src.enums import ProjectType
 
 
 class Base(DeclarativeBase):
-    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4, index=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now(), index=True)
-    updated_at: Mapped[datetime | None] = mapped_column(onupdate=sa.func.now())
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        server_default=sa.func.now(),
+        index=True
+    )
+    updated_at: Mapped[datetime | None] = mapped_column(
+        sa.TIMESTAMP(timezone=True),
+        onupdate=sa.func.now()
+    )
 
     def to_dict(self, exclude: list = None):
         """Convert model instance to dictionary."""
@@ -61,13 +72,13 @@ class OrmProject(Base):
         sa.TIMESTAMP(timezone=True),
         comment="Крайний срок следующей загрузки в экспертизу"
     )
-    pm_id: Mapped[UUID] = mapped_column(
+    pm_id: Mapped[uuid.UUID] = mapped_column(
         comment="ГИП"
     )
     project_type: Mapped[ProjectType] = mapped_column(
         comment="Тип объекта"
     )
-    company_id: Mapped[UUID] = mapped_column(
+    company_id: Mapped[uuid.UUID] = mapped_column(
         comment="Проектная организация"
     )
 
@@ -94,10 +105,10 @@ class OrmSection(Base):
 
     name: Mapped[str] = mapped_column(comment="Наименование раздела")
     abbreviation: Mapped[str] = mapped_column(comment="Аббревиатура раздела")
-    project_id: Mapped[UUID] = mapped_column(ForeignKey("projects.id"), index=True, comment="Объект")
-    company_id: Mapped[UUID] = mapped_column(index=True, comment="Ответственная организация")
-    responsible_id: Mapped[UUID | None] = mapped_column(index=True, comment="Ответственный исполнитель")
-    expert_id: Mapped[UUID | None] = mapped_column(index=True, comment="Эксперт")
+    project_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("projects.id"), index=True, comment="Объект")
+    company_id: Mapped[uuid.UUID] = mapped_column(index=True, comment="Ответственная организация")
+    responsible_id: Mapped[uuid.UUID | None] = mapped_column(index=True, comment="Ответственный исполнитель")
+    expert_id: Mapped[uuid.UUID | None] = mapped_column(index=True, comment="Эксперт")
 
     project: Mapped["OrmProject"] = relationship(
         "OrmProject", back_populates="sections"
