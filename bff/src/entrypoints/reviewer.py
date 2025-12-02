@@ -31,7 +31,7 @@ async def get_remark(
 
 
 @router.get("/remarks", response_model=list[RemarkOut])
-async def get_many_remarks(
+async def get_remarks_list(
         filter_data: RemarksSearch = Depends(),
         adapter: RemarksReadServiceAdapter = Depends(get_remarks_read_adapter),
 ):
@@ -77,7 +77,7 @@ async def get_remark_doc(
 
 
 @router.get("/remark-docs", response_model=list[RemarkDocOut])
-async def get_many_remark_docs(
+async def get_remark_docs_list(
         filter_data: RemarkDocsSearch = Depends(),
         adapter: RemarkDocsReadServiceAdapter = Depends(get_remark_docs_read_adapter)
 ):

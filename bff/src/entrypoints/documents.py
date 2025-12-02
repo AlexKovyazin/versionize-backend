@@ -46,7 +46,7 @@ async def get_document(
 
 
 @router.get("/documents", response_model=list[DocumentOut])
-async def get_many_documents(
+async def get_documents_list(
         filter_data: DocumentsSearch = Depends(),
         adapter: DocumentsReadServiceAdapter = Depends(get_documents_read_adapter)
 ):

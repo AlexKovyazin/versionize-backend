@@ -37,7 +37,7 @@ async def get_project(
 
 
 @router.get("/project", response_model=list[ProjectOut])
-async def get_many_projects(
+async def get_projects_list(
         filter_data: ProjectsSearchParams = Depends(),
         adapter: ProjectsReadServiceAdapter = Depends(get_projects_read_adapter)
 ):
@@ -83,7 +83,7 @@ async def get_default_section(
 
 
 @router.get("/default-section", response_model=list[DefaultSectionOut])
-async def get_many_default_sections(
+async def get_default_sections_list(
         filter_data: DefaultSectionsSearch = Depends(),
         adapter: DefaultSectionsReadServiceAdapter = Depends(get_default_sections_read_adapter)
 ):
@@ -129,7 +129,7 @@ async def get_section(
 
 
 @router.get("/section", response_model=list[SectionOut])
-async def get_many_sections(
+async def get_sections_list(
         filter_data: SectionsSearch = Depends(),
         adapter: SectionsReadServiceAdapter = Depends(get_sections_read_adapter)
 ):

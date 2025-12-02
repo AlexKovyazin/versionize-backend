@@ -22,7 +22,7 @@ async def get_user(
 
 
 @router.get("/users", response_model=list[User])
-async def get_many_users(
+async def get_users_list(
         filter_data: UsersSearch = Depends(),
         adapter: UsersReadServiceAdapter = Depends(get_users_read_adapter)
 ):
@@ -68,7 +68,7 @@ async def get_company(
 
 
 @router.get("/companies", response_model=list[Company])
-async def get_many_companies(
+async def get_companies_list(
         filter_data: CompaniesSearch = Depends(),
         adapter: CompaniesReadServiceAdapter = Depends(get_companies_read_adapter)
 ):
