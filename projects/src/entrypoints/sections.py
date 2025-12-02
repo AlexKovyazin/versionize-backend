@@ -61,11 +61,11 @@ async def update_section(
 ):
     """ Update specified sections. """
     request_id_var.set(cor_id)
-    document = await section_service.update(
+    section = await section_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return section
 
 
 @broker_router.subscriber(section_commands.delete, stream=streams.cmd)

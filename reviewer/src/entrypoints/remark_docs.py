@@ -61,11 +61,11 @@ async def update_remark_doc(
 ):
     """ Update specified remark docs. """
     request_id_var.set(cor_id)
-    document = await remark_doc_service.update(
+    remark_doc = await remark_doc_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return remark_doc
 
 
 @broker_router.subscriber(remark_doc_commands.delete, stream=streams.cmd)

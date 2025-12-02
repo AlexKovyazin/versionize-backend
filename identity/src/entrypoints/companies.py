@@ -61,11 +61,11 @@ async def update_company(
 ):
     """ Update specified companies. """
     request_id_var.set(cor_id)
-    document = await companies_service.update(
+    company = await companies_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return company
 
 
 @broker_router.subscriber(company_commands.delete, stream=streams.cmd)

@@ -49,11 +49,11 @@ async def update_user(
 ):
     """ Update specified user. """
     request_id_var.set(cor_id)
-    document = await user_service.update(
+    user = await user_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return user
 
 
 @broker_router.subscriber(user_commands.delete, stream=streams.cmd)

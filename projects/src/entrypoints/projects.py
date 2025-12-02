@@ -61,11 +61,11 @@ async def update_project(
 ):
     """ Update specified projects. """
     request_id_var.set(cor_id)
-    document = await project_service.update(
+    project = await project_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return project
 
 
 @broker_router.subscriber(project_commands.delete, stream=streams.cmd)

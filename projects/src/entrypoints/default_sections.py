@@ -66,11 +66,11 @@ async def update_default_section(
 ):
     """ Update specified default sections. """
     request_id_var.set(cor_id)
-    document = await default_section_service.update(
+    default_section = await default_section_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
-    return document
+    return default_section
 
 
 @broker_router.subscriber(default_section_commands.delete, stream=streams.cmd)
