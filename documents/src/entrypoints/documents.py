@@ -41,7 +41,7 @@ async def create_document(
 async def get_document(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
-):
+) -> DocumentOut:
     """Get document description without document file."""
 
     return await document_service.get(id=document_id)
@@ -51,7 +51,7 @@ async def get_document(
 async def get_documents_list(
         document_service: FromDishka[DocumentService],
         data: DocumentsSearch = Depends(),
-):
+) -> list[DocumentOut]:
     """Get all documents descriptions by provided fields."""
 
     return await document_service.list(
@@ -63,7 +63,7 @@ async def get_documents_list(
 async def get_download_url(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
-):
+) -> S3DownloadResponse:
     """ Get download URL for specified file. """
 
     try:
@@ -82,7 +82,7 @@ async def get_download_url(
 async def get_upload_url(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
-):
+) -> S3UploadResponse:
     """ Get upload URL for specified file. """
 
     url = await document_service.get_upload_url(document_id)
