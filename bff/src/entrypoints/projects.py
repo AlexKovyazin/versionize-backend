@@ -18,7 +18,7 @@ from bff.src.domain.section import SectionOut, SectionsSearch
 router = APIRouter(tags=["Projects"])
 
 
-@router.post("/project", status_code=201)
+@router.post("/project", status_code=202)
 async def create_project(
         data: ProjectIn,
         adapter: ProjectsWriteServiceAdapter = Depends(get_projects_write_adapter)
@@ -55,7 +55,7 @@ async def update_project(
     await adapter.update(project_id, data)
 
 
-@router.delete("/project/{project_id}", status_code=204)
+@router.delete("/project/{project_id}", status_code=202)
 async def delete_project(
         project_id: UUID,
         adapter: ProjectsWriteServiceAdapter = Depends(get_projects_write_adapter)
@@ -64,7 +64,7 @@ async def delete_project(
     await adapter.delete(project_id)
 
 
-@router.post("/default-section", status_code=201)
+@router.post("/default-section", status_code=202)
 async def create_default_section(
         data: DefaultSectionIn,
         adapter: DefaultSectionsWriteServiceAdapter = Depends(get_default_sections_write_adapter)
@@ -101,7 +101,7 @@ async def update_default_section(
     await adapter.update(default_section_id, data)
 
 
-@router.delete("/default-section/{default_section_id}", status_code=204)
+@router.delete("/default-section/{default_section_id}", status_code=202)
 async def delete_default_section(
         default_section_id: UUID,
         adapter: DefaultSectionsWriteServiceAdapter = Depends(get_default_sections_write_adapter)
@@ -110,7 +110,7 @@ async def delete_default_section(
     await adapter.delete(default_section_id)
 
 
-@router.post("/section", status_code=201)
+@router.post("/section", status_code=202)
 async def create_section(
         data: SectionIn,
         adapter: SectionsWriteServiceAdapter = Depends(get_sections_write_adapter)
@@ -147,7 +147,7 @@ async def update_section(
     await adapter.update(section_id, data)
 
 
-@router.delete("/section/{section_id}", status_code=204)
+@router.delete("/section/{section_id}", status_code=202)
 async def delete_section(
         section_id: UUID,
         adapter: SectionsWriteServiceAdapter = Depends(get_sections_write_adapter)

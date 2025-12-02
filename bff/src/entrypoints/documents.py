@@ -10,7 +10,7 @@ from bff.src.domain.s3 import S3DownloadResponse, S3UploadResponse
 router = APIRouter(tags=["Documents"])
 
 
-@router.post("/documents", status_code=201)
+@router.post("/documents", status_code=202)
 async def create_document(
         data: DocumentIn,
         adapter: DocumentsWriteServiceAdapter = Depends(get_documents_write_adapter)
@@ -72,7 +72,7 @@ async def get_upload_url(
     return await adapter.get_upload_url(document_id)
 
 
-@router.post("/documents/{document_id}/uploaded")
+@router.post("/documents/{document_id}/uploaded", status_code=202)
 async def upload_callback(
         document_id: UUID,
         adapter: DocumentsWriteServiceAdapter = Depends(get_documents_write_adapter)
@@ -95,7 +95,7 @@ async def update_document(
     await adapter.update(document_id, data)
 
 
-@router.delete("/documents/{document_id}", status_code=204)
+@router.delete("/documents/{document_id}", status_code=202)
 async def delete_document(
         document_id: UUID,
         adapter: DocumentsWriteServiceAdapter = Depends(get_documents_write_adapter)

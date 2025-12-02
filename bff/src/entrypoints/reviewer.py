@@ -12,7 +12,7 @@ from bff.src.domain.remark_doc import RemarkDocIn, RemarkDocsSearch, RemarkDocOu
 router = APIRouter(tags=["Reviewer"])
 
 
-@router.post("/remarks", status_code=201)
+@router.post("/remarks", status_code=202)
 async def create_remark(
         data: RemarkIn,
         adapter: RemarksWriteServiceAdapter = Depends(get_remarks_write_adapter)
@@ -49,7 +49,7 @@ async def update_remark(
     await adapter.update(remark_id, data)
 
 
-@router.delete("/remarks/{remark_id}", status_code=204)
+@router.delete("/remarks/{remark_id}", status_code=202)
 async def delete_remark(
         remark_id: UUID,
         adapter: RemarksWriteServiceAdapter = Depends(get_remarks_write_adapter)
@@ -58,7 +58,7 @@ async def delete_remark(
     await adapter.delete(remark_id)
 
 
-@router.post("/remark-docs", status_code=201)
+@router.post("/remark-docs", status_code=202)
 async def create_remark_doc(
         data: RemarkDocIn,
         adapter: RemarkDocsWriteServiceAdapter = Depends(get_remark_docs_write_adapter)
@@ -95,7 +95,7 @@ async def update_remark_doc(
     await adapter.update(remark_doc_id, data)
 
 
-@router.delete("/remark-docs/{remark_doc_id}", status_code=204)
+@router.delete("/remark-docs/{remark_doc_id}", status_code=202)
 async def delete_remark_doc(
         remark_doc_id: UUID,
         adapter: RemarkDocsWriteServiceAdapter = Depends(get_remark_docs_write_adapter)

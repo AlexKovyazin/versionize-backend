@@ -40,7 +40,7 @@ async def update_user(
     await adapter.update(user_id, data)
 
 
-@router.delete("/users/{user_id}", status_code=204)
+@router.delete("/users/{user_id}", status_code=202)
 async def delete_user(
         user_id: UUID,
         adapter: UsersWriteServiceAdapter = Depends(get_users_write_adapter)
@@ -49,7 +49,7 @@ async def delete_user(
     await adapter.delete(user_id)
 
 
-@router.post("/companies", status_code=201)
+@router.post("/companies", status_code=202)
 async def create_company(
         data: CompanyBase,
         adapter: CompaniesWriteServiceAdapter = Depends(get_companies_write_adapter)
@@ -86,7 +86,7 @@ async def update_company(
     await adapter.update(company_id, data)
 
 
-@router.delete("/companies/{company_id}", status_code=204)
+@router.delete("/companies/{company_id}", status_code=202)
 async def delete_company(
         company_id: UUID,
         adapter: CompaniesWriteServiceAdapter = Depends(get_companies_write_adapter)
