@@ -3,7 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from identity.src.domain.tools import BaseValidationMixin
+from identity.src.domain.base import BaseValidationMixin
 
 
 class CompanyBase(BaseModel):

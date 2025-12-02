@@ -10,6 +10,7 @@ from identity.src.adapters.broker import streams
 from identity.src.adapters.broker.cmd import UserCmd
 from identity.src.adapters.broker.events import UserEvents
 from identity.src.config.logging import request_id_var
+from identity.src.domain.base import EntityDeletedEvent
 from identity.src.domain.user import User, UsersSearch, UserUpdateCmd
 from identity.src.service.user import UserService
 
@@ -35,6 +36,7 @@ async def get_users_list(
         data: UsersSearch = Depends(),
 ):
     """Get all users by provided fields."""
+
     return await user_service.list(
         **data.model_dump(exclude_none=True)
     )
@@ -46,8 +48,9 @@ async def update_user(
         user_service: FromDishka[UserService],
         update_data: UserUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> User:
     """ Update specified user. """
+
     request_id_var.set(cor_id)
     user = await user_service.update(
         update_data.id,
@@ -62,7 +65,9 @@ async def delete_user(
         user_service: FromDishka[UserService],
         user_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """ Delete specified user. """
+
     request_id_var.set(cor_id)
-    await user_service.delete(user_id)
+    deleted_at = await user_service.delete(user_id)
+    return EntityDeletedEvent(id=user_id, deleted_at=deleted_at)

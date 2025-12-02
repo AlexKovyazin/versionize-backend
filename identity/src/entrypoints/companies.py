@@ -10,6 +10,7 @@ from identity.src.adapters.broker import streams
 from identity.src.adapters.broker.cmd import CompanyCmd
 from identity.src.adapters.broker.events import CompanyEvents
 from identity.src.config.logging import request_id_var
+from identity.src.domain.base import EntityDeletedEvent
 from identity.src.domain.company import Company, CompanyBase, CompaniesSearch, CompaniesUpdateCmd
 from identity.src.service.company import CompaniesService
 
@@ -26,8 +27,9 @@ async def create_company(
         companies_service: FromDishka[CompaniesService],
         data: CompanyBase,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> Company:
     """ Create a new company. """
+
     request_id_var.set(cor_id)
     return await companies_service.create(data)
 
@@ -58,8 +60,9 @@ async def update_company(
         companies_service: FromDishka[CompaniesService],
         update_data: CompaniesUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> Company:
     """ Update specified companies. """
+
     request_id_var.set(cor_id)
     company = await companies_service.update(
         update_data.id,
@@ -74,7 +77,9 @@ async def delete_company(
         companies_service: FromDishka[CompaniesService],
         company_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """ Delete specified companies. """
+
     request_id_var.set(cor_id)
-    await companies_service.delete(company_id)
+    deleted_at = await companies_service.delete(company_id)
+    return EntityDeletedEvent(id=company_id, deleted_at=deleted_at)

@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from identity.src.domain.company import Company
-from identity.src.domain.tools import BaseValidationMixin
+from identity.src.domain.base import BaseValidationMixin
 from identity.src.enums import UserProjectRole
 
 

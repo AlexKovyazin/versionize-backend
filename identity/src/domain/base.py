@@ -1,4 +1,7 @@
-from pydantic import model_validator
+from datetime import datetime
+from uuid import UUID
+
+from pydantic import BaseModel, model_validator
 
 
 class BaseValidationMixin:
@@ -14,3 +17,8 @@ class BaseValidationMixin:
             raise ValueError("At least one field must be provided")
 
         return values
+
+
+class EntityDeletedEvent(BaseModel):
+    id: UUID
+    deleted_at: datetime
