@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from projects.src.domain.tools import BaseValidationMixin
+from projects.src.domain.base import BaseValidationMixin
 
 
 class SectionIn(BaseModel):

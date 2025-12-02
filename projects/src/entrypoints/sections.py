@@ -10,6 +10,7 @@ from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import SectionCmd
 from projects.src.adapters.broker.events import SectionEvents
 from projects.src.config.logging import request_id_var
+from projects.src.domain.base import EntityDeletedEvent
 from projects.src.domain.section import SectionIn, SectionOut, SectionsSearch, SectionUpdateCmd
 from projects.src.service.section import SectionService
 
@@ -26,8 +27,9 @@ async def create_section(
         section_service: FromDishka[SectionService],
         data: SectionIn,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> SectionOut:
     """ Create a new section. """
+
     request_id_var.set(cor_id)
     return await section_service.create(data)
 
@@ -36,7 +38,7 @@ async def create_section(
 async def get_section(
         section_service: FromDishka[SectionService],
         section_id: UUID,
-):
+) -> SectionOut:
     """Get specified section. """
     return await section_service.get(id=section_id)
 
@@ -45,8 +47,9 @@ async def get_section(
 async def get_sections_list(
         section_service: FromDishka[SectionService],
         data: SectionsSearch = Depends(),
-):
+) -> list[SectionOut]:
     """Get all sections by provided fields."""
+
     return await section_service.list(
         **data.model_dump(exclude_none=True)
     )
@@ -58,8 +61,9 @@ async def update_section(
         section_service: FromDishka[SectionService],
         update_data: SectionUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> SectionOut:
     """ Update specified sections. """
+
     request_id_var.set(cor_id)
     section = await section_service.update(
         update_data.id,
@@ -74,7 +78,9 @@ async def delete_section(
         section_service: FromDishka[SectionService],
         section_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """ Delete specified section. """
+
     request_id_var.set(cor_id)
-    await section_service.delete(section_id)
+    deleted_at = await section_service.delete(section_id)
+    return EntityDeletedEvent(id=section_id, deleted_at=deleted_at)

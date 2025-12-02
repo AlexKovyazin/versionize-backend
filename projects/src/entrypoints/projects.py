@@ -10,6 +10,7 @@ from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import ProjectCmd
 from projects.src.adapters.broker.events import ProjectEvents
 from projects.src.config.logging import request_id_var
+from projects.src.domain.base import EntityDeletedEvent
 from projects.src.domain.project import ProjectIn, ProjectOut, ProjectsSearchParams, ProjectUpdateCmd
 from projects.src.service.project import ProjectService
 
@@ -26,8 +27,9 @@ async def create_project(
         project_service: FromDishka[ProjectService],
         data: ProjectIn,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> ProjectOut:
     """ Create a new project. """
+
     request_id_var.set(cor_id)
     return await project_service.create(data)
 
@@ -36,8 +38,9 @@ async def create_project(
 async def get_project(
         project_service: FromDishka[ProjectService],
         project_id: UUID,
-):
+) -> ProjectOut:
     """Get specified project. """
+
     return await project_service.get(id=project_id)
 
 
@@ -45,8 +48,9 @@ async def get_project(
 async def get_projects_list(
         project_service: FromDishka[ProjectService],
         data: ProjectsSearchParams = Depends(),
-):
+) -> list[ProjectOut]:
     """Get all projects by provided fields."""
+
     return await project_service.list(
         **data.model_dump(exclude_none=True)
     )
@@ -58,8 +62,9 @@ async def update_project(
         project_service: FromDishka[ProjectService],
         update_data: ProjectUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> ProjectOut:
     """ Update specified projects. """
+
     request_id_var.set(cor_id)
     project = await project_service.update(
         update_data.id,
@@ -74,7 +79,9 @@ async def delete_project(
         project_service: FromDishka[ProjectService],
         project_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """ Delete specified project. """
+
     request_id_var.set(cor_id)
-    await project_service.delete(project_id)
+    deleted_at = await project_service.delete(project_id)
+    return EntityDeletedEvent(id=project_id, deleted_at=deleted_at)
