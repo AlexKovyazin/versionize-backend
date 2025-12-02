@@ -86,6 +86,19 @@ async def get_upload_url(
     )
 
 
+@broker_router.subscriber(document_commands.sync, stream=streams.cmd)
+@broker_router.publisher(document_events.uploaded, stream=streams.events)
+async def upload_callback(
+        document_id: UUID,
+        document_service: FromDishka[DocumentService],
+        cor_id: str = Context("message.correlation_id"),
+):
+    """ Upload callback for specified file. """
+
+    request_id_var.set(cor_id)
+    await document_service.sync_document_with_file(document_id)
+
+
 @broker_router.subscriber(document_commands.update, stream=streams.cmd)
 @broker_router.publisher(document_events.updated, stream=streams.events)
 async def update(

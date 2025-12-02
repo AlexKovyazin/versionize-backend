@@ -34,15 +34,8 @@ class BaseCmd:
         return f"cmd.{self.service_name}.Delete{self.entity_name}"
 
 
-@dataclass(frozen=True)
-class ProjectCmdExtra:
-    """ Example dataclass for extra commands. """
-
-    example: str = f"cmd.project.ExtraCommand"
-
-
 @dataclass(frozen=True, slots=True)
-class ProjectCmd(Singleton, ProjectCmdExtra, BaseCmd):
+class ProjectCmd(Singleton, BaseCmd):
     """ Implements all Project entity commands. """
 
 
@@ -79,3 +72,5 @@ class RemarkDocCmd(Singleton, BaseCmd):
 @dataclass(frozen=True, slots=True)
 class DocumentCmd(Singleton, BaseCmd):
     """ Implements all Document entity commands. """
+
+    sync: str = f"cmd.documents.SyncDocumentFile"

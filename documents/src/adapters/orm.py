@@ -34,13 +34,11 @@ class OrmDocument(Base):
     __tablename__ = "documents"
 
     status: Mapped[DocumentStatuses] = mapped_column(default=DocumentStatuses.NEW)
-    # TODO добавить uploaded поле для асинхронной загрузки файла
-    # uploaded: Mapped[bool] = mapped_column(default=False)
+    uploaded: Mapped[bool] = mapped_column(default=False)
     name: Mapped[str]
     version: Mapped[int] = mapped_column(comment="Used on expertise")
     variation: Mapped[int] = mapped_column(comment="Continuous numbering for every document")
-    # TODO md5: Mapped[str | None] для асинхронной загрузки файла
-    md5: Mapped[str] = mapped_column(sa.String(32), unique=True)
+    md5: Mapped[str | None] = mapped_column(sa.String(32), unique=True)
     note: Mapped[str | None]
     # TODO добавь поле, сделай миграцию и реализуй логику томов
     # volume: Mapped[int] = mapped_column(comment="Номер тома")

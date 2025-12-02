@@ -36,4 +36,6 @@ class BaseEvents:
 
 @dataclass(frozen=True, slots=True)
 class DocumentEvents(Singleton, BaseEvents):
-    """ Implements all Project entity commands. """
+    """ Implements all Document entity commands. """
+
+    uploaded: str = "events.documents.DocumentFileUploaded"

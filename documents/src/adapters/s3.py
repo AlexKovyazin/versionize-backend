@@ -199,8 +199,8 @@ class S3(AbstractS3):
             "put_object",
             Params={
                 "Bucket": self.bucket,
-                "Key": file_path,
-                "ContentType": str(file_type),
+                "Key": str(file_path),
+                # "ContentType": str(file_type),  # may be added if needed
             },
             ExpiresIn=self.upload_url_expires_in
         )

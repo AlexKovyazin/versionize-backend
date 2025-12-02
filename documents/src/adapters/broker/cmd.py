@@ -37,3 +37,5 @@ class BaseCmd:
 @dataclass(frozen=True, slots=True)
 class DocumentCmd(Singleton, BaseCmd):
     """ Implements all Document entity commands. """
+
+    sync: str = f"cmd.documents.SyncDocumentFile"

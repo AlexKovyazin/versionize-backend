@@ -20,13 +20,10 @@ class DocumentService(
     async def create(
             self,
             document_in: DocumentIn,
-            file_content: bytes | None = None,
             raise_variation: bool = False
     ) -> DocumentOut:
         """
         Creates a new document with business logic:
-        - MD5 hash generation
-        - S3 uploading
         - Version management
         - Variation management
         - DB inserting
@@ -35,14 +32,10 @@ class DocumentService(
         If set to True - variation number of new versions will be increased.
         """
 
-        if not file_content:
-            raise AttributeError("file_content cannot be None on document creation")
-
         logger.info(
             f"Creating new document for section {document_in.section_id}",
             extra=document_in.model_dump()
         )
-        md5_hash = hashlib.md5(file_content).hexdigest()
         latest_document = await self.repository.get_latest(document_in.section_id)
         version = latest_document.version + 1 if latest_document else 1
         variation = 0
@@ -57,13 +50,9 @@ class DocumentService(
             **document_in.model_dump(),
             version=version,
             variation=variation,
-            md5=md5_hash,
         )
         created_document = await self.repository.create(document_for_creation)
         created_document = DocumentOut.model_validate(created_document)
-
-        # TODO The S3 call should be removed after using the get-upload-url endpoint.
-        await self.s3.put(created_document.id, file_content)
 
         logger.info(
             f"New document for section {created_document.section_id} created",
@@ -100,6 +89,23 @@ class DocumentService(
         """  Get S3 upload url. """
 
         return await self.s3.get_upload_url(document_id)
+
+    async def sync_document_with_file(self, document_id: UUID) -> None:
+        """ Sync document with its uploaded file. """
+
+        if not await self.s3.exists(document_id):
+            raise FileNotExistError("There is no such document in S3")
+
+        file_stream = await self.s3.get_stream(document_id)
+        md5 = hashlib.md5()
+        async for chunk in file_stream:
+            md5.update(chunk)
+
+        await self.repository.update(
+            document_id,
+            uploaded=True,
+            md5=md5.hexdigest()
+        )
 
     async def delete(self, document_id: UUID, **kwargs):
         """ Delete document from S3 and DB. """

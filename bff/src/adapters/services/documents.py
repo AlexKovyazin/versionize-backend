@@ -1,8 +1,10 @@
 from uuid import UUID
 
 from bff.src.adapters.broker.cmd import DocumentCmd
+from bff.src.adapters.broker.nats import Streams
 from bff.src.adapters.services.base import GenericServiceReadAdapter, GenericServiceWriteAdapter
 from bff.src.adapters.services.base import IDocumentsReadServiceAdapter, IDocumentsWriteServiceAdapter
+from bff.src.config.logging import request_id_var
 from bff.src.domain.document import DocumentsSearch, DocumentOut, DocumentIn, DocumentUpdate
 from bff.src.domain.s3 import S3DownloadResponse, S3UploadResponse
 
@@ -30,4 +32,10 @@ class DocumentsWriteServiceAdapter(
     IDocumentsWriteServiceAdapter,
     GenericServiceWriteAdapter[DocumentCmd, DocumentIn, DocumentUpdate]
 ):
-    ...
+    async def sync_document_file(self, document_id: UUID):
+        return await self.broker.publish(
+            str(document_id),
+            self.commands.sync,  # type: ignore
+            headers={"correlation_id": request_id_var.get()},
+            stream=Streams.CMD,
+        )

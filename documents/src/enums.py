@@ -37,8 +37,4 @@ class DocumentContentType(Enum):
 
     @classmethod
     def is_valid(cls, value: str) -> bool:
-        return True if value in cls._value_set else False
-
-    @classmethod
-    def _value_set(cls):
-        return {member.value for member in cls}
+        return True if value in {member.value for member in cls} else False

@@ -8,7 +8,7 @@ from bff.src.enums import DocumentStatuses
 
 
 class DocumentIn(BaseModel):
-    """ Schema for Document creation. """
+    """ In Schema for Document creation. """
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -22,17 +22,18 @@ class DocumentIn(BaseModel):
 
 
 class DocumentCreate(DocumentIn):
-    """ Schema for Document creation. """
+    """ Full Schema with calculated fields for Document creation. """
 
     version: int
     variation: int
-    md5: str
 
 
 class DocumentOut(DocumentCreate):
     """ Schema for Document rendering. """
 
     id: UUID
+    uploaded: bool
+    md5: UUID | None
     created_at: datetime.datetime
     updated_at: datetime.datetime | None
 

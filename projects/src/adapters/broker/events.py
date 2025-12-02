@@ -34,15 +34,8 @@ class BaseEvents:
         return f"events.{self.service_name}.{self.entity_name}Deleted"
 
 
-@dataclass(frozen=True)
-class ProjectEventsExtra:
-    """ Example dataclass for extra commands. """
-
-    example: str = f"events.project.ExtraEvent"
-
-
 @dataclass(frozen=True, slots=True)
-class ProjectEvents(Singleton, ProjectEventsExtra, BaseEvents):
+class ProjectEvents(Singleton, BaseEvents):
     """ Implements all Project entity commands. """
 
 

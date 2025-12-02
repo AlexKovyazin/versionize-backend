@@ -177,7 +177,7 @@ class GenericServiceReadAdapter(
 class GenericServiceWriteAdapter(
     IGenericWriteServiceAdapter[COMMANDS, CREATE_SCHEMA, UPDATE_SCHEMA],
 ):
-    async def create(self, entity: CREATE_SCHEMA) -> CREATE_SCHEMA:
+    async def create(self, entity: CREATE_SCHEMA) -> PubAck:
         return await self.broker.publish(
             entity,
             self.commands.create,  # type: ignore
@@ -185,7 +185,7 @@ class GenericServiceWriteAdapter(
             stream=Streams.CMD
         )
 
-    async def update(self, entity_id: UUID, data: UPDATE_SCHEMA) -> OUT_SCHEMA:
+    async def update(self, entity_id: UUID, data: UPDATE_SCHEMA) -> PubAck:
         msg = {
             "id": str(entity_id),
             "data": data.model_dump()
@@ -197,7 +197,7 @@ class GenericServiceWriteAdapter(
             stream=Streams.CMD
         )
 
-    async def delete(self, entity_id: UUID) -> None:
+    async def delete(self, entity_id: UUID) -> PubAck:
         return await self.broker.publish(
             str(entity_id),
             self.commands.delete,  # type: ignore
