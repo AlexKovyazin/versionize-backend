@@ -11,6 +11,7 @@ from documents.src.adapters.broker import streams
 from documents.src.adapters.broker.cmd import DocumentCmd
 from documents.src.adapters.broker.events import DocumentEvents
 from documents.src.config.logging import request_id_var
+from documents.src.domain.base import EntityDeletedEvent
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdateCmd
 from documents.src.domain.s3 import S3DownloadResponse, S3UploadResponse
 from documents.src.exceptions import FileNotExistError
@@ -29,8 +30,9 @@ async def create_document(
         document_service: FromDishka[DocumentService],
         data: DocumentIn,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> DocumentOut:
     """ Create a new document metadata. """
+
     request_id_var.set(cor_id)
     return await document_service.create(data)
 
@@ -41,6 +43,7 @@ async def get_document(
         document_id: UUID,
 ):
     """Get document description without document file."""
+
     return await document_service.get(id=document_id)
 
 
@@ -50,6 +53,7 @@ async def get_documents_list(
         data: DocumentsSearch = Depends(),
 ):
     """Get all documents descriptions by provided fields."""
+
     return await document_service.list(
         **data.model_dump(exclude_none=True)
     )
@@ -61,6 +65,7 @@ async def get_download_url(
         document_id: UUID,
 ):
     """ Get download URL for specified file. """
+
     try:
         url, filename = await document_service.get_download_url(document_id)
     except FileNotExistError as e:
@@ -79,6 +84,7 @@ async def get_upload_url(
         document_id: UUID,
 ):
     """ Get upload URL for specified file. """
+
     url = await document_service.get_upload_url(document_id)
     return S3UploadResponse(
         url=url,  # type: ignore
@@ -92,11 +98,11 @@ async def upload_callback(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> DocumentOut:
     """ Upload callback for specified file. """
 
     request_id_var.set(cor_id)
-    await document_service.sync_document_with_file(document_id)
+    return await document_service.sync_document_with_file(document_id)
 
 
 @broker_router.subscriber(document_commands.update, stream=streams.cmd)
@@ -105,8 +111,9 @@ async def update_document(
         document_service: FromDishka[DocumentService],
         update_data: DocumentUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> DocumentOut:
     """ Update specified document. """
+
     request_id_var.set(cor_id)
     document = await document_service.update(
         update_data.id,
@@ -121,7 +128,9 @@ async def delete_document(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """Delete a document from S3 and DB."""
+
     request_id_var.set(cor_id)
-    await document_service.delete(document_id)
+    deleted_at = await document_service.delete(document_id)
+    return EntityDeletedEvent(id=document_id, deleted_at=deleted_at)

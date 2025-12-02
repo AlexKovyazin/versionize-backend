@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from documents.src.domain.tools import BaseValidationMixin
+from documents.src.domain.base import BaseValidationMixin
 from documents.src.enums import DocumentStatuses
 
 

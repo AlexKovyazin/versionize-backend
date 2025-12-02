@@ -25,7 +25,7 @@ CREATE_SCHEMA = TypeVar("CREATE_SCHEMA", bound=BaseModel)
 UPDATE_SCHEMA = TypeVar("UPDATE_SCHEMA", bound=BaseModel)
 OUT_SCHEMA = TypeVar("OUT_SCHEMA", bound=BaseModel)
 SEARCH_PARAMS = TypeVar("SEARCH_PARAMS", bound=BaseModel)
-COMMANDS = TypeVar("COMMANDS", bound=BaseCmd)
+COMMANDS = TypeVar("COMMANDS", bound=cmd.BaseCmd)
 HttpMethod = Literal["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"]
 
 

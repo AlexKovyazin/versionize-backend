@@ -1,4 +1,5 @@
 import hashlib
+from datetime import datetime, timezone
 from typing import AsyncGenerator
 from uuid import UUID
 
@@ -90,7 +91,7 @@ class DocumentService(
 
         return await self.s3.get_upload_url(document_id)
 
-    async def sync_document_with_file(self, document_id: UUID) -> None:
+    async def sync_document_with_file(self, document_id: UUID) -> DocumentOut:
         """ Sync document with its uploaded file. """
 
         if not await self.s3.exists(document_id):
@@ -101,14 +102,18 @@ class DocumentService(
         async for chunk in file_stream:
             md5.update(chunk)
 
-        await self.repository.update(
+        updated_document = await self.repository.update(
             document_id,
             uploaded=True,
             md5=md5.hexdigest()
         )
+        updated_document = self.out_schema.model_validate(updated_document)
 
-    async def delete(self, document_id: UUID, **kwargs):
+        return updated_document
+
+    async def delete(self, document_id: UUID, **kwargs) -> datetime:
         """ Delete document from S3 and DB. """
 
         await self.s3.delete(document_id)
         await self.repository.delete(document_id)
+        return datetime.now(timezone.utc)
