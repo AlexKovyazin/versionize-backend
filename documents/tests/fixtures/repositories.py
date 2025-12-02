@@ -38,7 +38,7 @@ class FakeDocumentsRepository(IDocumentsRepository):
     ) -> OrmDocument:
         ...
 
-    async def get_many(
+    async def list(
             self,
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),

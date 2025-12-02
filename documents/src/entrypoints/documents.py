@@ -25,7 +25,7 @@ document_events = DocumentEvents(service_name="documents", entity_name="Document
 
 @broker_router.subscriber(document_commands.create, stream=streams.cmd)
 @broker_router.publisher(document_events.created, stream=streams.events)
-async def create(
+async def create_document(
         data: DocumentIn,
         document_service: FromDishka[DocumentService],
         cor_id: str = Context("message.correlation_id"),
@@ -36,7 +36,7 @@ async def create(
 
 
 @api_router.get("/{document_id}", response_model=DocumentOut)
-async def get(
+async def get_document(
         document_id: UUID,
         document_service: FromDishka[DocumentService],
 ):
@@ -45,12 +45,12 @@ async def get(
 
 
 @api_router.get("", response_model=list[DocumentOut])
-async def get_many(
+async def get_documents_list(
         document_service: FromDishka[DocumentService],
         data: DocumentsSearch = Depends(),
 ):
     """Get all documents descriptions by provided fields."""
-    return await document_service.get_many(
+    return await document_service.list(
         **data.model_dump(exclude_none=True)
     )
 
@@ -101,7 +101,7 @@ async def upload_callback(
 
 @broker_router.subscriber(document_commands.update, stream=streams.cmd)
 @broker_router.publisher(document_events.updated, stream=streams.events)
-async def update(
+async def update_document(
         update_data: DocumentUpdateCmd,
         document_service: FromDishka[DocumentService],
         cor_id: str = Context("message.correlation_id"),
@@ -117,7 +117,7 @@ async def update(
 
 @broker_router.subscriber(document_commands.delete, stream=streams.cmd)
 @broker_router.publisher(document_events.deleted, stream=streams.events)
-async def delete(
+async def delete_document(
         document_id: UUID,
         document_service: FromDishka[DocumentService],
         cor_id: str = Context("message.correlation_id"),
