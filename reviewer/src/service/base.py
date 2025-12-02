@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from typing import TypeVar, Generic, Type
 from uuid import UUID
 
@@ -68,8 +69,9 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
         updated_entity = self.out_schema.model_validate(updated_entity)
         return updated_entity
 
-    async def delete(self, entity_id: UUID, **kwargs) -> None:
+    async def delete(self, entity_id: UUID, **kwargs) -> datetime:
         await self.repository.delete(entity_id)
+        return datetime.now(timezone.utc)
 
 
 class IRemarkService(IGenericService, ABC):

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from reviewer.src.domain.tools import BaseValidationMixin
+from reviewer.src.domain.base import BaseValidationMixin
 
 
 class RemarkDocIn(BaseModel):

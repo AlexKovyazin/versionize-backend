@@ -10,6 +10,7 @@ from reviewer.src.adapters.broker import streams
 from reviewer.src.adapters.broker.cmd import RemarkDocCmd
 from reviewer.src.adapters.broker.events import RemarkDocEvents
 from reviewer.src.config.logging import request_id_var
+from reviewer.src.domain.base import EntityDeletedEvent
 from reviewer.src.domain.remark_doc import RemarkDocIn, RemarkDocOut, RemarkDocsSearchParams, RemarkDocUpdateCmd
 from reviewer.src.service.remark_doc import RemarkDocService
 
@@ -26,8 +27,9 @@ async def create_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
         data: RemarkDocIn,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> RemarkDocOut:
     """ Create a new remark doc. """
+
     request_id_var.set(cor_id)
     return await remark_doc_service.create(data)
 
@@ -36,8 +38,9 @@ async def create_remark_doc(
 async def get_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
         remark_doc_id: UUID,
-):
+) -> RemarkDocOut:
     """Get specified remark doc. """
+
     return await remark_doc_service.get(id=remark_doc_id)
 
 
@@ -45,8 +48,9 @@ async def get_remark_doc(
 async def get_remark_docs_list(
         remark_doc_service: FromDishka[RemarkDocService],
         data: RemarkDocsSearchParams = Depends(),
-):
+) -> list[RemarkDocOut]:
     """Get all remark docs by provided fields."""
+
     return await remark_doc_service.list(
         **data.model_dump(exclude_none=True)
     )
@@ -58,8 +62,9 @@ async def update_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
         update_data: RemarkDocUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> RemarkDocOut:
     """ Update specified remark docs. """
+
     request_id_var.set(cor_id)
     remark_doc = await remark_doc_service.update(
         update_data.id,
@@ -74,7 +79,9 @@ async def delete_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
         remark_doc_id: UUID,
         cor_id: str = Context("message.correlation_id"),
-):
+) -> EntityDeletedEvent:
     """ Delete specified remark doc. """
+
     request_id_var.set(cor_id)
-    await remark_doc_service.delete(remark_doc_id)
+    deleted_at = await remark_doc_service.delete(remark_doc_id)
+    return EntityDeletedEvent(id=remark_doc_id, deleted_at=deleted_at)
