@@ -10,8 +10,8 @@ from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import DefaultSectionCmd
 from projects.src.adapters.broker.events import DefaultSectionEvents
 from projects.src.config.logging import request_id_var
-from projects.src.domain.section import DefaultSectionIn, DefaultSectionOut
-from projects.src.domain.section import DefaultSectionsSearch, DefaultSectionUpdateCmd
+from projects.src.domain.default_section import DefaultSectionIn, DefaultSectionOut
+from projects.src.domain.default_section import DefaultSectionsSearch, DefaultSectionUpdateCmd
 from projects.src.service.default_section import DefaultSectionService
 
 broker_router = NatsRouter()

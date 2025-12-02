@@ -1,14 +1,6 @@
-from projects.src.adapters.orm import OrmSection, OrmDefaultSection
-from projects.src.adapters.repositories.base import GenericRepository, ISectionsRepository, IDefaultSectionsRepository
-from projects.src.domain.section import SectionIn, DefaultSectionIn
-
-
-class DefaultSectionsRepository(
-    IDefaultSectionsRepository,
-    GenericRepository[OrmDefaultSection, DefaultSectionIn]
-):
-    """ DefaultSectionsRepository implementation. """
-    ...
+from projects.src.adapters.orm import OrmSection
+from projects.src.adapters.repositories.base import GenericRepository, ISectionsRepository
+from projects.src.domain.section import SectionIn
 
 
 class SectionsRepository(

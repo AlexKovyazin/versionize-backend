@@ -2,10 +2,11 @@ from typing import AsyncIterable
 
 from dishka import provide, Scope, Provider
 
+from projects.src.adapters.repositories.default_sections import DefaultSectionsRepository
 from projects.src.adapters.repositories.projects import ProjectsRepository
-from projects.src.adapters.repositories.sections import SectionsRepository, DefaultSectionsRepository
-from projects.src.service.project import ProjectService
+from projects.src.adapters.repositories.sections import SectionsRepository
 from projects.src.service.default_section import DefaultSectionService
+from projects.src.service.project import ProjectService
 from projects.src.service.section import SectionService
 from projects.src.service.uow import UnitOfWork
 

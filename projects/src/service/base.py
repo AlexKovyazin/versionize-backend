@@ -5,8 +5,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from projects.src.adapters.repositories.base import IGenericRepository
+from projects.src.domain.default_section import DefaultSectionIn, DefaultSectionOut
 from projects.src.domain.project import ProjectIn, ProjectOut
-from projects.src.domain.section import DefaultSectionIn, DefaultSectionOut
 from projects.src.domain.section import SectionIn, SectionOut
 
 REPO = TypeVar("REPO", bound=IGenericRepository)
