@@ -48,7 +48,7 @@ def run_read_app():
         'identity.src.read_app:get_read_app',
         factory=True,
         host="0.0.0.0",
-        port=settings.service_port,
+        port=settings.read_service_port,
         reload=True if settings.debug else False,
         reload_dirs=["/usr/src"]
     )
