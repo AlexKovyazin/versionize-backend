@@ -7,7 +7,7 @@ from nats.js.api import PubAck
 from pydantic import BaseModel
 
 from bff.src.adapters.broker.base import IBroker
-from bff.src.adapters.broker.cmd import BaseCmd
+from bff.src.adapters.broker import cmd
 from bff.src.adapters.broker.nats import Streams
 from bff.src.config.logging import request_id_var
 from bff.src.config.settings import settings
@@ -217,7 +217,7 @@ class IProjectsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IProjectsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.ProjectCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -235,7 +235,7 @@ class IDefaultSectionsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IDefaultSectionsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.DefaultSectionCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -253,7 +253,7 @@ class ISectionsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class ISectionsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.SectionCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -271,7 +271,7 @@ class IUsersReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IUsersWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.UserCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -289,7 +289,7 @@ class ICompaniesReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class ICompaniesWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.CompanyCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -307,7 +307,7 @@ class IRemarksReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IRemarksWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.RemarkCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -325,7 +325,7 @@ class IRemarkDocsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IRemarkDocsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.RemarkDocCmd):
         super().__init__(
             commands=commands,
             broker=broker
@@ -351,7 +351,7 @@ class IDocumentsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 
 class IDocumentsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
-    def __init__(self, broker: IBroker, commands: BaseCmd):
+    def __init__(self, broker: IBroker, commands: cmd.DocumentCmd):
         super().__init__(
             commands=commands,
             broker=broker
