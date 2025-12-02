@@ -26,8 +26,8 @@ document_events = DocumentEvents(service_name="documents", entity_name="Document
 @broker_router.subscriber(document_commands.create, stream=streams.cmd)
 @broker_router.publisher(document_events.created, stream=streams.events)
 async def create_document(
-        data: DocumentIn,
         document_service: FromDishka[DocumentService],
+        data: DocumentIn,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new document metadata. """
@@ -37,8 +37,8 @@ async def create_document(
 
 @api_router.get("/{document_id}", response_model=DocumentOut)
 async def get_document(
-        document_id: UUID,
         document_service: FromDishka[DocumentService],
+        document_id: UUID,
 ):
     """Get document description without document file."""
     return await document_service.get(id=document_id)
@@ -57,8 +57,8 @@ async def get_documents_list(
 
 @api_router.get("/{document_id}/get-download-url", response_model=S3DownloadResponse)
 async def get_download_url(
-        document_id: UUID,
         document_service: FromDishka[DocumentService],
+        document_id: UUID,
 ):
     """ Get download URL for specified file. """
     try:
@@ -75,8 +75,8 @@ async def get_download_url(
 
 @api_router.get("/{document_id}/get-upload-url", response_model=S3UploadResponse)
 async def get_upload_url(
-        document_id: UUID,
         document_service: FromDishka[DocumentService],
+        document_id: UUID,
 ):
     """ Get upload URL for specified file. """
     url = await document_service.get_upload_url(document_id)
@@ -89,8 +89,8 @@ async def get_upload_url(
 @broker_router.subscriber(document_commands.sync, stream=streams.cmd)
 @broker_router.publisher(document_events.uploaded, stream=streams.events)
 async def upload_callback(
-        document_id: UUID,
         document_service: FromDishka[DocumentService],
+        document_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Upload callback for specified file. """
@@ -102,8 +102,8 @@ async def upload_callback(
 @broker_router.subscriber(document_commands.update, stream=streams.cmd)
 @broker_router.publisher(document_events.updated, stream=streams.events)
 async def update_document(
-        update_data: DocumentUpdateCmd,
         document_service: FromDishka[DocumentService],
+        update_data: DocumentUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified document. """
@@ -118,8 +118,8 @@ async def update_document(
 @broker_router.subscriber(document_commands.delete, stream=streams.cmd)
 @broker_router.publisher(document_events.deleted, stream=streams.events)
 async def delete_document(
-        document_id: UUID,
         document_service: FromDishka[DocumentService],
+        document_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """Delete a document from S3 and DB."""

@@ -23,8 +23,8 @@ company_events = CompanyEvents(service_name="identity", entity_name="Company")
 @broker_router.subscriber(company_commands.create, stream=streams.cmd)
 @broker_router.publisher(company_events.created, stream=streams.events)
 async def create_company(
-        data: CompanyBase,
         companies_service: FromDishka[CompaniesService],
+        data: CompanyBase,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new company. """
@@ -34,8 +34,8 @@ async def create_company(
 
 @api_router.get("/{company_id}", response_model=Company)
 async def get_company(
-        company_id: UUID,
         companies_service: FromDishka[CompaniesService],
+        company_id: UUID,
 ):
     """Get specified company. """
     return await companies_service.get(id=company_id)
@@ -55,8 +55,8 @@ async def get_companies_list(
 @broker_router.subscriber(company_commands.update, stream=streams.cmd)
 @broker_router.publisher(company_events.updated, stream=streams.events)
 async def update_company(
-        update_data: CompaniesUpdateCmd,
         companies_service: FromDishka[CompaniesService],
+        update_data: CompaniesUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified companies. """
@@ -71,8 +71,8 @@ async def update_company(
 @broker_router.subscriber(company_commands.delete, stream=streams.cmd)
 @broker_router.publisher(company_events.deleted, stream=streams.events)
 async def delete_company(
-        company_id: UUID,
         companies_service: FromDishka[CompaniesService],
+        company_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified companies. """

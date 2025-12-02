@@ -28,8 +28,8 @@ default_section_events = DefaultSectionEvents(
 @broker_router.subscriber(default_section_commands.create, stream=streams.cmd)
 @broker_router.publisher(default_section_events.created, stream=streams.events)
 async def create_default_section(
-        data: DefaultSectionIn,
         default_section_service: FromDishka[DefaultSectionService],
+        data: DefaultSectionIn,
         cor_id: str = Context("message.correlation_id")
 ):
     """ Create a new default section. """
@@ -39,8 +39,8 @@ async def create_default_section(
 
 @api_router.get("/{default_section_id}", response_model=DefaultSectionOut)
 async def get_default_section(
+        default_section_service: FromDishka[DefaultSectionService],
         default_section_id: UUID,
-        default_section_service: FromDishka[DefaultSectionService]
 ):
     """Get specified default section. """
     return await default_section_service.get(id=default_section_id)
@@ -60,8 +60,8 @@ async def get_default_sections_list(
 @broker_router.subscriber(default_section_commands.update, stream=streams.cmd)
 @broker_router.publisher(default_section_events.updated, stream=streams.events)
 async def update_default_section(
-        update_data: DefaultSectionUpdateCmd,
         default_section_service: FromDishka[DefaultSectionService],
+        update_data: DefaultSectionUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified default sections. """
@@ -76,8 +76,8 @@ async def update_default_section(
 @broker_router.subscriber(default_section_commands.delete, stream=streams.cmd)
 @broker_router.publisher(default_section_events.deleted, stream=streams.events)
 async def delete_default_section(
-        default_section_id: UUID,
         default_section_service: FromDishka[DefaultSectionService],
+        default_section_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified default section. """

@@ -23,8 +23,8 @@ section_events = SectionEvents(service_name="projects", entity_name="Section")
 @broker_router.subscriber(section_commands.create, stream=streams.cmd)
 @broker_router.publisher(section_events.created, stream=streams.events)
 async def create_section(
-        data: SectionIn,
         section_service: FromDishka[SectionService],
+        data: SectionIn,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new section. """
@@ -34,8 +34,8 @@ async def create_section(
 
 @api_router.get("/{section_id}", response_model=SectionOut)
 async def get_section(
-        section_id: UUID,
         section_service: FromDishka[SectionService],
+        section_id: UUID,
 ):
     """Get specified section. """
     return await section_service.get(id=section_id)
@@ -55,8 +55,8 @@ async def get_sections_list(
 @broker_router.subscriber(section_commands.update, stream=streams.cmd)
 @broker_router.publisher(section_events.updated, stream=streams.events)
 async def update_section(
-        update_data: SectionUpdateCmd,
         section_service: FromDishka[SectionService],
+        update_data: SectionUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified sections. """
@@ -71,8 +71,8 @@ async def update_section(
 @broker_router.subscriber(section_commands.delete, stream=streams.cmd)
 @broker_router.publisher(section_events.deleted, stream=streams.events)
 async def delete_section(
-        section_id: UUID,
         section_service: FromDishka[SectionService],
+        section_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified section. """

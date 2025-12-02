@@ -23,8 +23,8 @@ remark_events = RemarkEvents(service_name="reviewer", entity_name="Remark")
 @broker_router.subscriber(remark_commands.create, stream=streams.cmd)
 @broker_router.publisher(remark_events.created, stream=streams.events)
 async def create_remark(
-        data: RemarkIn,
         remark_service: FromDishka[RemarkService],
+        data: RemarkIn,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new remark. """
@@ -34,8 +34,8 @@ async def create_remark(
 
 @api_router.get("/{remark_id}", response_model=RemarkOut)
 async def get_remark(
-        remark_id: UUID,
         remark_service: FromDishka[RemarkService],
+        remark_id: UUID,
 ):
     """Get specified remark. """
     return await remark_service.get(id=remark_id)
@@ -55,8 +55,8 @@ async def get_remarks_list(
 @broker_router.subscriber(remark_commands.update, stream=streams.cmd)
 @broker_router.publisher(remark_events.updated, stream=streams.events)
 async def update_remark(
-        update_data: RemarkUpdateCmd,
         remark_service: FromDishka[RemarkService],
+        update_data: RemarkUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified remarks. """
@@ -71,8 +71,8 @@ async def update_remark(
 @broker_router.subscriber(remark_commands.delete, stream=streams.cmd)
 @broker_router.publisher(remark_events.deleted, stream=streams.events)
 async def delete_remark(
-        remark_id: UUID,
         remark_service: FromDishka[RemarkService],
+        remark_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified remark. """

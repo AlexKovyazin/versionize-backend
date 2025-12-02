@@ -23,8 +23,8 @@ project_events = ProjectEvents(service_name="projects", entity_name="Project")
 @broker_router.subscriber(project_commands.create, stream=streams.cmd)
 @broker_router.publisher(project_events.created, stream=streams.events)
 async def create_project(
-        data: ProjectIn,
         project_service: FromDishka[ProjectService],
+        data: ProjectIn,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Create a new project. """
@@ -34,8 +34,8 @@ async def create_project(
 
 @api_router.get("/{project_id}", response_model=ProjectOut)
 async def get_project(
-        project_id: UUID,
         project_service: FromDishka[ProjectService],
+        project_id: UUID,
 ):
     """Get specified project. """
     return await project_service.get(id=project_id)
@@ -55,8 +55,8 @@ async def get_projects_list(
 @broker_router.subscriber(project_commands.update, stream=streams.cmd)
 @broker_router.publisher(project_events.updated, stream=streams.events)
 async def update_project(
-        update_data: ProjectUpdateCmd,
         project_service: FromDishka[ProjectService],
+        update_data: ProjectUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified projects. """
@@ -71,8 +71,8 @@ async def update_project(
 @broker_router.subscriber(project_commands.delete, stream=streams.cmd)
 @broker_router.publisher(project_events.deleted, stream=streams.events)
 async def delete_project(
-        project_id: UUID,
         project_service: FromDishka[ProjectService],
+        project_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified project. """

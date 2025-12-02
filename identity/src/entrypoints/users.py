@@ -22,8 +22,8 @@ user_events = UserEvents(service_name="identity", entity_name="User")
 
 @api_router.get("/{user_id}", response_model=User)
 async def get_user(
-        user_id: UUID,
         user_service: FromDishka[UserService],
+        user_id: UUID,
 ):
     """Get specified user. """
     return await user_service.get(id=user_id)
@@ -43,8 +43,8 @@ async def get_users_list(
 @broker_router.subscriber(user_commands.update, stream=streams.cmd)
 @broker_router.publisher(user_events.updated, stream=streams.events)
 async def update_user(
-        update_data: UserUpdateCmd,
         user_service: FromDishka[UserService],
+        update_data: UserUpdateCmd,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Update specified user. """
@@ -59,8 +59,8 @@ async def update_user(
 @broker_router.subscriber(user_commands.delete, stream=streams.cmd)
 @broker_router.publisher(user_events.deleted, stream=streams.events)
 async def delete_user(
-        user_id: UUID,
         user_service: FromDishka[UserService],
+        user_id: UUID,
         cor_id: str = Context("message.correlation_id"),
 ):
     """ Delete specified user. """
