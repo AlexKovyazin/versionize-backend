@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from identity.src.adapters.broker import streams
 from identity.src.adapters.broker.cmd import CompanyCmd
@@ -21,7 +22,12 @@ company_commands = CompanyCmd(service_name="identity", entity_name="Company")
 company_events = CompanyEvents(service_name="identity", entity_name="Company")
 
 
-@broker_router.subscriber(company_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    company_commands.create,
+    stream=streams.cmd,
+    queue="companies-create-workers",
+    config=ConsumerConfig(durable_name="companies-create")
+)
 @broker_router.publisher(company_events.created, stream=streams.events)
 async def create_company(
         companies_service: FromDishka[CompaniesService],
@@ -56,7 +62,12 @@ async def get_companies_list(
     )
 
 
-@broker_router.subscriber(company_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    company_commands.update,
+    stream=streams.cmd,
+    queue="companies-update-workers",
+    config=ConsumerConfig(durable_name="companies-update")
+)
 @broker_router.publisher(company_events.updated, stream=streams.events)
 async def update_company(
         companies_service: FromDishka[CompaniesService],
@@ -73,7 +84,12 @@ async def update_company(
     return company
 
 
-@broker_router.subscriber(company_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    company_commands.delete,
+    stream=streams.cmd,
+    queue="companies-delete-workers",
+    config=ConsumerConfig(durable_name="companies-delete")
+)
 @broker_router.publisher(company_events.deleted, stream=streams.events)
 async def delete_company(
         companies_service: FromDishka[CompaniesService],

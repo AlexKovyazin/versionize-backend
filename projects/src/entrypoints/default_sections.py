@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import DefaultSectionCmd
@@ -26,7 +27,12 @@ default_section_events = DefaultSectionEvents(
 )
 
 
-@broker_router.subscriber(default_section_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    default_section_commands.create,
+    stream=streams.cmd,
+    queue="default-sections-create-workers",
+    config=ConsumerConfig(durable_name="default-sections-create")
+)
 @broker_router.publisher(default_section_events.created, stream=streams.events)
 async def create_default_section(
         default_section_service: FromDishka[DefaultSectionService],
@@ -61,7 +67,12 @@ async def get_default_sections_list(
     )
 
 
-@broker_router.subscriber(default_section_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    default_section_commands.update,
+    stream=streams.cmd,
+    queue="default-sections-update-workers",
+    config=ConsumerConfig(durable_name="default-sections-update")
+)
 @broker_router.publisher(default_section_events.updated, stream=streams.events)
 async def update_default_section(
         default_section_service: FromDishka[DefaultSectionService],
@@ -78,7 +89,12 @@ async def update_default_section(
     return default_section
 
 
-@broker_router.subscriber(default_section_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    default_section_commands.delete,
+    stream=streams.cmd,
+    queue="default-sections-delete-workers",
+    config=ConsumerConfig(durable_name="default-sections-delete")
+)
 @broker_router.publisher(default_section_events.deleted, stream=streams.events)
 async def delete_default_section(
         default_section_service: FromDishka[DefaultSectionService],

@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from reviewer.src.adapters.broker import streams
 from reviewer.src.adapters.broker.cmd import RemarkDocCmd
@@ -21,7 +22,12 @@ remark_doc_commands = RemarkDocCmd(service_name="reviewer", entity_name="RemarkD
 remark_doc_events = RemarkDocEvents(service_name="reviewer", entity_name="RemarkDoc")
 
 
-@broker_router.subscriber(remark_doc_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_doc_commands.create,
+    stream=streams.cmd,
+    queue="remark-docs-create-workers",
+    config=ConsumerConfig(durable_name="remark-docs-create")
+)
 @broker_router.publisher(remark_doc_events.created, stream=streams.events)
 async def create_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
@@ -56,7 +62,12 @@ async def get_remark_docs_list(
     )
 
 
-@broker_router.subscriber(remark_doc_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_doc_commands.update,
+    stream=streams.cmd,
+    queue="remark-docs-update-workers",
+    config=ConsumerConfig(durable_name="remark-docs-update")
+)
 @broker_router.publisher(remark_doc_events.updated, stream=streams.events)
 async def update_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],
@@ -73,7 +84,12 @@ async def update_remark_doc(
     return remark_doc
 
 
-@broker_router.subscriber(remark_doc_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_doc_commands.delete,
+    stream=streams.cmd,
+    queue="remark-docs-delete-workers",
+    config=ConsumerConfig(durable_name="remark-docs-delete")
+)
 @broker_router.publisher(remark_doc_events.deleted, stream=streams.events)
 async def delete_remark_doc(
         remark_doc_service: FromDishka[RemarkDocService],

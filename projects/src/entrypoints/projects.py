@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import ProjectCmd
@@ -21,7 +22,12 @@ project_commands = ProjectCmd(service_name="projects", entity_name="Project")
 project_events = ProjectEvents(service_name="projects", entity_name="Project")
 
 
-@broker_router.subscriber(project_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    project_commands.create,
+    stream=streams.cmd,
+    queue="projects-create-workers",
+    config=ConsumerConfig(durable_name="projects-create")
+)
 @broker_router.publisher(project_events.created, stream=streams.events)
 async def create_project(
         project_service: FromDishka[ProjectService],
@@ -56,7 +62,12 @@ async def get_projects_list(
     )
 
 
-@broker_router.subscriber(project_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    project_commands.update,
+    stream=streams.cmd,
+    queue="projects-update-workers",
+    config=ConsumerConfig(durable_name="projects-update")
+)
 @broker_router.publisher(project_events.updated, stream=streams.events)
 async def update_project(
         project_service: FromDishka[ProjectService],
@@ -73,7 +84,12 @@ async def update_project(
     return project
 
 
-@broker_router.subscriber(project_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    project_commands.delete,
+    stream=streams.cmd,
+    queue="projects-delete-workers",
+    config=ConsumerConfig(durable_name="projects-delete")
+)
 @broker_router.publisher(project_events.deleted, stream=streams.events)
 async def delete_project(
         project_service: FromDishka[ProjectService],

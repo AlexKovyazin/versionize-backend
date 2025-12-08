@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi import HTTPException
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from documents.src.adapters.broker import streams
 from documents.src.adapters.broker.cmd import DocumentCmd
@@ -24,7 +25,12 @@ document_commands = DocumentCmd(service_name="documents", entity_name="Document"
 document_events = DocumentEvents(service_name="documents", entity_name="Document")
 
 
-@broker_router.subscriber(document_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    document_commands.create,
+    stream=streams.cmd,
+    queue="documents-create-workers",
+    config=ConsumerConfig(durable_name="documents-create")
+)
 @broker_router.publisher(document_events.created, stream=streams.events)
 async def create_document(
         document_service: FromDishka[DocumentService],
@@ -92,7 +98,12 @@ async def get_upload_url(
     )
 
 
-@broker_router.subscriber(document_commands.sync, stream=streams.cmd)
+@broker_router.subscriber(
+    document_commands.sync,
+    stream=streams.cmd,
+    queue="documents-sync-workers",
+    config=ConsumerConfig(durable_name="documents-sync")
+)
 @broker_router.publisher(document_events.uploaded, stream=streams.events)
 async def upload_callback(
         document_service: FromDishka[DocumentService],
@@ -105,7 +116,12 @@ async def upload_callback(
     return await document_service.sync_document_with_file(document_id)
 
 
-@broker_router.subscriber(document_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    document_commands.update,
+    stream=streams.cmd,
+    queue="documents-update-workers",
+    config=ConsumerConfig(durable_name="documents-update")
+)
 @broker_router.publisher(document_events.updated, stream=streams.events)
 async def update_document(
         document_service: FromDishka[DocumentService],
@@ -122,7 +138,12 @@ async def update_document(
     return document
 
 
-@broker_router.subscriber(document_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    document_commands.delete,
+    stream=streams.cmd,
+    queue="documents-delete-workers",
+    config=ConsumerConfig(durable_name="documents-delete")
+)
 @broker_router.publisher(document_events.deleted, stream=streams.events)
 async def delete_document(
         document_service: FromDishka[DocumentService],

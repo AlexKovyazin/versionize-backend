@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from identity.src.adapters.broker import streams
 from identity.src.adapters.broker.cmd import UserCmd
@@ -43,7 +44,12 @@ async def get_users_list(
     )
 
 
-@broker_router.subscriber(user_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    user_commands.update,
+    stream=streams.cmd,
+    queue="users-update-workers",
+    config=ConsumerConfig(durable_name="users-update")
+)
 @broker_router.publisher(user_events.updated, stream=streams.events)
 async def update_user(
         user_service: FromDishka[UserService],
@@ -60,7 +66,12 @@ async def update_user(
     return user
 
 
-@broker_router.subscriber(user_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    user_commands.delete,
+    stream=streams.cmd,
+    queue="users-delete-workers",
+    config=ConsumerConfig(durable_name="users-delete")
+)
 @broker_router.publisher(user_events.deleted, stream=streams.events)
 async def delete_user(
         user_service: FromDishka[UserService],

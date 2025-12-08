@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import SectionCmd
@@ -21,7 +22,12 @@ section_commands = SectionCmd(service_name="projects", entity_name="Section")
 section_events = SectionEvents(service_name="projects", entity_name="Section")
 
 
-@broker_router.subscriber(section_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    section_commands.create,
+    stream=streams.cmd,
+    queue="sections-create-workers",
+    config=ConsumerConfig(durable_name="sections-create")
+)
 @broker_router.publisher(section_events.created, stream=streams.events)
 async def create_section(
         section_service: FromDishka[SectionService],
@@ -55,7 +61,12 @@ async def get_sections_list(
     )
 
 
-@broker_router.subscriber(section_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    section_commands.update,
+    stream=streams.cmd,
+    queue="sections-update-workers",
+    config=ConsumerConfig(durable_name="sections-update")
+)
 @broker_router.publisher(section_events.updated, stream=streams.events)
 async def update_section(
         section_service: FromDishka[SectionService],
@@ -72,7 +83,12 @@ async def update_section(
     return section
 
 
-@broker_router.subscriber(section_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    section_commands.delete,
+    stream=streams.cmd,
+    queue="sections-delete-workers",
+    config=ConsumerConfig(durable_name="sections-delete")
+)
 @broker_router.publisher(section_events.deleted, stream=streams.events)
 async def delete_section(
         section_service: FromDishka[SectionService],

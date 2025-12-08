@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from faststream import Context
 from faststream.nats import NatsRouter
+from nats.js.api import ConsumerConfig
 
 from reviewer.src.adapters.broker import streams
 from reviewer.src.adapters.broker.cmd import RemarkCmd
@@ -21,7 +22,12 @@ remark_commands = RemarkCmd(service_name="reviewer", entity_name="Remark")
 remark_events = RemarkEvents(service_name="reviewer", entity_name="Remark")
 
 
-@broker_router.subscriber(remark_commands.create, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_commands.create,
+    stream=streams.cmd,
+    queue="remarks-create-workers",
+    config=ConsumerConfig(durable_name="remarks-create")
+)
 @broker_router.publisher(remark_events.created, stream=streams.events)
 async def create_remark(
         remark_service: FromDishka[RemarkService],
@@ -56,7 +62,12 @@ async def get_remarks_list(
     )
 
 
-@broker_router.subscriber(remark_commands.update, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_commands.update,
+    stream=streams.cmd,
+    queue="remarks-update-workers",
+    config=ConsumerConfig(durable_name="remarks-update")
+)
 @broker_router.publisher(remark_events.updated, stream=streams.events)
 async def update_remark(
         remark_service: FromDishka[RemarkService],
@@ -73,7 +84,12 @@ async def update_remark(
     return remark
 
 
-@broker_router.subscriber(remark_commands.delete, stream=streams.cmd)
+@broker_router.subscriber(
+    remark_commands.delete,
+    stream=streams.cmd,
+    queue="remarks-delete-workers",
+    config=ConsumerConfig(durable_name="remarks-delete")
+)
 @broker_router.publisher(remark_events.deleted, stream=streams.events)
 async def delete_remark(
         remark_service: FromDishka[RemarkService],
