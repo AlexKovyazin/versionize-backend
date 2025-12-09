@@ -25,8 +25,8 @@ class RetryMiddleware(BaseMiddleware):
             msg: StreamMessage[Any],
     ) -> Any:
         if any([settings.debug, settings.is_test, settings.local]):
-            max_retries = 1
-            delays = (1,)
+            max_retries = 2
+            delays = (1, 1)
         else:
             max_retries = self.max_retries
             delays = self.delays
