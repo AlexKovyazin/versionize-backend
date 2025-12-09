@@ -11,7 +11,7 @@ if ! nats -s $NATS_URL account report connections > /dev/null 2>&1; then
 fi
 echo "Connection exists"
 
-echo "Nats JetStream events stream creating"
+echo -e "\nNats JetStream events stream creating"
 if nats -s $NATS_URL stream add events --subjects "events.>" --ack --max-msgs=-1 --max-bytes=-1 --max-age=300s \
   --storage file --retention limits --max-msg-size=-1 --discard=old --replicas=1 \
   --max-msgs-per-subject=-1 --dupe-window=5m0s --no-allow-rollup --deny-delete --deny-purge; then
@@ -22,13 +22,24 @@ else
 fi
 sleep 1s
 
-echo "Nats JetStream cmd stream creating"
+echo -e "\nNats JetStream cmd stream creating"
 if nats -s $NATS_URL stream add cmd --subjects "cmd.>" --ack --max-msgs=-1 --max-bytes=-1 --max-age=300s \
   --storage file --retention limits --max-msg-size=-1 --discard=old --replicas=1 \
   --max-msgs-per-subject=-1 --dupe-window=5m0s --no-allow-rollup --deny-delete --deny-purge; then
   echo "Stream cmd is successfully created"
 else
   echo "Failed to create stream cmd"
+  exit 1
+fi
+sleep 1s
+
+echo -e "\nNats JetStream dlq stream creating"
+if nats -s $NATS_URL stream add dlq --subjects "dlq.>" --ack --max-msgs=-1 --max-bytes=-1 --max-age=300s \
+  --storage file --retention limits --max-msg-size=-1 --discard=old --replicas=1 \
+  --max-msgs-per-subject=-1 --dupe-window=5m0s --no-allow-rollup --deny-delete --deny-purge; then
+  echo "Stream dlq is successfully created"
+else
+  echo "Failed to create stream dlq"
   exit 1
 fi
 sleep 1s
