@@ -3,6 +3,8 @@ from typing import Literal, Generic, TypeVar
 from uuid import UUID
 
 import httpx
+from fastapi import HTTPException
+from httpx import HTTPStatusError
 from nats.js.api import PubAck
 from pydantic import BaseModel
 
@@ -153,10 +155,16 @@ class GenericServiceReadAdapter(
     ) -> OUT_SCHEMA:
         """ Get specified entity. """
 
-        response = await self._make_request(
-            f"{self.entity_prefix}/{entity_id}",
-            **kwargs
-        )
+        try:
+            response = await self._make_request(
+                f"{self.entity_prefix}/{entity_id}",
+                **kwargs
+            )
+        except HTTPStatusError as e:
+            if e.response.status_code == 404:
+                raise HTTPException(status_code=404)
+            raise e
+
         return self.out_schema.model_validate(response.json())
 
     async def list(
