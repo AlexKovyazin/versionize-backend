@@ -3,14 +3,12 @@ from uuid import UUID
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
-from faststream import Context
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
 from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import SectionCmd
 from projects.src.adapters.broker.events import SectionEvents
-from projects.src.config.logging import request_id_var
 from projects.src.domain.base import EntityDeletedEvent
 from projects.src.domain.section import SectionIn, SectionOut, SectionsSearch, SectionUpdateCmd
 from projects.src.service.section import SectionService
@@ -32,11 +30,8 @@ section_events = SectionEvents(service_name="projects", entity_name="Section")
 async def create_section(
         section_service: FromDishka[SectionService],
         data: SectionIn,
-        cor_id: str = Context("message.correlation_id"),
 ) -> SectionOut:
     """ Create a new section. """
-
-    request_id_var.set(cor_id)
     return await section_service.create(data)
 
 
@@ -71,11 +66,9 @@ async def get_sections_list(
 async def update_section(
         section_service: FromDishka[SectionService],
         update_data: SectionUpdateCmd,
-        cor_id: str = Context("message.correlation_id"),
 ) -> SectionOut:
     """ Update specified sections. """
 
-    request_id_var.set(cor_id)
     section = await section_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
@@ -93,10 +86,8 @@ async def update_section(
 async def delete_section(
         section_service: FromDishka[SectionService],
         section_id: UUID,
-        cor_id: str = Context("message.correlation_id"),
 ) -> EntityDeletedEvent:
     """ Delete specified section. """
 
-    request_id_var.set(cor_id)
     deleted_at = await section_service.delete(section_id)
     return EntityDeletedEvent(id=section_id, deleted_at=deleted_at)

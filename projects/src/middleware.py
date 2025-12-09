@@ -1,14 +1,37 @@
-import logging
 import time
 import traceback
 import uuid
-from typing import Callable
+from types import TracebackType
+from typing import Callable, Any
 
 from fastapi import Request
+from faststream import BaseMiddleware
+from faststream.broker.message import StreamMessage
 
-from projects.src.config.logging import user_ip_var, request_id_var
+from projects.src.config.logging import user_ip_var, request_id_var, logger
 
-logger = logging.getLogger(__name__)
+
+class FSLoggingMiddleware(BaseMiddleware):
+    async def on_consume(
+            self,
+            msg: StreamMessage[Any],
+    ) -> StreamMessage[Any]:
+        request_id_var.set(msg.correlation_id)
+        logger.info("Msg consumed")
+
+        return await super().on_consume(msg)
+
+    async def after_processed(
+            self,
+            exc_type: type[BaseException] | None = None,
+            exc_val: BaseException | None = None,
+            exc_tb: TracebackType | None = None,
+    ) -> bool | None:
+        logger.info("Msg processed")
+
+        return await super().after_processed(
+            exc_type, exc_val, exc_tb
+        )
 
 
 async def logging_middleware(request: Request, call_next: Callable):
@@ -21,10 +44,11 @@ async def logging_middleware(request: Request, call_next: Callable):
     user_ip_var.set(user_ip)
 
     start_time = time.time()
+    query_params = f"?{request.query_params}" if request.query_params else ""
 
     # Log request start
     logger.info(
-        f"Request {request.url.path} started",
+        f"Request {request.method} {request.url.path}{query_params} started",
         extra={
             "extra_fields": {
                 "request_id": request_id,
@@ -43,7 +67,7 @@ async def logging_middleware(request: Request, call_next: Callable):
 
         # Log request completion
         logger.info(
-            f"Request {request.url.path} completed",
+            f"Request {request.method} {request.url.path}{query_params} completed",
             extra={
                 "extra_fields": {
                     "request_id": request_id,

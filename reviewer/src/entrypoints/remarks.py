@@ -3,14 +3,12 @@ from uuid import UUID
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
-from faststream import Context
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
 from reviewer.src.adapters.broker import streams
 from reviewer.src.adapters.broker.cmd import RemarkCmd
 from reviewer.src.adapters.broker.events import RemarkEvents
-from reviewer.src.config.logging import request_id_var
 from reviewer.src.domain.base import EntityDeletedEvent
 from reviewer.src.domain.remark import RemarkIn, RemarkOut, RemarksSearchParams, RemarkUpdateCmd
 from reviewer.src.service.remark import RemarkService
@@ -32,11 +30,8 @@ remark_events = RemarkEvents(service_name="reviewer", entity_name="Remark")
 async def create_remark(
         remark_service: FromDishka[RemarkService],
         data: RemarkIn,
-        cor_id: str = Context("message.correlation_id"),
 ) -> RemarkOut:
     """ Create a new remark. """
-
-    request_id_var.set(cor_id)
     return await remark_service.create(data)
 
 
@@ -72,11 +67,9 @@ async def get_remarks_list(
 async def update_remark(
         remark_service: FromDishka[RemarkService],
         update_data: RemarkUpdateCmd,
-        cor_id: str = Context("message.correlation_id"),
 ) -> RemarkOut:
     """ Update specified remarks. """
 
-    request_id_var.set(cor_id)
     remark = await remark_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
@@ -94,10 +87,8 @@ async def update_remark(
 async def delete_remark(
         remark_service: FromDishka[RemarkService],
         remark_id: UUID,
-        cor_id: str = Context("message.correlation_id"),
 ) -> EntityDeletedEvent:
     """ Delete specified remark. """
 
-    request_id_var.set(cor_id)
     deleted_at = await remark_service.delete(remark_id)
     return EntityDeletedEvent(id=remark_id, deleted_at=deleted_at)

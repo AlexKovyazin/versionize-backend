@@ -3,14 +3,12 @@ from uuid import UUID
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
-from faststream import Context
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
 from projects.src.adapters.broker import streams
 from projects.src.adapters.broker.cmd import DefaultSectionCmd
 from projects.src.adapters.broker.events import DefaultSectionEvents
-from projects.src.config.logging import request_id_var
 from projects.src.domain.base import EntityDeletedEvent
 from projects.src.domain.default_section import DefaultSectionIn, DefaultSectionOut
 from projects.src.domain.default_section import DefaultSectionsSearch, DefaultSectionUpdateCmd
@@ -37,11 +35,8 @@ default_section_events = DefaultSectionEvents(
 async def create_default_section(
         default_section_service: FromDishka[DefaultSectionService],
         data: DefaultSectionIn,
-        cor_id: str = Context("message.correlation_id")
 ) -> DefaultSectionOut:
     """ Create a new default section. """
-
-    request_id_var.set(cor_id)
     return await default_section_service.create(data)
 
 
@@ -77,11 +72,9 @@ async def get_default_sections_list(
 async def update_default_section(
         default_section_service: FromDishka[DefaultSectionService],
         update_data: DefaultSectionUpdateCmd,
-        cor_id: str = Context("message.correlation_id"),
 ) -> DefaultSectionOut:
     """ Update specified default sections. """
 
-    request_id_var.set(cor_id)
     default_section = await default_section_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
@@ -99,10 +92,8 @@ async def update_default_section(
 async def delete_default_section(
         default_section_service: FromDishka[DefaultSectionService],
         default_section_id: UUID,
-        cor_id: str = Context("message.correlation_id"),
 ) -> EntityDeletedEvent:
     """ Delete specified default section. """
 
-    request_id_var.set(cor_id)
     deleted_at = await default_section_service.delete(default_section_id)
     return EntityDeletedEvent(id=default_section_id, deleted_at=deleted_at)

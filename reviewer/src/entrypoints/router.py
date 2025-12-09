@@ -7,9 +7,13 @@ from reviewer.src.entrypoints.remark_docs import broker_router as remark_docs_br
 from reviewer.src.entrypoints.remarks import api_router as remarks_api_router
 from reviewer.src.entrypoints.remarks import broker_router as remarks_broker_router
 from reviewer.src.entrypoints.service import router as service_router
+from reviewer.src.middleware import FSLoggingMiddleware
 
 router = APIRouter()
-broker = NatsBroker(settings.nats_url)
+broker = NatsBroker(
+    settings.nats_url,
+    middlewares=[FSLoggingMiddleware]
+)
 
 router.include_router(service_router, prefix="/service")
 

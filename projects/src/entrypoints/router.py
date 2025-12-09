@@ -9,9 +9,13 @@ from projects.src.entrypoints.projects import broker_router as project_broker_ro
 from projects.src.entrypoints.sections import api_router as section_api_router
 from projects.src.entrypoints.sections import broker_router as section_broker_router
 from projects.src.entrypoints.service import router as service_router
+from projects.src.middleware import FSLoggingMiddleware
 
 router = APIRouter()
-broker = NatsBroker(settings.nats_url)
+broker = NatsBroker(
+    settings.nats_url,
+    middlewares=[FSLoggingMiddleware]
+)
 
 router.include_router(service_router, prefix="/service")
 

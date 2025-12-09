@@ -4,14 +4,12 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException
-from faststream import Context
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
 from documents.src.adapters.broker import streams
 from documents.src.adapters.broker.cmd import DocumentCmd
 from documents.src.adapters.broker.events import DocumentEvents
-from documents.src.config.logging import request_id_var
 from documents.src.domain.base import EntityDeletedEvent
 from documents.src.domain.document import DocumentIn, DocumentOut, DocumentsSearch, DocumentUpdateCmd
 from documents.src.domain.s3 import S3DownloadResponse, S3UploadResponse
@@ -35,11 +33,8 @@ document_events = DocumentEvents(service_name="documents", entity_name="Document
 async def create_document(
         document_service: FromDishka[DocumentService],
         data: DocumentIn,
-        cor_id: str = Context("message.correlation_id"),
 ) -> DocumentOut:
     """ Create a new document metadata. """
-
-    request_id_var.set(cor_id)
     return await document_service.create(data)
 
 
@@ -108,11 +103,8 @@ async def get_upload_url(
 async def upload_callback(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
-        cor_id: str = Context("message.correlation_id"),
 ) -> DocumentOut:
     """ Upload callback for specified file. """
-
-    request_id_var.set(cor_id)
     return await document_service.sync_document_with_file(document_id)
 
 
@@ -126,11 +118,9 @@ async def upload_callback(
 async def update_document(
         document_service: FromDishka[DocumentService],
         update_data: DocumentUpdateCmd,
-        cor_id: str = Context("message.correlation_id"),
 ) -> DocumentOut:
     """ Update specified document. """
 
-    request_id_var.set(cor_id)
     document = await document_service.update(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
@@ -148,10 +138,8 @@ async def update_document(
 async def delete_document(
         document_service: FromDishka[DocumentService],
         document_id: UUID,
-        cor_id: str = Context("message.correlation_id"),
 ) -> EntityDeletedEvent:
     """Delete a document from S3 and DB."""
 
-    request_id_var.set(cor_id)
     deleted_at = await document_service.delete(document_id)
     return EntityDeletedEvent(id=document_id, deleted_at=deleted_at)
