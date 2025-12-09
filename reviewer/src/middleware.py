@@ -5,8 +5,7 @@ from types import TracebackType
 from typing import Callable, Any
 
 from fastapi import Request
-from faststream import BaseMiddleware
-from faststream.broker.message import StreamMessage
+from faststream import BaseMiddleware, StreamMessage
 
 from reviewer.src.config.logging import user_ip_var, request_id_var, logger
 
