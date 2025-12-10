@@ -129,6 +129,11 @@ class BaseServiceAdapter(IServiceAdapter):
     ) -> httpx.Response:
         """ Real implementation of cross service calls. """
 
+        request_headers = {
+            "X-Request-ID": request_id_var.get(),
+            **(headers or {}),
+        }
+
         async with httpx.AsyncClient() as client:
             response = await client.request(
                 method,
@@ -137,7 +142,7 @@ class BaseServiceAdapter(IServiceAdapter):
                 content=content,
                 data=data,
                 json=json,
-                headers=headers,
+                headers=request_headers,
                 cookies=cookies,
             )
             response.raise_for_status()
