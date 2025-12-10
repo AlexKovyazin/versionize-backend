@@ -11,7 +11,12 @@ from bff.src.config.logging import user_ip_var, request_id_var
 logger = logging.getLogger(__name__)
 
 
-async def logging_middleware(request: Request, call_next: Callable):
+async def logging_middleware(
+        request: Request,
+        call_next: Callable
+):
+    """ Fastapi logging middleware. """
+
     # Generate request ID
     request_id = request.headers.get('X-Request-ID', str(uuid.uuid4()))
     request_id_var.set(request_id)
@@ -21,10 +26,11 @@ async def logging_middleware(request: Request, call_next: Callable):
     user_ip_var.set(user_ip)
 
     start_time = time.time()
+    query_params = f"?{request.query_params}" if request.query_params else ""
 
     # Log request start
     logger.info(
-        f"Request {request.url.path} started",
+        f"Request {request.method} {request.url.path}{query_params} started",
         extra={
             "extra_fields": {
                 "request_id": request_id,
@@ -43,7 +49,7 @@ async def logging_middleware(request: Request, call_next: Callable):
 
         # Log request completion
         logger.info(
-            f"Request {request.url.path} completed",
+            f"Request {request.method} {request.url.path}{query_params} completed",
             extra={
                 "extra_fields": {
                     "request_id": request_id,
