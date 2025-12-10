@@ -9,6 +9,15 @@ from enum import Enum
 from logging.handlers import RotatingFileHandler
 from typing import Optional, Any
 
+
+COLORED_LEVELS = {
+    logging.DEBUG: "\033[36mDEBUG\033[0m",
+    logging.INFO: "\033[32mINFO\033[0m",
+    logging.WARNING: "\033[33mWARNING\033[0m",
+    logging.ERROR: "\033[31mERROR\033[0m",
+    logging.CRITICAL: "\033[91mCRITICAL\033[0m",
+}
+
 request_id_var: ContextVar[Optional[str]] = ContextVar('request_id', default=None)
 user_ip_var: ContextVar[Optional[str]] = ContextVar('user_ip', default=None)
 
@@ -34,13 +43,26 @@ class CustomJSONEncoder(json.JSONEncoder):
             return super().default(obj)
 
 
+class ColorizedFormatter(logging.Formatter):
+    def formatMessage(self, record: logging.LogRecord) -> str:
+        def expand_log_field(field: str, symbols: int) -> str:
+            """ Expands a log field by adding spaces. """
+            return field + (" " * (symbols - len(field)))
+
+        record.levelname = expand_log_field(
+            field=COLORED_LEVELS.get(record.levelno, record.levelname),
+            symbols=17,
+        )
+        return super().formatMessage(record)
+
+
 class JSONFormatter(logging.Formatter):
     def format(self, record):
         log_entry = {
             "timestamp": self.formatTime(record),
             "level": record.levelname,
             "message": record.getMessage(),
-            "service": "identity",
+            "service": "reviewer",
             "module": record.module,
             "function": record.funcName,
             "line": record.lineno,
@@ -104,7 +126,7 @@ def setup_logging():
     # Console handler (for development)
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
-    console_formatter = logging.Formatter(
+    console_formatter = ColorizedFormatter(
         '%(asctime)s - %(request_id)s - %(levelname)s - %(message)s'
     )
     console_handler.setFormatter(console_formatter)
@@ -112,7 +134,7 @@ def setup_logging():
 
     # File handler (for Loki via Promtail)
     file_handler = RotatingFileHandler(
-        '/var/log/identity.log',
+        '/var/log/reviewer.log',
         maxBytes=10 * 1024 * 1024,  # 10MB
         backupCount=5
     )
@@ -125,7 +147,7 @@ def setup_logging():
 
     # JSON file handler (structured logging)
     json_file_handler = RotatingFileHandler(
-        '/var/log/identity-json.log',
+        '/var/log/reviewer-json.log',
         maxBytes=10 * 1024 * 1024,  # 10MB
         backupCount=5
     )
