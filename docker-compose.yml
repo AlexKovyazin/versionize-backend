@@ -166,6 +166,45 @@ services:
       - "5604:5432"
     env_file:
       - reviewer/.env
+        
+  notifications-read:
+    container_name: notifications-read
+    build: ./notifications
+    command: [ "python", "-m", "notifications", "read" ]
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./notifications:/usr/src/notifications
+      - app_logs:/var/log
+    env_file:
+      - ./notifications/.env
+    depends_on:
+      - notifications_db
+
+  notifications-write:
+    container_name: notifications-write
+    build: ./notifications
+    command: [ "python", "-m", "notifications", "write" ]
+    ports:
+      - "8015:8015"
+    volumes:
+      - ./notifications:/usr/src/notifications
+      - app_logs:/var/log
+    env_file:
+      - ./notifications/.env
+    depends_on:
+      - notifications_db
+      - nats
+
+  notifications_db:
+    container_name: notifications_db
+    image: postgres:17.6
+    volumes:
+      - notifications_db_data:/var/lib/postgresql/data
+    ports:
+      - "5605:5432"
+    env_file:
+      - notifications/.env
 
   keycloak_db:
     image: postgres:17.6
@@ -264,6 +303,7 @@ volumes:
   identity_db_data:
   projects_db_data:
   reviewer_db_data:
+  notifications_db_data:
   keycloak_db_data:
   grafana-storage:
   app_logs:
