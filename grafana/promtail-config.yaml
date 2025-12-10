@@ -9,6 +9,7 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
+  # Documents service logs
   - job_name: documents-plain
     static_configs:
       - targets:
@@ -32,6 +33,191 @@ scrape_configs:
           job: documents-json-logs
           service: documents
           __path__: /var/log/documents-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            service: service
+            request_id: request_id
+      - labels:
+          level:
+          service:
+          request_id:
+
+  # Identity service logs
+  - job_name: identity-plain
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: identity-plain-logs
+          service: identity
+          __path__: /var/log/identity.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<request_id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}) - (?P<level>\w+) - (?P<message>.*)$'
+      - labels:
+          level:
+          request_id:
+
+  - job_name: identity-json
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: identity-json-logs
+          service: identity
+          __path__: /var/log/identity-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            service: service
+            request_id: request_id
+      - labels:
+          level:
+          service:
+          request_id:
+
+  # Projects service logs
+  - job_name: projects-plain
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: projects-plain-logs
+          service: projects
+          __path__: /var/log/projects.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<request_id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}) - (?P<level>\w+) - (?P<message>.*)$'
+      - labels:
+          level:
+          request_id:
+
+  - job_name: projects-json
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: projects-json-logs
+          service: projects
+          __path__: /var/log/projects-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            service: service
+            request_id: request_id
+      - labels:
+          level:
+          service:
+          request_id:
+
+  # Reviewer service logs
+  - job_name: reviewer-plain
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: reviewer-plain-logs
+          service: reviewer
+          __path__: /var/log/reviewer.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<request_id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}) - (?P<level>\w+) - (?P<message>.*)$'
+      - labels:
+          level:
+          request_id:
+
+  - job_name: reviewer-json
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: reviewer-json-logs
+          service: reviewer
+          __path__: /var/log/reviewer-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            service: service
+            request_id: request_id
+      - labels:
+          level:
+          service:
+          request_id:
+
+  # Notifications service logs
+  - job_name: notifications-plain
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: notifications-plain-logs
+          service: notifications
+          __path__: /var/log/notifications.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<request_id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}) - (?P<level>\w+) - (?P<message>.*)$'
+      - labels:
+          level:
+          request_id:
+
+  - job_name: notifications-json
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: notifications-json-logs
+          service: notifications
+          __path__: /var/log/notifications-json.log
+    pipeline_stages:
+      - json:
+          expressions:
+            level: level
+            message: message
+            timestamp: timestamp
+            service: service
+            request_id: request_id
+      - labels:
+          level:
+          service:
+          request_id:
+
+  # BFF service logs
+  - job_name: bff-plain
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: bff-plain-logs
+          service: bff
+          __path__: /var/log/bff.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) - (?P<request_id>[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}) - (?P<level>\w+) - (?P<message>.*)$'
+      - labels:
+          level:
+          request_id:
+
+  - job_name: bff-json
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: bff-json-logs
+          service: bff
+          __path__: /var/log/bff-json.log
     pipeline_stages:
       - json:
           expressions:

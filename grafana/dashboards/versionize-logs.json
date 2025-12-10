@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -130,8 +130,8 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "direction": "backward",
-          "editorMode": "builder",
-          "expr": "sum by(level) (count_over_time({job=\"documents-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt [$__auto]))",
+          "editorMode": "code",
+          "expr": "sum by(level) (count_over_time({job=~\".*-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt [$__auto]))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -295,9 +295,21 @@
                 "value": [
                   {
                     "title": "Filter by request_id",
-                    "url": "http://localhost:3000/d/adxw264/${__dashboard}?var-request_id=${__data.fields.request_id}"
+                    "url": "http://localhost:3000/d/ad2lwzs/${__dashboard}?var-request_id=${__data.fields.request_id}"
                   }
                 ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 105
               }
             ]
           }
@@ -325,7 +337,7 @@
           },
           "direction": "backward",
           "editorMode": "builder",
-          "expr": "{job=\"documents-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt",
+          "expr": "{job=~\".*-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt",
           "queryType": "range",
           "refId": "A"
         }
@@ -349,6 +361,9 @@
               },
               {
                 "path": "request_id"
+              },
+              {
+                "path": "service"
               }
             ],
             "keepTime": false,
@@ -382,15 +397,16 @@
             },
             "includeByName": {},
             "indexByName": {
-              "Line": 9,
+              "Line": 10,
               "Time": 1,
               "id": 4,
               "labelTypes": 3,
               "labels": 0,
-              "level": 6,
-              "message": 8,
-              "request_id": 7,
-              "timestamp": 5,
+              "level": 7,
+              "message": 9,
+              "request_id": 8,
+              "service": 5,
+              "timestamp": 6,
               "tsNs": 2
             },
             "renameByName": {}
@@ -432,8 +448,8 @@
         "allValue": ".*",
         "allowCustomValue": false,
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "c14c071f-d064-455e-850d-4ee859238529",
+          "value": "c14c071f-d064-455e-850d-4ee859238529"
         },
         "definition": "",
         "includeAll": true,
@@ -484,7 +500,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Documents logs",
-  "uid": "adxw264",
-  "version": 2
+  "title": "Versionize logs",
+  "uid": "ad2lwzs",
+  "version": 7
 }

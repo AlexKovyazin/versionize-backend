@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 0,
   "links": [],
   "panels": [
     {
@@ -130,8 +130,8 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "direction": "backward",
-          "editorMode": "builder",
-          "expr": "sum by(level) (count_over_time({job=\"documents-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt [$__auto]))",
+          "editorMode": "code",
+          "expr": "sum by(level) (count_over_time({job=\"reviewer-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt [$__auto]))",
           "legendFormat": "",
           "queryType": "instant",
           "refId": "A"
@@ -295,7 +295,7 @@
                 "value": [
                   {
                     "title": "Filter by request_id",
-                    "url": "http://localhost:3000/d/adxw264/${__dashboard}?var-request_id=${__data.fields.request_id}"
+                    "url": "http://localhost:3000/d/adpzzhg/${__dashboard}?var-request_id=${__data.fields.request_id}"
                   }
                 ]
               }
@@ -324,8 +324,8 @@
             "uid": "P8E80F9AEF21F6940"
           },
           "direction": "backward",
-          "editorMode": "builder",
-          "expr": "{job=\"documents-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt",
+          "editorMode": "code",
+          "expr": "{job=\"reviewer-json-logs\", request_id=~\"$request_id\", level=~\"$level\"} |= `$filter` | logfmt",
           "queryType": "range",
           "refId": "A"
         }
@@ -484,7 +484,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Documents logs",
-  "uid": "adxw264",
-  "version": 2
+  "title": "Reviewer logs",
+  "uid": "adpzzhg",
+  "version": 6
 }
