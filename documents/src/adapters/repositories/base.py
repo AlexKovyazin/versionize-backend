@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Sequence, TypeVar, Generic, Type
 from uuid import UUID
 
+from pydantic import BaseModel
 from sqlalchemy import Select, select, update, delete
 from sqlalchemy.orm import InstrumentedAttribute, load_only, defer
 
@@ -10,7 +11,7 @@ from documents.src.config.logging import logger
 from documents.src.service.uow import AbstractUnitOfWork
 
 MODEL = TypeVar("MODEL", bound=Base)
-IN_SCHEMA = TypeVar("IN_SCHEMA")
+IN_SCHEMA = TypeVar("IN_SCHEMA", bound=BaseModel)
 
 
 class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
@@ -28,7 +29,7 @@ class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> MODEL:
+    ) -> MODEL | None:
         ...
 
     @abstractmethod
@@ -41,7 +42,7 @@ class IGenericRepository(ABC, Generic[MODEL, IN_SCHEMA]):
         ...
 
     @abstractmethod
-    async def update(self, entity_id: UUID, **kwargs) -> MODEL:
+    async def update(self, entity_id: UUID, **kwargs) -> MODEL | None:
         ...
 
     @abstractmethod
@@ -70,7 +71,7 @@ class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
             include_fields: Sequence[InstrumentedAttribute] = (),
             exclude_fields: Sequence[InstrumentedAttribute] = (),
             **kwargs
-    ) -> MODEL:
+    ) -> MODEL | None:
         """
         Get specified entity from DB.
 
@@ -125,7 +126,7 @@ class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
 
         return db_entities
 
-    async def update(self, entity_id: UUID, **kwargs) -> MODEL:
+    async def update(self,  entity_id: UUID,  **kwargs ) -> MODEL | None:
         logger.info(
             f"Updating {self.model.__name__} with id {entity_id} in DB...",
             extra=kwargs
@@ -137,12 +138,16 @@ class GenericRepository(IGenericRepository[MODEL, IN_SCHEMA]):
             .returning(self.model)
         )
         result = await self.uow.session.execute(query)
-        db_entity = result.scalar_one()
-
-        logger.info(
-            f"{self.model.__name__} with id {entity_id} updated in DB",
-            extra=db_entity.to_dict()
-        )
+        db_entity = result.scalar_one_or_none()
+        if db_entity:
+            logger.info(
+                f"{self.model.__name__} with id {entity_id} updated in DB",
+                extra=db_entity.to_dict()
+            )
+        else:
+            logger.warning(
+                f"{self.model.__name__} with id {entity_id} not exist in DB"
+            )
         return db_entity
 
     async def delete(self, entity_id: UUID) -> None:

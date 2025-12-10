@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
@@ -42,7 +42,11 @@ async def get_project(
 ) -> ProjectOut:
     """Get specified project. """
 
-    return await project_service.get(id=project_id)
+    project = await project_service.get(id=project_id)
+    if not project:
+        raise HTTPException(status_code=404)
+
+    return project
 
 
 @api_router.get("", response_model=list[ProjectOut])
@@ -74,6 +78,9 @@ async def update_project(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not project:
+        raise Exception("Failed to update non-existent project")
+
     return project
 
 

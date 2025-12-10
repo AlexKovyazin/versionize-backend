@@ -32,7 +32,7 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         ...
 
     @abstractmethod
-    async def get(self, **kwargs) -> OUT_SCHEMA:
+    async def get(self, **kwargs) -> OUT_SCHEMA | None:
         ...
 
     @abstractmethod
@@ -40,7 +40,7 @@ class IGenericService(ABC, Generic[REPO, IN_SCHEMA, OUT_SCHEMA]):
         ...
 
     @abstractmethod
-    async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA:
+    async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA | None:
         ...
 
     @abstractmethod
@@ -56,18 +56,18 @@ class GenericService(IGenericService[REPO, IN_SCHEMA, OUT_SCHEMA]):
         created_entity = self.out_schema.model_validate(created_entity)
         return created_entity
 
-    async def get(self, **kwargs) -> OUT_SCHEMA:
+    async def get(self, **kwargs) -> OUT_SCHEMA | None:
         db_entity = await self.repository.get(**kwargs)
-        return self.out_schema.model_validate(db_entity)
+        return self.out_schema.model_validate(db_entity) if db_entity else None
 
     async def list(self, **kwargs) -> list[OUT_SCHEMA]:
         db_entity = await self.repository.list(**kwargs)
         return [self.out_schema.model_validate(d) for d in db_entity]
 
-    async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA:
+    async def update(self, entity_id: UUID, **kwargs) -> OUT_SCHEMA | None:
         updated_entity = await self.repository.update(entity_id, **kwargs)
         updated_entity = self.out_schema.model_validate(updated_entity)
-        return updated_entity
+        updated_entity = self.out_schema.model_validate(updated_entity) if updated_entity else None
 
     async def delete(self, entity_id: UUID, **kwargs) -> datetime:
         await self.repository.delete(entity_id)

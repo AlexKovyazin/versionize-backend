@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
@@ -42,7 +42,11 @@ async def get_company(
 ) -> Company:
     """Get specified company. """
 
-    return await companies_service.get(id=company_id)
+    company = await companies_service.get(id=company_id)
+    if not company:
+        raise HTTPException(status_code=404)
+
+    return company
 
 
 @api_router.get("", response_model=list[Company])
@@ -74,6 +78,9 @@ async def update_company(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not company:
+        raise Exception("Failed to update non-existent company")
+
     return company
 
 

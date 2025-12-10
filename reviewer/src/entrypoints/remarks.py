@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
@@ -42,6 +42,10 @@ async def get_remark(
 ) -> RemarkOut:
     """Get specified remark. """
 
+    remark = await remark_service.get(id=remark_id)
+    if not remark:
+        raise HTTPException(status_code=404)
+
     return await remark_service.get(id=remark_id)
 
 
@@ -74,6 +78,8 @@ async def update_remark(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not remark:
+        raise Exception("Failed to update non-existent remark")
     return remark
 
 

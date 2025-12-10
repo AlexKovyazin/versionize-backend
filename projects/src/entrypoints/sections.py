@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
@@ -41,7 +41,12 @@ async def get_section(
         section_id: UUID,
 ) -> SectionOut:
     """Get specified section. """
-    return await section_service.get(id=section_id)
+
+    section = await section_service.get(id=section_id)
+    if not section:
+        raise HTTPException(status_code=404)
+
+    return section
 
 
 @api_router.get("", response_model=list[SectionOut])
@@ -73,6 +78,9 @@ async def update_section(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not section:
+        raise Exception("Failed to update non-existent section")
+
     return section
 
 

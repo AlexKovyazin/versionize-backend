@@ -45,7 +45,11 @@ async def get_document(
 ) -> DocumentOut:
     """Get document description without document file."""
 
-    return await document_service.get(id=document_id)
+    document = await document_service.get(id=document_id)
+    if not document:
+        raise HTTPException(status_code=404)
+
+    return document
 
 
 @api_router.get("", response_model=list[DocumentOut])
@@ -125,6 +129,9 @@ async def update_document(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not document:
+        raise Exception("Failed to update non-existent document")
+
     return document
 
 

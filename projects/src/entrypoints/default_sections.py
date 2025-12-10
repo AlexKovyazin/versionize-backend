@@ -2,7 +2,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from faststream.nats import NatsRouter
 from nats.js.api import ConsumerConfig
 
@@ -47,7 +47,11 @@ async def get_default_section(
 ) -> DefaultSectionOut:
     """Get specified default section. """
 
-    return await default_section_service.get(id=default_section_id)
+    default_section = await default_section_service.get(id=default_section_id)
+    if not default_section:
+        raise HTTPException(status_code=404)
+
+    return default_section
 
 
 @api_router.get("", response_model=list[DefaultSectionOut])
@@ -79,6 +83,9 @@ async def update_default_section(
         update_data.id,
         **update_data.data.model_dump(exclude_none=True)
     )
+    if not default_section:
+        raise Exception("Failed to update non-existent default section")
+
     return default_section
 
 
