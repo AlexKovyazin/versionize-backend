@@ -3,8 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from notifications.src.domain.base import BaseValidationMixin
-from notifications.src.enums import NotificationType, NotificationStatus, NotificationPriority
+from bff.src.domain.base import BaseValidationMixin
+from bff.src.enums import NotificationType, NotificationStatus, NotificationPriority
 
 
 class NotificationIn(BaseModel):

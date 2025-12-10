@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
-from bff.src.domain.tools import BaseValidationMixin
+from bff.src.domain.base import BaseValidationMixin
 from bff.src.enums import ProjectType
 
 

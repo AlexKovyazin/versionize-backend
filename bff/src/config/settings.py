@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     identity_read_service_url: str = os.getenv("IDENTITY_READ_SERVICE_URL")
     reviewer_read_service_url: str = os.getenv("REVIEWER_READ_SERVICE_URL")
     documents_read_service_url: str = os.getenv("DOCUMENTS_READ_SERVICE_URL")
+    notifications_read_service_url: str = os.getenv("NOTIFICATIONS_READ_SERVICE_URL")
 
     # full path to the /get-user endpoint of identity service
     auth_service_url: str = os.getenv("AUTH_SERVICE_URL")

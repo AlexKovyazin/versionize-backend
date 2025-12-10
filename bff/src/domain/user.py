@@ -4,7 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from bff.src.domain.company import Company
-from bff.src.domain.tools import BaseValidationMixin
+from bff.src.domain.base import BaseValidationMixin
 from bff.src.enums import UserProjectRole
 
 

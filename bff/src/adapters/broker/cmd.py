@@ -74,3 +74,8 @@ class DocumentCmd(Singleton, BaseCmd):
     """ Implements all Document entity commands. """
 
     sync: str = f"cmd.documents.SyncDocumentFile"
+
+
+@dataclass(frozen=True, slots=True)
+class NotificationCmd(Singleton, BaseCmd):
+    """ Implements all Notification entity commands. """

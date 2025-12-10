@@ -8,13 +8,14 @@ from httpx import HTTPStatusError
 from nats.js.api import PubAck
 from pydantic import BaseModel
 
-from bff.src.adapters.broker.base import IBroker
 from bff.src.adapters.broker import cmd
+from bff.src.adapters.broker.base import IBroker
 from bff.src.adapters.broker.nats import Streams
 from bff.src.config.logging import request_id_var
 from bff.src.config.settings import settings
 from bff.src.domain.company import Company, CompaniesSearch
 from bff.src.domain.document import DocumentsSearch, DocumentOut
+from bff.src.domain.notification import NotificationsSearch, NotificationOut
 from bff.src.domain.project import ProjectsSearchParams, ProjectOut
 from bff.src.domain.remark import RemarksSearch, RemarkOut
 from bff.src.domain.remark_doc import RemarkDocsSearch, RemarkDocOut
@@ -360,6 +361,24 @@ class IDocumentsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
 
 class IDocumentsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
     def __init__(self, broker: IBroker, commands: cmd.DocumentCmd):
+        super().__init__(
+            commands=commands,
+            broker=broker
+        )
+
+
+class INotificationsReadServiceAdapter(IGenericReadServiceAdapter, ABC):
+    def __init__(self):
+        super().__init__(
+            service_url=settings.notifications_read_service_url,
+            entity_prefix="notifications",
+            search_params=NotificationsSearch,
+            out_schema=NotificationOut
+        )
+
+
+class INotificationsWriteServiceAdapter(IGenericWriteServiceAdapter, ABC):
+    def __init__(self, broker: IBroker, commands: cmd.NotificationCmd):
         super().__init__(
             commands=commands,
             broker=broker

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 
 
 class UserProjectRole(Enum):
@@ -38,3 +38,23 @@ class DocumentContentType(Enum):
     @classmethod
     def _value_set(cls):
         return {member.value for member in cls}
+
+
+class NotificationType(IntEnum):
+    PUSH = 1
+    EMAIL = 2
+    SMS = 3
+
+
+class NotificationStatus(IntEnum):
+    READ = 1
+    UNREAD = 2
+    SENT = 3
+    CANCELED = 4
+
+
+class NotificationPriority(IntEnum):
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    CRITICAL = 4
