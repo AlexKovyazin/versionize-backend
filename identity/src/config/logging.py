@@ -46,14 +46,13 @@ class CustomJSONEncoder(json.JSONEncoder):
 class ColorizedFormatter(logging.Formatter):
     def formatMessage(self, record: logging.LogRecord) -> str:
         def expand_log_field(field: str, symbols: int) -> str:
-            """ Expands a log field by adding spaces. """
             return field + (" " * (symbols - len(field)))
 
-        record.levelname = expand_log_field(
-            field=COLORED_LEVELS.get(record.levelno, record.levelname),
-            symbols=17,
-        )
-        return super().formatMessage(record)
+        level_name = COLORED_LEVELS.get(record.levelno, record.levelname)
+        level_name = expand_log_field(level_name, symbols=17)
+
+        message = super().formatMessage(record)
+        return message.replace(record.levelname, level_name, 1)
 
 
 class JSONFormatter(logging.Formatter):
