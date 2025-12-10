@@ -8,12 +8,15 @@ from identity.src.entrypoints.companies import broker_router as companies_broker
 from identity.src.entrypoints.service import router as service_router
 from identity.src.entrypoints.users import api_router as users_api_router
 from identity.src.entrypoints.users import broker_router as users_broker_router
-from identity.src.middleware import FSLoggingMiddleware
+from identity.src.middleware import FSLoggingMiddleware, RetryMiddleware
 
 router = APIRouter()
 broker = NatsBroker(
     settings.nats_url,
-    middlewares=[FSLoggingMiddleware]
+    middlewares=[
+        FSLoggingMiddleware,
+        RetryMiddleware
+    ]
 )
 
 router.include_router(auth_router, prefix="/auth")
