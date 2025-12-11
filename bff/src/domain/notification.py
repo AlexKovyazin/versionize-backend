@@ -31,7 +31,7 @@ class NotificationsSearch(BaseModel):
     status: NotificationStatus | None = None
     recipient_id: UUID | None = None
     title: str | None = None
-    notification_type: NotificationType
+    notification_type: NotificationType = None
     priority: NotificationPriority | None = None
 
 
