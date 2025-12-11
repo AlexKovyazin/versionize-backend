@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar, Generic, Type
+from typing import TypeVar, Generic, Type, AsyncGenerator
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -83,3 +83,19 @@ class IDocumentService(IGenericService, ABC):
             in_schema=DocumentIn,
             out_schema=DocumentOut
         )
+
+    @abstractmethod
+    async def download(self, document_id: UUID) -> tuple[str, AsyncGenerator]:
+        """ Download file from S3. """
+
+    @abstractmethod
+    async def get_download_url(self, document_id: UUID) -> tuple[str, str]:
+        """ Get S3 download url and filename. """
+
+    @abstractmethod
+    async def get_upload_url(self, document_id: UUID) -> str:
+        """  Get S3 upload url. """
+
+    @abstractmethod
+    async def sync_document_with_file(self, document_id: UUID) -> DocumentOut:
+        """ Sync document with its uploaded file. """
